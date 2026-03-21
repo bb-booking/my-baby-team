@@ -1,6 +1,10 @@
-import { milestones } from "@/lib/data";
+import { useFamily } from "@/context/FamilyContext";
+import { getMilestones } from "@/lib/phaseData";
 
 export function MilestoneTimeline() {
+  const { profile, currentWeek, babyAgeWeeks } = useFamily();
+  const milestones = getMilestones(profile.phase, currentWeek, babyAgeWeeks);
+
   return (
     <div className="card-soft section-fade-in" style={{ animationDelay: "400ms" }}>
       <h3 className="font-serif text-lg mb-4">Jeres rejse</h3>
@@ -25,9 +29,7 @@ export function MilestoneTimeline() {
             </div>
             {i < milestones.length - 1 && (
               <div
-                className={`w-4 h-0.5 mx-0.5 mt-[-18px] ${
-                  m.unlocked ? "bg-sage/50" : "bg-muted"
-                }`}
+                className={`w-4 h-0.5 mx-0.5 mt-[-18px] ${m.unlocked ? "bg-sage/50" : "bg-muted"}`}
               />
             )}
           </div>

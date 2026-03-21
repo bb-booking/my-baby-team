@@ -1,7 +1,11 @@
-import { currentWeek } from "@/lib/data";
+import { useFamily } from "@/context/FamilyContext";
+import { getWeekInsight } from "@/lib/phaseData";
 import { Sparkles } from "lucide-react";
 
 export function WeekInsight() {
+  const { currentWeek } = useFamily();
+  const data = getWeekInsight(currentWeek);
+
   return (
     <div className="card-soft section-fade-in" style={{ animationDelay: "100ms" }}>
       <div className="flex items-start gap-3">
@@ -10,12 +14,12 @@ export function WeekInsight() {
         </div>
         <div>
           <h3 className="font-serif text-lg mb-1">Denne uge</h3>
-          <p className="text-sm text-muted-foreground leading-relaxed">{currentWeek.insight}</p>
+          <p className="text-sm text-muted-foreground leading-relaxed">{data.insight}</p>
         </div>
       </div>
-      {currentWeek.milestone && (
+      {data.milestone && (
         <div className="mt-4 bg-sage-light rounded-xl px-4 py-3">
-          <p className="text-sm font-medium text-foreground">🎯 {currentWeek.milestone}</p>
+          <p className="text-sm font-medium text-foreground">🎯 {data.milestone}</p>
         </div>
       )}
     </div>
