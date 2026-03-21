@@ -1,5 +1,7 @@
+import { useFamily } from "@/context/FamilyContext";
+import { Heart } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
-import { Home, Baby, Users, Settings, Heart } from "lucide-react";
+import { Home, Baby, Users, Settings } from "lucide-react";
 
 const navItems = [
   { label: "Hjem", icon: Home, path: "/" },
@@ -10,6 +12,7 @@ const navItems = [
 
 export function DesktopSidebar() {
   const { pathname } = useLocation();
+  const { phaseLabel } = useFamily();
 
   return (
     <aside className="hidden md:flex flex-col w-64 bg-card border-r min-h-screen p-6">
@@ -41,10 +44,7 @@ export function DesktopSidebar() {
       </nav>
 
       <div className="bg-sand-light rounded-2xl p-4 mt-auto">
-        <p className="text-xs text-muted-foreground">Uge 20 af 40</p>
-        <div className="w-full h-2 rounded-full bg-muted mt-2 overflow-hidden">
-          <div className="h-full bg-sage rounded-full transition-all duration-700" style={{ width: "50%" }} />
-        </div>
+        <p className="text-xs text-muted-foreground">{phaseLabel}</p>
       </div>
     </aside>
   );

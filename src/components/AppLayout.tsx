@@ -1,8 +1,15 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, Navigate } from "react-router-dom";
 import { BottomNav } from "@/components/BottomNav";
 import { DesktopSidebar } from "@/components/DesktopSidebar";
+import { useFamily } from "@/context/FamilyContext";
 
 export default function AppLayout() {
+  const { profile } = useFamily();
+
+  if (!profile.onboarded) {
+    return <Navigate to="/onboarding" replace />;
+  }
+
   return (
     <div className="min-h-screen flex w-full bg-background">
       <DesktopSidebar />
