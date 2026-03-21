@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useFamily } from "@/context/FamilyContext";
 import { useDiary } from "@/context/DiaryContext";
 import { Users, TrendingUp, MessageCircle, Moon, ArrowLeftRight } from "lucide-react";
-import TaskList from "@/components/TaskList";
+import { TaskList } from "@/components/TaskList";
 
 export default function SammenPage() {
   const { profile, morName, farName, tasks } = useFamily();
