@@ -84,7 +84,7 @@ function QuickStatsStrip({ babyAgeWeeks, babyAgeMonths, childName }: { babyAgeWe
       className="rounded-2xl border overflow-hidden section-fade-in"
       style={{ borderColor: "hsl(var(--stone-light))", animationDelay: "60ms" }}
     >
-      <div className="grid grid-cols-4 divide-x" style={{ divideColor: "hsl(var(--stone-lighter))" }}>
+      <div className="grid grid-cols-4 divide-x divide-[hsl(var(--stone-lighter))]">
         {stats.map((s) => (
           <div key={s.label} className="flex flex-col items-center py-3 px-1.5 gap-0.5">
             <span className="text-base">{s.emoji}</span>
