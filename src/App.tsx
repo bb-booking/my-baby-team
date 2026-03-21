@@ -9,6 +9,7 @@ import Dashboard from "@/pages/Dashboard";
 import BarnPage from "@/pages/BarnPage";
 import SammenPage from "@/pages/SammenPage";
 import MerePage from "@/pages/MerePage";
+import DagbogPage from "@/pages/DagbogPage";
 import OnboardingPage from "@/pages/OnboardingPage";
 import NotFound from "@/pages/NotFound";
 
@@ -26,6 +27,7 @@ const App = () => (
             <Route element={<AppLayout />}>
               <Route path="/" element={<Dashboard />} />
               <Route path="/barn" element={<BarnPage />} />
+              <Route path="/dagbog" element={<DagbogPage />} />
               <Route path="/sammen" element={<SammenPage />} />
               <Route path="/mere" element={<MerePage />} />
             </Route>
