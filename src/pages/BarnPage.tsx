@@ -1,59 +1,73 @@
 import { useFamily } from "@/context/FamilyContext";
-import { Baby as BabyIcon, Ruler, Brain, Eye, Moon, Smile, Hand } from "lucide-react";
 import { getBabyInsight } from "@/lib/phaseData";
+import { Baby as BabyIcon, Ruler, Brain, Eye, Smile, Hand, Moon } from "lucide-react";
 
 export default function BarnPage() {
   const { profile, currentWeek, babyAgeWeeks, babyAgeMonths } = useFamily();
 
-  if (profile.phase === "pregnant") {
-    return <PregnantBarnPage week={currentWeek} />;
-  }
-
+  if (profile.phase === "pregnant") return <PregnantBarnPage week={currentWeek} />;
   return <BornBarnPage ageWeeks={babyAgeWeeks} ageMonths={babyAgeMonths} />;
 }
 
 function PregnantBarnPage({ week }: { week: number }) {
-  const developments = [
-    { icon: Ruler, label: "Størrelse", value: `~${Math.round(week * 1.25)} cm`, detail: "Fra hoved til hale" },
-    { icon: Brain, label: "Hjerne", value: "Udvikler sig", detail: "Nye nerve-forbindelser dannes" },
-    { icon: Eye, label: "Sanser", value: week >= 18 ? "Hører lyde" : "Under udvikling", detail: week >= 18 ? "Reagerer på stemmer" : "Gradvis aktivering" },
+  const tracks = [
+    {
+      emoji: "🌱", title: "Baby", sub: "Udvikling",
+      color: "hsl(var(--sage) / 0.1)",
+      items: [
+        `Ca. ${Math.round(week * 1.25)} cm lang`,
+        week >= 18 ? "Kan høre lyde udefra" : "Sanser under udvikling",
+        "Nerve-forbindelser dannes",
+      ],
+    },
+    {
+      emoji: "🤰", title: "Mor", sub: "Krop & helbred",
+      color: "hsl(var(--clay) / 0.1)",
+      items: [
+        week >= 20 ? "Maven er tydeligt synlig" : "Små ændringer i kroppen",
+        "Husk daglig folsyre",
+        week >= 16 ? "Mærker måske de første spark" : "Kvalme kan aftage snart",
+      ],
+    },
+    {
+      emoji: "👨", title: "Far", sub: "Støtte & forberedelse",
+      color: "hsl(var(--sage) / 0.08)",
+      items: [
+        "Deltag i scanninger",
+        "Undersøg barselsrettigheder",
+        "Vær til stede og lyt",
+      ],
+    },
   ];
 
   return (
     <div className="space-y-5">
       <div className="section-fade-in">
-        <h1 className="text-2xl">Jeres barn</h1>
-        <p className="text-sm text-muted-foreground mt-1">Uge {week} — hvad sker der lige nu</p>
+        <h1 className="text-[1.9rem] font-normal">Jeres barn</h1>
+        <p className="label-upper mt-1">UGE {week} — HVAD SKER DER</p>
       </div>
 
-      <div className="card-soft section-fade-in flex flex-col items-center text-center gap-3" style={{ animationDelay: "100ms" }}>
-        <div className="w-20 h-20 rounded-full bg-sage-light flex items-center justify-center">
-          <BabyIcon className="w-10 h-10 text-sage" />
-        </div>
-        <h2 className="font-serif text-xl">
-          {week >= 20 ? "Baby er halvvejs!" : `Uge ${week}`}
-        </h2>
-        <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
-          Jeres lille en vokser dag for dag. Alt er som det skal være.
-        </p>
-      </div>
-
-      <div className="space-y-3">
-        {developments.map((dev, i) => (
-          <div key={dev.label} className="card-soft flex items-center gap-4 section-fade-in" style={{ animationDelay: `${200 + i * 80}ms` }}>
-            <div className="w-10 h-10 rounded-xl bg-sand-light flex items-center justify-center flex-shrink-0">
-              <dev.icon className="w-5 h-5 text-foreground/60" />
+      {tracks.map((track, i) => (
+        <div key={track.title} className="card-soft section-fade-in" style={{ animationDelay: `${(i + 1) * 80}ms` }}>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded-full flex items-center justify-center text-xl" style={{ background: track.color }}>
+              {track.emoji}
             </div>
-            <div className="flex-1">
-              <div className="flex items-baseline justify-between">
-                <p className="text-sm font-medium">{dev.label}</p>
-                <p className="text-sm text-sage font-medium">{dev.value}</p>
-              </div>
-              <p className="text-xs text-muted-foreground">{dev.detail}</p>
+            <div>
+              <p className="text-[1.05rem] font-normal">{track.title}</p>
+              <p className="text-[0.64rem] tracking-[0.1em] uppercase text-muted-foreground">{track.sub}</p>
             </div>
           </div>
-        ))}
-      </div>
+          <ul className="space-y-2">
+            {track.items.map((item, j) => (
+              <li key={j} className="flex items-start gap-2.5 text-[0.82rem] text-foreground/70 leading-relaxed">
+                <span className="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0" style={{ background: "hsl(var(--sage))" }} />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
 
       <div className="h-20 md:h-0" />
     </div>
@@ -71,30 +85,34 @@ function BornBarnPage({ ageWeeks, ageMonths }: { ageWeeks: number; ageMonths: nu
   return (
     <div className="space-y-5">
       <div className="section-fade-in">
-        <h1 className="text-2xl">Jeres barn</h1>
-        <p className="text-sm text-muted-foreground mt-1">{insight.title} — hvad sker der lige nu</p>
+        <h1 className="text-[1.9rem] font-normal">Jeres barn</h1>
+        <p className="label-upper mt-1">{insight.title} — HVAD SKER DER</p>
       </div>
 
-      <div className="card-soft section-fade-in flex flex-col items-center text-center gap-3" style={{ animationDelay: "100ms" }}>
-        <div className="w-20 h-20 rounded-full bg-clay-light flex items-center justify-center">
-          <BabyIcon className="w-10 h-10 text-clay" />
+      <div className="card-soft section-fade-in flex flex-col items-center text-center gap-3" style={{ animationDelay: "80ms" }}>
+        <div className="w-16 h-16 rounded-full flex items-center justify-center"
+          style={{ background: "linear-gradient(135deg, hsl(var(--clay-light)), hsl(var(--clay)))" }}>
+          <BabyIcon className="w-8 h-8 text-white" />
         </div>
-        <h2 className="font-serif text-xl">{insight.title}</h2>
-        <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">{insight.insight}</p>
+        <p className="text-[1.1rem] font-normal">{insight.title}</p>
+        <p className="text-[0.8rem] text-muted-foreground max-w-xs leading-relaxed">{insight.insight}</p>
       </div>
 
       <div className="space-y-3">
         {milestones.map((m, i) => (
-          <div key={m.label} className="card-soft flex items-center gap-4 section-fade-in" style={{ animationDelay: `${200 + i * 80}ms` }}>
+          <div key={m.label} className="card-soft flex items-center gap-4 section-fade-in" style={{ animationDelay: `${160 + i * 80}ms` }}>
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${m.reached ? "bg-sage-light" : "bg-muted"}`}>
-              <m.icon className={`w-5 h-5 ${m.reached ? "text-sage" : "text-muted-foreground"}`} />
+              <m.icon className={`w-5 h-5 ${m.reached ? "text-moss" : "text-muted-foreground"}`} />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium">{m.label}</p>
-              <p className="text-xs text-muted-foreground">{m.age}</p>
+              <p className="text-[0.85rem] font-normal">{m.label}</p>
+              <p className="text-[0.68rem] text-muted-foreground">{m.age}</p>
             </div>
             {m.reached && (
-              <span className="text-xs bg-sage-light text-sage px-2 py-0.5 rounded-full font-medium">✓</span>
+              <span className="text-[0.6rem] tracking-[0.1em] uppercase px-2.5 py-0.5 rounded-full font-normal"
+                style={{ background: "hsl(var(--sage) / 0.1)", color: "hsl(var(--moss))", border: "1px solid hsl(var(--sage) / 0.25)" }}>
+                ✓ Nået
+              </span>
             )}
           </div>
         ))}

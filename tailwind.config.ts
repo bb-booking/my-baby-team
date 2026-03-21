@@ -8,14 +8,12 @@ export default {
     container: {
       center: true,
       padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
+      screens: { "2xl": "1400px" },
     },
     extend: {
       fontFamily: {
-        serif: ["'DM Serif Display'", "Georgia", "serif"],
-        sans: ["'DM Sans'", "system-ui", "sans-serif"],
+        serif: ["'Cormorant Garamond'", "Georgia", "serif"],
+        sans: ["'Nunito'", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -64,6 +62,7 @@ export default {
         sage: {
           DEFAULT: "hsl(var(--sage))",
           light: "hsl(var(--sage-light))",
+          dark: "hsl(var(--sage-dark))",
         },
         sand: {
           DEFAULT: "hsl(var(--sand))",
@@ -72,6 +71,23 @@ export default {
         clay: {
           DEFAULT: "hsl(var(--clay))",
           light: "hsl(var(--clay-light))",
+        },
+        moss: {
+          DEFAULT: "hsl(var(--moss))",
+        },
+        bark: {
+          DEFAULT: "hsl(var(--bark))",
+        },
+        stone: {
+          DEFAULT: "hsl(var(--stone))",
+          light: "hsl(var(--stone-light))",
+          lighter: "hsl(var(--stone-lighter))",
+        },
+        cream: {
+          DEFAULT: "hsl(var(--cream))",
+        },
+        night: {
+          DEFAULT: "hsl(var(--night))",
         },
       },
       borderRadius: {
@@ -91,14 +107,14 @@ export default {
           to: { height: "0" },
         },
         "fade-up": {
-          from: { opacity: "0", transform: "translateY(16px)", filter: "blur(4px)" },
+          from: { opacity: "0", transform: "translateY(12px)", filter: "blur(4px)" },
           to: { opacity: "1", transform: "translateY(0)", filter: "blur(0)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "fade-up": "fade-up 600ms cubic-bezier(0.16, 1, 0.3, 1) both",
+        "fade-up": "fade-up 500ms cubic-bezier(0.16, 1, 0.3, 1) both",
       },
     },
   },

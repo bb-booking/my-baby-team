@@ -1,10 +1,9 @@
 import { useFamily } from "@/context/FamilyContext";
-import { WeekProgress } from "@/components/WeekProgress";
-import { WeekInsight } from "@/components/WeekInsight";
+import { PregnancyWeekBar, BabySizeCard, PregnancyInsight } from "@/components/PregnancyWidgets";
+import { NewbornDashboard } from "@/components/NewbornDashboard";
 import { TaskList } from "@/components/TaskList";
 import { PartnerNudge } from "@/components/PartnerNudge";
 import { MilestoneTimeline } from "@/components/MilestoneTimeline";
-import { NewbornDashboard } from "@/components/NewbornDashboard";
 
 export default function Dashboard() {
   const { profile, phaseLabel } = useFamily();
@@ -19,15 +18,16 @@ export default function Dashboard() {
     <div className="space-y-5">
       {/* Header */}
       <div className="section-fade-in">
-        <p className="text-sm text-muted-foreground">{greeting}</p>
-        <h1 className="text-2xl mt-1">Hej, {names}</h1>
-        <p className="text-xs text-muted-foreground mt-0.5">{phaseLabel}</p>
+        <p className="label-upper">{greeting}</p>
+        <h1 className="text-[1.9rem] font-normal mt-2">{names}</h1>
+        <p className="text-[0.68rem] tracking-[0.14em] uppercase text-muted-foreground mt-1">{phaseLabel}</p>
       </div>
 
       {profile.phase === "pregnant" ? (
         <>
-          <WeekProgress />
-          <WeekInsight />
+          <PregnancyWeekBar />
+          <BabySizeCard />
+          <PregnancyInsight />
           <TaskList />
           <PartnerNudge />
           <MilestoneTimeline />
@@ -49,7 +49,7 @@ export default function Dashboard() {
 
 function getGreeting(): string {
   const h = new Date().getHours();
-  if (h < 10) return "God morgen ☀️";
-  if (h < 17) return "God dag 🌿";
-  return "God aften 🌙";
+  if (h < 10) return "GOD MORGEN ☀️";
+  if (h < 17) return "GOD DAG 🌿";
+  return "GOD AFTEN 🌙";
 }
