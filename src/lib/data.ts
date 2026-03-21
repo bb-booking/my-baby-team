@@ -24,7 +24,7 @@ export interface Task {
 export interface PartnerTask {
   id: string;
   title: string;
-  forRole: ParentRole;
+  forRole: ParentRole | "fælles";
   hint: string;
 }
 
