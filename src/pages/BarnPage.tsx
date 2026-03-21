@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { useFamily } from "@/context/FamilyContext";
-import { getBabyInsight } from "@/lib/phaseData";
-import { Baby as BabyIcon, Ruler, Brain, Eye, Smile, Hand, Moon } from "lucide-react";
+import { getBabyInsight, developmentalLeaps, getLeapStatus } from "@/lib/phaseData";
+import { Baby as BabyIcon, Check, ChevronDown, ChevronUp, Smile, Hand, Moon, Zap } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function BarnPage() {
   const { profile, currentWeek, babyAgeWeeks, babyAgeMonths } = useFamily();
@@ -10,6 +12,9 @@ export default function BarnPage() {
 }
 
 function PregnantBarnPage({ week }: { week: number }) {
+  const { profile } = useFamily();
+  const isMor = profile.role === "mor";
+
   const tracks = [
     {
       emoji: "🌱", title: "Baby", sub: "Udvikling",
@@ -20,24 +25,23 @@ function PregnantBarnPage({ week }: { week: number }) {
         "Nerve-forbindelser dannes",
       ],
     },
-    {
-      emoji: "🤰", title: "Mor", sub: "Krop & helbred",
+    ...(isMor ? [{
+      emoji: "🤰", title: "Din krop", sub: "Krop & helbred",
       color: "hsl(var(--clay) / 0.1)",
       items: [
         week >= 20 ? "Maven er tydeligt synlig" : "Små ændringer i kroppen",
         "Husk daglig folsyre",
-        week >= 16 ? "Mærker måske de første spark" : "Kvalme kan aftage snart",
+        week >= 16 ? "Du mærker måske de første spark" : "Kvalme kan aftage snart",
       ],
-    },
-    {
-      emoji: "👨", title: "Far", sub: "Støtte & forberedelse",
+    }] : [{
+      emoji: "💪", title: "Din rolle", sub: "Støtte & forberedelse",
       color: "hsl(var(--sage) / 0.08)",
       items: [
         "Deltag i scanninger",
         "Undersøg barselsrettigheder",
-        "Vær til stede og lyt",
+        `Spørg ${profile.partnerName} hvad hun har brug for`,
       ],
-    },
+    }]),
   ];
 
   return (
@@ -75,47 +79,163 @@ function PregnantBarnPage({ week }: { week: number }) {
 }
 
 function BornBarnPage({ ageWeeks, ageMonths }: { ageWeeks: number; ageMonths: number }) {
-  const insight = getBabyInsight(ageWeeks);
-  const milestones = [
-    { icon: Smile, label: "Socialt smil", age: "6 uger", reached: ageWeeks >= 6 },
-    { icon: Hand, label: "Griber ting", age: "3-4 mdr", reached: ageMonths >= 3 },
-    { icon: Moon, label: "Sover længere", age: "4-6 mdr", reached: ageMonths >= 4 },
-  ];
+  const { profile } = useFamily();
+  const childName = profile.children?.[0]?.name || "Baby";
+  const insight = getBabyInsight(ageWeeks, childName);
+
+  // Completed leaps stored in localStorage
+  const [completedLeaps, setCompletedLeaps] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem("lille-completed-leaps");
+      return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+  });
+  const [expandedLeap, setExpandedLeap] = useState<string | null>(null);
+
+  const leaps = getLeapStatus(ageWeeks, completedLeaps);
+
+  const toggleLeapCompleted = (id: string) => {
+    setCompletedLeaps((prev) => {
+      const next = prev.includes(id) ? prev.filter((l) => l !== id) : [...prev, id];
+      localStorage.setItem("lille-completed-leaps", JSON.stringify(next));
+      return next;
+    });
+  };
 
   return (
     <div className="space-y-5">
       <div className="section-fade-in">
-        <h1 className="text-[1.9rem] font-normal">Jeres barn</h1>
-        <p className="label-upper mt-1">{insight.title} — HVAD SKER DER</p>
+        <h1 className="text-[1.9rem] font-normal">{childName}</h1>
+        <p className="label-upper mt-1">
+          {ageMonths < 3 ? `${ageWeeks} UGER` : `${ageMonths} MÅNEDER`} — UDVIKLING & TIGERSPRING
+        </p>
       </div>
 
+      {/* Current development card */}
       <div className="card-soft section-fade-in flex flex-col items-center text-center gap-3" style={{ animationDelay: "80ms" }}>
-        <div className="w-16 h-16 rounded-full flex items-center justify-center"
+        <div className="w-14 h-14 rounded-full flex items-center justify-center"
           style={{ background: "linear-gradient(135deg, hsl(var(--clay-light)), hsl(var(--clay)))" }}>
-          <BabyIcon className="w-8 h-8 text-white" />
+          <BabyIcon className="w-7 h-7 text-white" />
         </div>
-        <p className="text-[1.1rem] font-normal">{insight.title}</p>
         <p className="text-[0.8rem] text-muted-foreground max-w-xs leading-relaxed">{insight.insight}</p>
+        <div className="rounded-xl px-4 py-2.5 w-full" style={{ background: "hsl(var(--sage-light))" }}>
+          <p className="text-[0.82rem]">💡 {insight.tip}</p>
+        </div>
       </div>
 
-      <div className="space-y-3">
-        {milestones.map((m, i) => (
-          <div key={m.label} className="card-soft flex items-center gap-4 section-fade-in" style={{ animationDelay: `${160 + i * 80}ms` }}>
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${m.reached ? "bg-sage-light" : "bg-muted"}`}>
-              <m.icon className={`w-5 h-5 ${m.reached ? "text-moss" : "text-muted-foreground"}`} />
-            </div>
-            <div className="flex-1">
-              <p className="text-[0.85rem] font-normal">{m.label}</p>
-              <p className="text-[0.68rem] text-muted-foreground">{m.age}</p>
-            </div>
-            {m.reached && (
-              <span className="text-[0.6rem] tracking-[0.1em] uppercase px-2.5 py-0.5 rounded-full font-normal"
-                style={{ background: "hsl(var(--sage) / 0.1)", color: "hsl(var(--moss))", border: "1px solid hsl(var(--sage) / 0.25)" }}>
-                ✓ Nået
-              </span>
-            )}
-          </div>
-        ))}
+      {/* Developmental leaps / Tigerspring */}
+      <div className="section-fade-in" style={{ animationDelay: "160ms" }}>
+        <h2 className="text-[1rem] font-semibold mb-3">Tigerspring</h2>
+        <p className="text-[0.75rem] text-muted-foreground mb-4 leading-relaxed">
+          Babyer gennemgår forudsigelige udviklingsspring. Markér dem som sket, hvis {childName} allerede har nået dem.
+        </p>
+
+        <div className="space-y-2">
+          {leaps.map((leap) => {
+            const isExpanded = expandedLeap === leap.id;
+            const statusStyles = {
+              completed: {
+                bg: "hsl(var(--sage-light) / 0.5)",
+                border: "hsl(var(--sage) / 0.2)",
+                dot: "hsl(var(--sage))",
+              },
+              active: {
+                bg: "hsl(var(--clay) / 0.08)",
+                border: "hsl(var(--clay) / 0.3)",
+                dot: "hsl(var(--clay))",
+              },
+              upcoming: {
+                bg: "hsl(var(--warm-white))",
+                border: "hsl(var(--stone-light))",
+                dot: "hsl(var(--stone))",
+              },
+            };
+            const s = statusStyles[leap.status];
+
+            return (
+              <div
+                key={leap.id}
+                className="rounded-2xl overflow-hidden transition-all"
+                style={{ background: s.bg, border: `1px solid ${s.border}` }}
+              >
+                <button
+                  onClick={() => setExpandedLeap(isExpanded ? null : leap.id)}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-left transition-all active:scale-[0.99]"
+                >
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-lg" style={{ background: `${s.dot}20` }}>
+                    {leap.emoji}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className={cn("text-[0.85rem] font-medium", leap.status === "upcoming" && "text-foreground/50")}>
+                        {leap.title}
+                      </p>
+                      <span className="text-[0.55rem] tracking-[0.1em] uppercase text-muted-foreground">
+                        ~{leap.weekStart} uger
+                      </span>
+                    </div>
+                    {leap.status === "active" && (
+                      <p className="text-[0.65rem] mt-0.5" style={{ color: "hsl(var(--clay))" }}>Kan ske nu</p>
+                    )}
+                  </div>
+                  {leap.status === "completed" && (
+                    <span className="text-[0.55rem] tracking-[0.1em] uppercase px-2 py-0.5 rounded-full" style={{ background: "hsl(var(--sage) / 0.15)", color: "hsl(var(--moss))" }}>
+                      ✓ Nået
+                    </span>
+                  )}
+                  {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                </button>
+
+                {isExpanded && (
+                  <div className="px-4 pb-4 space-y-3">
+                    <p className="text-[0.78rem] text-foreground/70 leading-relaxed">{leap.description}</p>
+
+                    <div>
+                      <p className="text-[0.6rem] tracking-[0.14em] uppercase text-muted-foreground mb-1.5">Tegn at se efter</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {leap.signs.map((sign, i) => (
+                          <span key={i} className="text-[0.68rem] px-2.5 py-1 rounded-full" style={{ background: "hsl(var(--warm-white))", border: "1px solid hsl(var(--stone-light))" }}>
+                            {sign}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-[0.6rem] tracking-[0.14em] uppercase text-muted-foreground mb-1.5">Tips</p>
+                      <ul className="space-y-1">
+                        {leap.tips.map((tip, i) => (
+                          <li key={i} className="flex items-start gap-2 text-[0.75rem] text-foreground/70">
+                            <span className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ background: "hsl(var(--sage))" }} />
+                            {tip}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleLeapCompleted(leap.id);
+                      }}
+                      className={cn(
+                        "w-full mt-2 py-2.5 rounded-xl text-[0.72rem] tracking-[0.08em] uppercase font-medium transition-all active:scale-[0.98]",
+                        completedLeaps.includes(leap.id)
+                          ? "bg-[hsl(var(--sage))] text-white"
+                          : "border border-[hsl(var(--stone-light))] hover:border-[hsl(var(--sage))] text-foreground/70"
+                      )}
+                    >
+                      {completedLeaps.includes(leap.id)
+                        ? `✓ ${childName} har nået dette`
+                        : `Markér som nået`
+                      }
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div className="h-20 md:h-0" />
