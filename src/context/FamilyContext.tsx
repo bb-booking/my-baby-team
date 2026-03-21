@@ -3,6 +3,14 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 export type LifePhase = "pregnant" | "newborn" | "baby";
 export type ParentRole = "mor" | "far";
 export type TaskAssignee = "mor" | "far" | "fælles";
+export type BirthType = "vaginal" | "kejsersnit";
+export type FeedingMethod = "amning" | "flaske" | "begge";
+
+export interface MorHealth {
+  birthType?: BirthType;
+  complications?: string[];
+  feedingMethod?: FeedingMethod;
+}
 
 export interface Child {
   id: string;
@@ -27,6 +35,7 @@ export interface FamilyProfile {
   partnerName: string;
   children: Child[];
   onboarded: boolean;
+  morHealth?: MorHealth;
 }
 
 const defaultProfile: FamilyProfile = {
