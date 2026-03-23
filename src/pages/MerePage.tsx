@@ -104,7 +104,7 @@ export default function MerePage() {
             <p className="text-[1rem] font-semibold flex-1">Mors recovery</p>
             <span className="text-muted-foreground text-sm">{showMorHealth ? "▲" : "▼"}</span>
           </button>
-          {showMorHealth && <MorHealthEditor />}
+      {showMorHealth && <MorHealthEditor onSave={() => setShowMorHealth(false)} />}
         </div>
       )}
 
