@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useFamily, type TaskAssignee, type TaskRecurrence } from "@/context/FamilyContext";
-import { Check, Plus, X, ChevronDown, User, Users, Pencil, Trash2, RefreshCw } from "lucide-react";
+import { Check, Plus, X, ChevronDown, ChevronLeft, ChevronRight, User, Users, Pencil, Trash2, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { format, addDays, subDays, isToday, isTomorrow, isYesterday } from "date-fns";
+import { da } from "date-fns/locale";
 import confetti from "canvas-confetti";
 
 const assigneeOptions: { value: TaskAssignee; label: string; icon: React.ReactNode }[] = [
@@ -19,6 +21,17 @@ const recurrenceOptions: { value: TaskRecurrence; label: string }[] = [
 
 function recurrenceLabel(r: TaskRecurrence) {
   return recurrenceOptions.find(o => o.value === r)?.label || "";
+}
+
+function formatDateLabel(date: Date): string {
+  if (isToday(date)) return "I dag";
+  if (isTomorrow(date)) return "I morgen";
+  if (isYesterday(date)) return "I går";
+  return format(date, "EEEE d. MMM", { locale: da });
+}
+
+function toDateStr(date: Date): string {
+  return format(date, "yyyy-MM-dd");
 }
 
 function AssigneeChip({
@@ -204,34 +217,42 @@ export function TaskList() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
   const [filter, setFilter] = useState<FilterTab>("alle");
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
-  const pending = tasks.filter((t) => !t.completed);
-  const completed = tasks.filter((t) => t.completed);
+  const selectedDateStr = toDateStr(selectedDate);
 
-  const filterByAssignee = (list: typeof tasks, assignee: TaskAssignee) => list.filter(t => t.assignee === assignee);
+  // Tasks matching the selected date (including recurring tasks)
+  const tasksForDate = tasks.filter((t) => {
+    const taskDate = t.dueDate || t.createdAt.split("T")[0];
+    if (taskDate === selectedDateStr) return true;
+    // Recurring tasks: show if they started on or before selected date
+    if (t.recurrence && t.recurrence !== "never" && taskDate <= selectedDateStr) {
+      return true;
+    }
+    return false;
+  });
 
-  // For each tab, show both pending and completed (completed at bottom with strikethrough)
+  const completed = tasksForDate.filter((t) => t.completed);
+
   const getTasksForFilter = (f: FilterTab) => {
     if (f === "afsluttet") return completed;
-    const base = f === "alle" ? tasks : tasks.filter(t => t.assignee === f);
-    // Sort: pending first, then completed
+    const base = f === "alle" ? tasksForDate : tasksForDate.filter(t => t.assignee === f);
     return [...base].sort((a, b) => Number(a.completed) - Number(b.completed));
   };
 
   const filteredTasks = getTasksForFilter(filter);
 
   const tabs: { key: FilterTab; label: string; count: number }[] = [
-    { key: "alle", label: "Alle", count: tasks.length },
-    { key: "mor", label: morName || "Mor", count: tasks.filter(t => t.assignee === "mor").length },
-    { key: "far", label: farName || "Far", count: tasks.filter(t => t.assignee === "far").length },
-    { key: "fælles", label: "Fælles", count: tasks.filter(t => t.assignee === "fælles").length },
+    { key: "alle", label: "Alle", count: tasksForDate.length },
+    { key: "mor", label: morName || "Mor", count: tasksForDate.filter(t => t.assignee === "mor").length },
+    { key: "far", label: farName || "Far", count: tasksForDate.filter(t => t.assignee === "far").length },
+    { key: "fælles", label: "Fælles", count: tasksForDate.filter(t => t.assignee === "fælles").length },
     { key: "afsluttet", label: "Afsluttet", count: completed.length },
   ];
 
   const handleToggle = (id: string) => {
     const task = tasks.find(t => t.id === id);
     if (task && !task.completed) {
-      // Fire confetti 🎉
       confetti({
         particleCount: 60,
         spread: 50,
@@ -245,7 +266,7 @@ export function TaskList() {
   };
 
   const handleAdd = (title: string, assignee: TaskAssignee, recurrence: TaskRecurrence) => {
-    addTask(title, assignee, recurrence);
+    addTask(title, assignee, recurrence, selectedDateStr);
     setShowAdd(false);
     setInlineAddFilter(null);
   };
@@ -345,9 +366,33 @@ export function TaskList() {
 
   return (
     <div className="space-y-3">
-      {/* Header with add button */}
+      {/* Date navigation */}
       <div className="flex items-center justify-between">
-        <div /> {/* spacer */}
+        <button
+          onClick={() => setSelectedDate(prev => subDays(prev, 1))}
+          className="p-2 rounded-xl hover:bg-[hsl(var(--stone-lighter))] transition-colors active:scale-95"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => setSelectedDate(new Date())}
+          className={cn(
+            "text-[0.85rem] font-medium capitalize px-3 py-1 rounded-lg transition-colors",
+            isToday(selectedDate) ? "text-foreground" : "text-[hsl(var(--moss))] hover:bg-[hsl(var(--sage-light))]"
+          )}
+        >
+          {formatDateLabel(selectedDate)}
+        </button>
+        <button
+          onClick={() => setSelectedDate(prev => addDays(prev, 1))}
+          className="p-2 rounded-xl hover:bg-[hsl(var(--stone-lighter))] transition-colors active:scale-95"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Header with add button */}
+      <div className="flex items-center justify-end">
         <button
           onClick={() => { setShowAdd(!showAdd); setInlineAddFilter(null); }}
           className={cn(
@@ -403,7 +448,7 @@ export function TaskList() {
           </div>
         ) : (
           <p className="text-center text-[0.8rem] text-muted-foreground py-6">
-            {filter === "afsluttet" ? "Ingen afsluttede opgaver endnu" : "Ingen opgaver i denne kategori ✨"}
+            {filter === "afsluttet" ? "Ingen afsluttede opgaver endnu" : "Ingen opgaver denne dag ✨"}
           </p>
         )}
         {/* Inline add for filtered tab */}
