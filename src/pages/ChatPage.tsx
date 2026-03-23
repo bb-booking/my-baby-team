@@ -137,11 +137,7 @@ export default function ChatPage() {
     });
   }, [messages, isLoading, context]);
 
-  // Age-relevant quick prompts (show 4)
   const relevantPrompts = quickPrompts.slice(0, 4);
-  if (babyAgeWeeks < 8) {
-    relevantPrompts[0] = `Er det normalt at ${childName} …?`;
-  }
 
   return (
     <div className="flex flex-col h-[calc(100vh-12rem)] md:h-[calc(100vh-5rem)]">
