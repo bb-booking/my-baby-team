@@ -53,8 +53,8 @@ function getNavSections(phase: "pregnant" | "newborn" | "baby", role: "mor" | "f
     sections.push({
       label: "DAGBOG",
       items: [
-        { label: "Amning", icon: () => <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.4"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/></svg>, path: "/dagbog?tab=amning" },
-        { label: "Ble", icon: () => <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 5h8v2c0 3-1.5 5-4 5s-4-2-4-5V5z" stroke="currentColor" strokeWidth="1.3" fill="none"/><circle cx="7" cy="9" r="0.8" fill="currentColor"/><circle cx="9.5" cy="8.5" r="0.8" fill="currentColor"/></svg>, path: "/dagbog?tab=ble" },
+        { label: "Amning", icon: Circle, path: "/dagbog?tab=amning" },
+        { label: "Ble", icon: Droplet, path: "/dagbog?tab=ble" },
         { label: "Søvn", icon: Moon, path: "/sovn" },
       ],
     });
