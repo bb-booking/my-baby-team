@@ -5,6 +5,8 @@ import { QuickLog } from "@/components/QuickLog";
 import { TaskList } from "@/components/TaskList";
 import { PartnerNudge } from "@/components/PartnerNudge";
 import { MilestoneTimeline } from "@/components/MilestoneTimeline";
+import { MorRecoveryCard, MorSupportCard, MorFeedingCard, MorMicroSupport } from "@/components/MorDashboardCards";
+import { FarDailyActionCard, FarEmotionalNudge, FarFunHook, FarGuideCard, FarOwnershipCard } from "@/components/FarDashboardCards";
 import { Heart, Shield, Zap, Stethoscope, Brain, MessageCircle, Gamepad2 } from "lucide-react";
 import { format } from "date-fns";
 import { da } from "date-fns/locale";
@@ -60,50 +62,120 @@ export default function Dashboard() {
           <PartnerNudge />
           <MilestoneTimeline />
         </>
-      ) : (
-        <>
-          {/* 1. Quick Log — always first */}
-          <QuickLog />
+      ) : isMor ? (
+          <>
+            {/* MOR DASHBOARD */}
+            {/* 1. Recovery check-in */}
+            <MorRecoveryCard />
 
-          {/* 2. Stats strip */}
-          <QuickStatsStrip babyAgeWeeks={babyAgeWeeks} babyAgeMonths={babyAgeMonths} childName={childName || "Baby"} />
+            {/* 2. Quick Log */}
+            <QuickLog />
 
-          {/* 3. Sleep status */}
-          <SleepStatusBanner childName={childName || "Baby"} />
+            {/* 3. Stats strip */}
+            <QuickStatsStrip babyAgeWeeks={babyAgeWeeks} babyAgeMonths={babyAgeMonths} childName={childName || "Baby"} />
 
-          {/* 4. "Relevant now" module */}
-          <RelevantNowCard ageWeeks={babyAgeWeeks} childName={childName || "Baby"} isMor={isMor} partnerName={isMor ? farName : morName} />
+            {/* 4. Sleep status */}
+            <SleepStatusBanner childName={childName || "Baby"} />
 
-          {/* 5. Tasks */}
-          <TaskList />
+            {/* 5. Support & nudges */}
+            <MorSupportCard />
 
-          {/* 6. Quick links: Chat + Activities */}
-          <div className="grid grid-cols-2 gap-2.5 section-fade-in">
-            <Link to="/chat" className="card-soft !p-4 flex flex-col items-center gap-2 transition-all hover:shadow-sm active:scale-[0.98]">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--sage-light))" }}>
-                <MessageCircle className="w-5 h-5" style={{ color: "hsl(var(--moss))" }} />
-              </div>
-              <p className="text-[0.78rem] font-medium">Spørg Lille</p>
-              <p className="text-[0.6rem] text-muted-foreground text-center">Søvn, udvikling, trivsel</p>
-            </Link>
-            <Link to="/leg" className="card-soft !p-4 flex flex-col items-center gap-2 transition-all hover:shadow-sm active:scale-[0.98]">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--clay-light))" }}>
-                <Gamepad2 className="w-5 h-5" style={{ color: "hsl(var(--clay))" }} />
-              </div>
-              <p className="text-[0.78rem] font-medium">Leg & aktiviteter</p>
-              <p className="text-[0.6rem] text-muted-foreground text-center">Tilpasset {childName || "baby"}s alder</p>
-            </Link>
-          </div>
+            {/* 6. Feeding support */}
+            <MorFeedingCard />
 
-          {/* 7. Tigerspring */}
-          <LeapBanner ageWeeks={babyAgeWeeks} childName={childName || "Baby"} />
+            {/* 7. Relevant now */}
+            <RelevantNowCard ageWeeks={babyAgeWeeks} childName={childName || "Baby"} isMor={true} partnerName={farName} />
 
-          {/* 8. Knowledge & insight */}
-          <KnowledgeCarousel ageWeeks={babyAgeWeeks} childName={childName || "Baby"} />
-          <BabyInsightCard ageWeeks={babyAgeWeeks} ageMonths={babyAgeMonths} childName={childName || "Baby"} />
+            {/* 8. Tasks */}
+            <TaskList />
 
-          <PartnerNudge />
-          <MilestoneTimeline />
+            {/* 9. Micro-support message */}
+            <MorMicroSupport />
+
+            {/* 10. Quick links */}
+            <div className="grid grid-cols-2 gap-2.5 section-fade-in">
+              <Link to="/chat" className="card-soft !p-4 flex flex-col items-center gap-2 transition-all hover:shadow-sm active:scale-[0.98]">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--clay-light))" }}>
+                  <MessageCircle className="w-5 h-5" style={{ color: "hsl(var(--clay))" }} />
+                </div>
+                <p className="text-[0.78rem] font-medium">Spørg Lille</p>
+                <p className="text-[0.6rem] text-muted-foreground text-center">Amning, søvn, følelser</p>
+              </Link>
+              <Link to="/sammen" className="card-soft !p-4 flex flex-col items-center gap-2 transition-all hover:shadow-sm active:scale-[0.98]">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--clay-light))" }}>
+                  <Heart className="w-5 h-5" style={{ color: "hsl(var(--clay))" }} />
+                </div>
+                <p className="text-[0.78rem] font-medium">Samarbejde</p>
+                <p className="text-[0.6rem] text-muted-foreground text-center">Opgaver & fordeling</p>
+              </Link>
+            </div>
+
+            {/* 11. Leap + knowledge */}
+            <LeapBanner ageWeeks={babyAgeWeeks} childName={childName || "Baby"} />
+            <KnowledgeCarousel ageWeeks={babyAgeWeeks} childName={childName || "Baby"} />
+            <BabyInsightCard ageWeeks={babyAgeWeeks} ageMonths={babyAgeMonths} childName={childName || "Baby"} />
+
+            <PartnerNudge />
+            <MilestoneTimeline />
+          </>
+        ) : (
+          <>
+            {/* FAR DASHBOARD */}
+            {/* 1. Daily action card */}
+            <FarDailyActionCard />
+
+            {/* 2. Fun hook */}
+            <FarFunHook />
+
+            {/* 3. Quick Log */}
+            <QuickLog />
+
+            {/* 4. Stats strip */}
+            <QuickStatsStrip babyAgeWeeks={babyAgeWeeks} babyAgeMonths={babyAgeMonths} childName={childName || "Baby"} />
+
+            {/* 5. Sleep status */}
+            <SleepStatusBanner childName={childName || "Baby"} />
+
+            {/* 6. Emotional nudge */}
+            <FarEmotionalNudge />
+
+            {/* 7. Ownership card */}
+            <FarOwnershipCard />
+
+            {/* 8. Guide */}
+            <FarGuideCard />
+
+            {/* 9. Relevant now */}
+            <RelevantNowCard ageWeeks={babyAgeWeeks} childName={childName || "Baby"} isMor={false} partnerName={morName} />
+
+            {/* 10. Tasks */}
+            <TaskList />
+
+            {/* 11. Quick links */}
+            <div className="grid grid-cols-2 gap-2.5 section-fade-in">
+              <Link to="/chat" className="card-soft !p-4 flex flex-col items-center gap-2 transition-all hover:shadow-sm active:scale-[0.98]">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--sage-light))" }}>
+                  <MessageCircle className="w-5 h-5" style={{ color: "hsl(var(--moss))" }} />
+                </div>
+                <p className="text-[0.78rem] font-medium">Spørg Lille</p>
+                <p className="text-[0.6rem] text-muted-foreground text-center">Søvn, udvikling, tips</p>
+              </Link>
+              <Link to="/leg" className="card-soft !p-4 flex flex-col items-center gap-2 transition-all hover:shadow-sm active:scale-[0.98]">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--sage-light))" }}>
+                  <Gamepad2 className="w-5 h-5" style={{ color: "hsl(var(--moss))" }} />
+                </div>
+                <p className="text-[0.78rem] font-medium">Leg & aktiviteter</p>
+                <p className="text-[0.6rem] text-muted-foreground text-center">Tilpasset {childName || "baby"}s alder</p>
+              </Link>
+            </div>
+
+            {/* 12. Leap + knowledge */}
+            <LeapBanner ageWeeks={babyAgeWeeks} childName={childName || "Baby"} />
+            <KnowledgeCarousel ageWeeks={babyAgeWeeks} childName={childName || "Baby"} />
+            <BabyInsightCard ageWeeks={babyAgeWeeks} ageMonths={babyAgeMonths} childName={childName || "Baby"} />
+
+            <PartnerNudge />
+            <MilestoneTimeline />
         </>
       )}
 
