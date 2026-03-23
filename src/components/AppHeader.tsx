@@ -46,11 +46,11 @@ export function AppHeader({ onBurgerClick }: AppHeaderProps) {
       {/* Burger — mobile only */}
       <button
         onClick={onBurgerClick}
-        className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-[5.5px] md:hidden active:bg-foreground/5 transition-colors"
+        className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-[5px] md:hidden active:bg-foreground/5 transition-colors"
         aria-label="Menu"
       >
         <span className="block w-5 h-[1.5px] rounded-sm" style={{ background: "#5a4e3c" }} />
-        <span className="block w-[13px] h-[1.5px] rounded-sm ml-auto" style={{ background: "#5a4e3c" }} />
+        <span className="block w-5 h-[1.5px] rounded-sm" style={{ background: "#5a4e3c" }} />
         <span className="block w-5 h-[1.5px] rounded-sm" style={{ background: "#5a4e3c" }} />
       </button>
     </header>
