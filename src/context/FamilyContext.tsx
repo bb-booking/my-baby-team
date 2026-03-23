@@ -18,6 +18,8 @@ export interface Child {
   birthDate: string; // ISO
 }
 
+export type TaskRecurrence = "never" | "daily" | "weekly" | "monthly";
+
 export interface FamilyTask {
   id: string;
   title: string;
@@ -25,6 +27,7 @@ export interface FamilyTask {
   category: "health" | "preparation" | "admin" | "relationship" | "custom";
   completed: boolean;
   createdAt: string;
+  recurrence: TaskRecurrence;
 }
 
 export interface FamilyProfile {
