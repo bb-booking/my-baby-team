@@ -226,18 +226,21 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
 
   const selectedDateStr = toDateStr(selectedDate);
 
-  // Tasks matching the selected date (including recurring tasks)
-  const tasksForDate = tasks.filter((t) => {
+  const getTasksForDate = (dateStr: string) => tasks.filter((t) => {
     const taskDate = t.dueDate || t.createdAt.split("T")[0];
-    if (taskDate === selectedDateStr) return true;
-    // Recurring tasks: show if they started on or before selected date
-    if (t.recurrence && t.recurrence !== "never" && taskDate <= selectedDateStr) {
-      return true;
-    }
+    if (taskDate === dateStr) return true;
+    if (t.recurrence && t.recurrence !== "never" && taskDate <= dateStr) return true;
     return false;
   });
 
+  // Tasks matching the selected date (including recurring tasks)
+  const tasksForDate = getTasksForDate(selectedDateStr);
+
   const completed = tasksForDate.filter((t) => t.completed);
+
+  // Week days for week view
+  const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
+  const weekDays = eachDayOfInterval({ start: weekStart, end: endOfWeek(selectedDate, { weekStartsOn: 1 }) });
 
   const getTasksForFilter = (f: FilterTab) => {
     if (f === "afsluttet") return completed;
