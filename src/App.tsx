@@ -16,6 +16,7 @@ import TjeklistePage from "@/pages/TjeklistePage";
 import KalenderPage from "@/pages/KalenderPage";
 import RaadGuidesPage from "@/pages/RaadGuidesPage";
 import BabynavnePage from "@/pages/BabynavnePage";
+import ShopPage from "@/pages/ShopPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
