@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useFamily, type TaskAssignee, type TaskRecurrence } from "@/context/FamilyContext";
 import { Check, Plus, X, ChevronDown, User, Users, Pencil, Trash2, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import confetti from "canvas-confetti";
 
 const assigneeOptions: { value: TaskAssignee; label: string; icon: React.ReactNode }[] = [
   { value: "mor", label: "Mor", icon: <User className="w-3 h-3" /> },
@@ -207,23 +208,41 @@ export function TaskList() {
   const pending = tasks.filter((t) => !t.completed);
   const completed = tasks.filter((t) => t.completed);
 
-  const morTasks = pending.filter(t => t.assignee === "mor");
-  const farTasks = pending.filter(t => t.assignee === "far");
-  const fællesTasks = pending.filter(t => t.assignee === "fælles");
+  const filterByAssignee = (list: typeof tasks, assignee: TaskAssignee) => list.filter(t => t.assignee === assignee);
 
-  const filteredTasks = filter === "alle" ? pending
-    : filter === "mor" ? morTasks
-    : filter === "far" ? farTasks
-    : filter === "fælles" ? fællesTasks
-    : [];
+  // For each tab, show both pending and completed (completed at bottom with strikethrough)
+  const getTasksForFilter = (f: FilterTab) => {
+    if (f === "afsluttet") return completed;
+    const base = f === "alle" ? tasks : tasks.filter(t => t.assignee === f);
+    // Sort: pending first, then completed
+    return [...base].sort((a, b) => Number(a.completed) - Number(b.completed));
+  };
+
+  const filteredTasks = getTasksForFilter(filter);
 
   const tabs: { key: FilterTab; label: string; count: number }[] = [
-    { key: "alle", label: "Alle", count: pending.length },
-    { key: "mor", label: morName || "Mor", count: morTasks.length },
-    { key: "far", label: farName || "Far", count: farTasks.length },
-    { key: "fælles", label: "Fælles", count: fællesTasks.length },
+    { key: "alle", label: "Alle", count: tasks.length },
+    { key: "mor", label: morName || "Mor", count: tasks.filter(t => t.assignee === "mor").length },
+    { key: "far", label: farName || "Far", count: tasks.filter(t => t.assignee === "far").length },
+    { key: "fælles", label: "Fælles", count: tasks.filter(t => t.assignee === "fælles").length },
     { key: "afsluttet", label: "Afsluttet", count: completed.length },
   ];
+
+  const handleToggle = (id: string) => {
+    const task = tasks.find(t => t.id === id);
+    if (task && !task.completed) {
+      // Fire confetti 🎉
+      confetti({
+        particleCount: 60,
+        spread: 50,
+        origin: { y: 0.7 },
+        colors: ["#5a7a50", "#c4a97d", "#8fae7e", "#d4c4a8"],
+        scalar: 0.7,
+        gravity: 1.2,
+      });
+    }
+    toggleTask(id);
+  };
 
   const handleAdd = (title: string, assignee: TaskAssignee, recurrence: TaskRecurrence) => {
     addTask(title, assignee, recurrence);
@@ -251,72 +270,78 @@ export function TaskList() {
     return profile.role === "mor" ? "mor" : "far";
   };
 
-  const renderTask = (task: typeof tasks[0], isCompleted = false) => (
-    <div
-      key={task.id}
-      className="group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all hover:bg-[hsl(var(--cream))]"
-    >
-      <button
-        onClick={() => toggleTask(task.id)}
+  const renderTask = (task: typeof tasks[0]) => {
+    const isCompleted = task.completed;
+    return (
+      <div
+        key={task.id}
         className={cn(
-          "w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 transition-all active:scale-90",
-          isCompleted
-            ? "bg-[hsl(var(--sage))]"
-            : "border-[1.5px] border-[hsl(var(--stone-light))] hover:border-[hsl(var(--sage))]"
+          "group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all hover:bg-[hsl(var(--cream))]",
+          isCompleted && "opacity-60"
         )}
       >
-        {isCompleted && <Check className="w-3 h-3 text-white" />}
-      </button>
-      <div className="flex-1 min-w-0">
-        {editingId === task.id ? (
-          <input
-            value={editText}
-            onChange={(e) => setEditText(e.target.value)}
-            onBlur={saveEdit}
-            onKeyDown={(e) => e.key === "Enter" && saveEdit()}
-            autoFocus
-            className="w-full bg-transparent text-[0.85rem] focus:outline-none border-b border-[hsl(var(--sage))]"
-          />
-        ) : (
-          <div>
-            <p className={cn("text-[0.85rem] leading-snug", isCompleted && "text-muted-foreground line-through")}>
-              {task.title}
-            </p>
-            {task.recurrence && task.recurrence !== "never" && (
-              <span className="flex items-center gap-0.5 text-[0.58rem] text-muted-foreground mt-0.5">
-                <RefreshCw className="w-2 h-2" />
-                {recurrenceLabel(task.recurrence)}
-              </span>
-            )}
-          </div>
-        )}
-      </div>
-      <div className="flex items-center gap-1.5">
-        {!isCompleted && (
-          <button
-            onClick={() => startEdit(task.id, task.title)}
-            className="opacity-0 group-hover:opacity-60 transition-opacity p-1 hover:opacity-100"
-          >
-            <Pencil className="w-3 h-3" />
-          </button>
-        )}
         <button
-          onClick={() => removeTask(task.id)}
-          className="opacity-0 group-hover:opacity-60 transition-opacity p-1 hover:opacity-100 hover:text-destructive"
+          onClick={() => handleToggle(task.id)}
+          className={cn(
+            "w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 transition-all active:scale-90",
+            isCompleted
+              ? "bg-[hsl(var(--sage))]"
+              : "border-[1.5px] border-[hsl(var(--stone-light))] hover:border-[hsl(var(--sage))]"
+          )}
         >
-          <Trash2 className="w-3 h-3" />
+          {isCompleted && <Check className="w-3 h-3 text-white" />}
         </button>
-        {!isCompleted && (
-          <AssigneeChip
-            assignee={task.assignee}
-            onReassign={(a) => reassignTask(task.id, a)}
-            morName={morName}
-            farName={farName}
-          />
-        )}
+        <div className="flex-1 min-w-0">
+          {editingId === task.id ? (
+            <input
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              onBlur={saveEdit}
+              onKeyDown={(e) => e.key === "Enter" && saveEdit()}
+              autoFocus
+              className="w-full bg-transparent text-[0.85rem] focus:outline-none border-b border-[hsl(var(--sage))]"
+            />
+          ) : (
+            <div>
+              <p className={cn("text-[0.85rem] leading-snug", isCompleted && "text-muted-foreground line-through")}>
+                {task.title}
+              </p>
+              {task.recurrence && task.recurrence !== "never" && (
+                <span className="flex items-center gap-0.5 text-[0.58rem] text-muted-foreground mt-0.5">
+                  <RefreshCw className="w-2 h-2" />
+                  {recurrenceLabel(task.recurrence)}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+        <div className="flex items-center gap-1.5">
+          {!isCompleted && (
+            <button
+              onClick={() => startEdit(task.id, task.title)}
+              className="opacity-0 group-hover:opacity-60 transition-opacity p-1 hover:opacity-100"
+            >
+              <Pencil className="w-3 h-3" />
+            </button>
+          )}
+          <button
+            onClick={() => removeTask(task.id)}
+            className="opacity-0 group-hover:opacity-60 transition-opacity p-1 hover:opacity-100 hover:text-destructive"
+          >
+            <Trash2 className="w-3 h-3" />
+          </button>
+          {!isCompleted && (
+            <AssigneeChip
+              assignee={task.assignee}
+              onReassign={(a) => reassignTask(task.id, a)}
+              morName={morName}
+              farName={farName}
+            />
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="space-y-3">
@@ -372,50 +397,36 @@ export function TaskList() {
 
       {/* Task list */}
       <div className="card-soft">
-        {filter === "afsluttet" ? (
-          completed.length > 0 ? (
-            <div className="space-y-1">
-              {completed.map(t => renderTask(t, true))}
-            </div>
-          ) : (
-            <p className="text-center text-[0.8rem] text-muted-foreground py-6">
-              Ingen afsluttede opgaver endnu
-            </p>
-          )
+        {filteredTasks.length > 0 ? (
+          <div className="space-y-1">
+            {filteredTasks.map(t => renderTask(t))}
+          </div>
         ) : (
-          <>
-            {filteredTasks.length > 0 ? (
-              <div className="space-y-1">
-                {filteredTasks.map(t => renderTask(t))}
-              </div>
-            ) : (
-              <p className="text-center text-[0.8rem] text-muted-foreground py-6">
-                Ingen opgaver i denne kategori ✨
-              </p>
-            )}
-            {/* Inline add for filtered tab */}
-            {filter !== "alle" && !inlineAddFilter && (
-              <button
-                onClick={() => setInlineAddFilter(filter)}
-                className="flex items-center gap-1.5 w-full px-3 py-2 text-[0.72rem] text-muted-foreground hover:text-foreground transition-colors rounded-xl hover:bg-[hsl(var(--cream))]"
-              >
-                <Plus className="w-3 h-3" />
-                Tilføj til {tabs.find(t => t.key === filter)?.label}
-              </button>
-            )}
-            {inlineAddFilter && (
-              <div className="mt-2">
-                <AddTaskInline
-                  onAdd={handleAdd}
-                  onCancel={() => setInlineAddFilter(null)}
-                  morName={morName}
-                  farName={farName}
-                  defaultAssignee={defaultAssigneeForFilter(filter)}
-                  compact
-                />
-              </div>
-            )}
-          </>
+          <p className="text-center text-[0.8rem] text-muted-foreground py-6">
+            {filter === "afsluttet" ? "Ingen afsluttede opgaver endnu" : "Ingen opgaver i denne kategori ✨"}
+          </p>
+        )}
+        {/* Inline add for filtered tab */}
+        {filter !== "alle" && filter !== "afsluttet" && !inlineAddFilter && (
+          <button
+            onClick={() => setInlineAddFilter(filter)}
+            className="flex items-center gap-1.5 w-full px-3 py-2 text-[0.72rem] text-muted-foreground hover:text-foreground transition-colors rounded-xl hover:bg-[hsl(var(--cream))]"
+          >
+            <Plus className="w-3 h-3" />
+            Tilføj til {tabs.find(t => t.key === filter)?.label}
+          </button>
+        )}
+        {inlineAddFilter && (
+          <div className="mt-2">
+            <AddTaskInline
+              onAdd={handleAdd}
+              onCancel={() => setInlineAddFilter(null)}
+              morName={morName}
+              farName={farName}
+              defaultAssignee={defaultAssigneeForFilter(filter)}
+              compact
+            />
+          </div>
         )}
       </div>
     </div>
