@@ -62,8 +62,7 @@ export default function Dashboard() {
           <PartnerNudge />
           <MilestoneTimeline />
         </>
-      ) : (
-        {isMor ? (
+      ) : isMor ? (
           <>
             {/* MOR DASHBOARD */}
             {/* 1. Recovery check-in */}
