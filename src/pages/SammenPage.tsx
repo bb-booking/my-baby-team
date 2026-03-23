@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Plus } from "lucide-react";
 import { useFamily } from "@/context/FamilyContext";
 import { useDiary } from "@/context/DiaryContext";
 import {
