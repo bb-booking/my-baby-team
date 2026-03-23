@@ -213,7 +213,7 @@ function AddTaskInline({ onAdd, onCancel, morName, farName, defaultAssignee, com
 type FilterTab = "alle" | "mor" | "far" | "fælles" | "afsluttet";
 
 export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externalShowAdd?: boolean; onExternalShowAddChange?: (v: boolean) => void } = {}) {
-  const { tasks, toggleTask, removeTask, reassignTask, addTask, editTaskTitle, morName, farName, profile } = useFamily();
+  const { tasks, toggleTask, removeTask, reassignTask, addTask, editTaskTitle, moveTaskToDate, morName, farName, profile } = useFamily();
   const [internalShowAdd, setInternalShowAdd] = useState(false);
   const showAdd = externalShowAdd ?? internalShowAdd;
   const setShowAdd = (v: boolean) => { onExternalShowAddChange ? onExternalShowAddChange(v) : setInternalShowAdd(v); };
