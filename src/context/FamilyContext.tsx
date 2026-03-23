@@ -241,6 +241,7 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
       import("@/lib/phaseData").then(({ getTasksForPhase }) => {
         const week = effectivePhase === "pregnant" ? currentWeek : babyAgeWeeks;
         const phaseTasks = getTasksForPhase(effectivePhase, week);
+        const today = new Date().toISOString().split("T")[0];
         setTasks(
           phaseTasks.map((t) => ({
             ...t,
@@ -248,12 +249,12 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
             category: t.category || "custom",
             createdAt: new Date().toISOString(),
             recurrence: "never" as TaskRecurrence,
-            dueDate: new Date().toISOString().split("T")[0],
+            dueDate: today,
           }))
         );
       });
     }
-  }, [profile.onboarded]);
+  }, [profile.onboarded, effectivePhase]);
 
   return (
     <FamilyContext.Provider
