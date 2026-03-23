@@ -64,7 +64,7 @@ interface FamilyContextType {
   phaseLabel: string;
   // Tasks
   tasks: FamilyTask[];
-  addTask: (title: string, assignee: TaskAssignee, recurrence?: TaskRecurrence) => void;
+  addTask: (title: string, assignee: TaskAssignee, recurrence?: TaskRecurrence, dueDate?: string) => void;
   toggleTask: (id: string) => void;
   removeTask: (id: string) => void;
   reassignTask: (id: string, newAssignee: TaskAssignee) => void;
