@@ -176,8 +176,7 @@ export default function Dashboard() {
 
             <PartnerNudge />
             <MilestoneTimeline />
-          </>
-        )}
+        </>
       )}
 
       <div className="h-20 md:h-0" />
