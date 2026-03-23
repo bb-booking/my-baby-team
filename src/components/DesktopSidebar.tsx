@@ -2,7 +2,8 @@ import { useLocation, Link } from "react-router-dom";
 import { useFamily } from "@/context/FamilyContext";
 import {
   Home, Baby, Users, Settings, BookOpen, Calendar, CheckSquare,
-  Lightbulb, Heart, Moon, ShoppingBag, Droplets, Utensils
+  Lightbulb, Heart, Moon, ShoppingBag, Droplets, Utensils,
+  MessageCircle, Gamepad2
 } from "lucide-react";
 
 interface NavItem {
@@ -30,6 +31,12 @@ function getNavSections(phase: "pregnant" | "newborn" | "baby", role: "mor" | "f
     },
   ];
 
+  // AI Chat — always visible
+  sections.push({
+    label: "SPØRG",
+    items: [{ label: "Spørg Lille", icon: MessageCircle, path: "/chat" }],
+  });
+
   if (isPregnant) {
     sections.push({
       label: "NAVN",
@@ -38,7 +45,10 @@ function getNavSections(phase: "pregnant" | "newborn" | "baby", role: "mor" | "f
   } else {
     sections.push({
       label: "FAMILIE",
-      items: [{ label: "Samarbejde", icon: Users, path: "/sammen" }],
+      items: [
+        { label: "Samarbejde", icon: Users, path: "/sammen" },
+        { label: "Leg & aktiviteter", icon: Gamepad2, path: "/leg" },
+      ],
     });
     sections.push({
       label: "DAGBOG",
