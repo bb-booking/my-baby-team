@@ -47,7 +47,7 @@ function getNavSections(phase: "pregnant" | "newborn" | "baby", role: "mor" | "f
       label: "FAMILIE",
       items: [
         { label: "Samarbejde", icon: Users, path: "/sammen" },
-        { label: "Leg & aktiviteter", icon: Gamepad2, path: "/leg" },
+        { label: "Leg & aktiviteter", icon: PuzzleIcon, path: "/leg" },
       ],
     });
     sections.push({
