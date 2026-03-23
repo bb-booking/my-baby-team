@@ -214,6 +214,12 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const moveTaskToDate = (id: string, newDate: string) => {
+    setTasks((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, dueDate: newDate } : t))
+    );
+  };
+
   // Children management
   const addChild = (name: string, birthDate: string) => {
     setProfileState((prev) => ({
