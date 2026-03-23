@@ -28,6 +28,7 @@ export interface FamilyTask {
   completed: boolean;
   createdAt: string;
   recurrence: TaskRecurrence;
+  dueDate: string; // ISO date string YYYY-MM-DD
 }
 
 export interface FamilyProfile {
@@ -63,7 +64,7 @@ interface FamilyContextType {
   phaseLabel: string;
   // Tasks
   tasks: FamilyTask[];
-  addTask: (title: string, assignee: TaskAssignee, recurrence?: TaskRecurrence) => void;
+  addTask: (title: string, assignee: TaskAssignee, recurrence?: TaskRecurrence, dueDate?: string) => void;
   toggleTask: (id: string) => void;
   removeTask: (id: string) => void;
   reassignTask: (id: string, newAssignee: TaskAssignee) => void;
@@ -174,7 +175,7 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
   const farName = profile.role === "far" ? profile.parentName : profile.partnerName;
 
   // Task management
-  const addTask = (title: string, assignee: TaskAssignee, recurrence: TaskRecurrence = "never") => {
+  const addTask = (title: string, assignee: TaskAssignee, recurrence: TaskRecurrence = "never", dueDate?: string) => {
     setTasks((prev) => [
       ...prev,
       {
@@ -185,6 +186,7 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
         completed: false,
         createdAt: new Date().toISOString(),
         recurrence,
+        dueDate: dueDate || new Date().toISOString().split("T")[0],
       },
     ]);
   };
@@ -239,6 +241,7 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
             category: t.category || "custom",
             createdAt: new Date().toISOString(),
             recurrence: "never" as TaskRecurrence,
+            dueDate: new Date().toISOString().split("T")[0],
           }))
         );
       });
