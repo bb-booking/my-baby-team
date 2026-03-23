@@ -5,6 +5,8 @@ import { QuickLog } from "@/components/QuickLog";
 import { TaskList } from "@/components/TaskList";
 import { PartnerNudge } from "@/components/PartnerNudge";
 import { MilestoneTimeline } from "@/components/MilestoneTimeline";
+import { MorRecoveryCard, MorSupportCard, MorFeedingCard, MorMicroSupport } from "@/components/MorDashboardCards";
+import { FarDailyActionCard, FarEmotionalNudge, FarFunHook, FarGuideCard, FarOwnershipCard } from "@/components/FarDashboardCards";
 import { Heart, Shield, Zap, Stethoscope, Brain, MessageCircle, Gamepad2 } from "lucide-react";
 import { format } from "date-fns";
 import { da } from "date-fns/locale";
