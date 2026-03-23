@@ -273,6 +273,7 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
         removeTask,
         reassignTask,
         editTaskTitle,
+        moveTaskToDate,
         addChild,
         removeChild,
         morName,
