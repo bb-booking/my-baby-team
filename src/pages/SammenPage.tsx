@@ -76,6 +76,11 @@ export default function SammenPage() {
         <p className="label-upper mt-1">JERES FÆLLES OVERBLIK</p>
       </div>
 
+      {/* Task list — top priority */}
+      <div className="section-fade-in" style={{ animationDelay: "60ms" }}>
+        <TaskList />
+      </div>
+
       {/* Parent cards with live stats */}
       <div className="flex gap-2.5 section-fade-in" style={{ animationDelay: "80ms" }}>
         {[
@@ -263,10 +268,7 @@ export default function SammenPage() {
         </div>
       )}
 
-      {/* Task list */}
-      <div className="section-fade-in" style={{ animationDelay: "260ms" }}>
-        <TaskList />
-      </div>
+
 
       {/* Weekly check-in */}
       <div className="card-soft section-fade-in" style={{ animationDelay: "320ms" }}>
