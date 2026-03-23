@@ -393,19 +393,6 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
         </button>
       </div>
 
-      {/* Header with add button */}
-      <div className="flex items-center justify-end">
-        <button
-          onClick={() => { setShowAdd(!showAdd); setInlineAddFilter(null); }}
-          className={cn(
-            "flex items-center gap-1.5 px-4 py-2 rounded-xl text-[0.75rem] font-medium transition-all active:scale-95",
-            "bg-[hsl(var(--moss))] text-white hover:opacity-90"
-          )}
-        >
-          <Plus className="w-3.5 h-3.5" />
-          Tilføj opgave
-        </button>
-      </div>
 
       {/* Top-level add task form */}
       {showAdd && (
