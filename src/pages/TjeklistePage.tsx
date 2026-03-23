@@ -13,7 +13,7 @@ interface ChecklistItem {
   title: string;
   hint: string;
   priority: Priority;
-  priceLevel: PriceLevel;
+  phase: Phase;
   phase: Phase;
   category: string;
   emoji: string;
