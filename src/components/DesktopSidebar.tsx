@@ -2,7 +2,7 @@ import { useLocation, Link } from "react-router-dom";
 import { useFamily } from "@/context/FamilyContext";
 import {
   Home, Baby, Users, Settings, BookOpen, Calendar, CheckSquare,
-  Lightbulb, Heart, Moon, ShoppingBag,
+  Lightbulb, Heart, Moon, ShoppingBag, Circle, Droplet,
   MessageCircle, PuzzleIcon
 } from "lucide-react";
 
