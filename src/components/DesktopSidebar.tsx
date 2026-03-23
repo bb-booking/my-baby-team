@@ -2,8 +2,8 @@ import { useLocation, Link } from "react-router-dom";
 import { useFamily } from "@/context/FamilyContext";
 import {
   Home, Baby, Users, Settings, BookOpen, Calendar, CheckSquare,
-  Lightbulb, Heart, Moon, ShoppingBag, Droplets, Utensils,
-  MessageCircle, Gamepad2
+  Lightbulb, Heart, Moon, ShoppingBag,
+  MessageCircle, PuzzleIcon
 } from "lucide-react";
 
 interface NavItem {
