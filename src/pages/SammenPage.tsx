@@ -268,10 +268,7 @@ export default function SammenPage() {
         </div>
       )}
 
-      {/* Task list */}
-      <div className="section-fade-in" style={{ animationDelay: "260ms" }}>
-        <TaskList />
-      </div>
+
 
       {/* Weekly check-in */}
       <div className="card-soft section-fade-in" style={{ animationDelay: "320ms" }}>
