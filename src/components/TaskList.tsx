@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useFamily, type TaskAssignee, type TaskRecurrence } from "@/context/FamilyContext";
 import { Check, Plus, X, ChevronDown, User, Users, Pencil, Trash2, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import confetti from "canvas-confetti";
 
 const assigneeOptions: { value: TaskAssignee; label: string; icon: React.ReactNode }[] = [
   { value: "mor", label: "Mor", icon: <User className="w-3 h-3" /> },
