@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 
 type Priority = "nødvendig" | "valgfri";
-type PriceLevel = "budget" | "medium" | "premium";
+type Phase = "before" | "after";
 type Phase = "before" | "after";
 
 interface ChecklistItem {
