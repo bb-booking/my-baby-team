@@ -210,9 +210,11 @@ function AddTaskInline({ onAdd, onCancel, morName, farName, defaultAssignee, com
 
 type FilterTab = "alle" | "mor" | "far" | "fælles" | "afsluttet";
 
-export function TaskList() {
+export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externalShowAdd?: boolean; onExternalShowAddChange?: (v: boolean) => void } = {}) {
   const { tasks, toggleTask, removeTask, reassignTask, addTask, editTaskTitle, morName, farName, profile } = useFamily();
-  const [showAdd, setShowAdd] = useState(false);
+  const [internalShowAdd, setInternalShowAdd] = useState(false);
+  const showAdd = externalShowAdd ?? internalShowAdd;
+  const setShowAdd = (v: boolean) => { onExternalShowAddChange ? onExternalShowAddChange(v) : setInternalShowAdd(v); };
   const [inlineAddFilter, setInlineAddFilter] = useState<FilterTab | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
