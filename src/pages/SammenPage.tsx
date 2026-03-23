@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Plus } from "lucide-react";
 import { useFamily } from "@/context/FamilyContext";
 import { useDiary } from "@/context/DiaryContext";
 import {
@@ -69,16 +70,27 @@ export default function SammenPage() {
     return created.toDateString() === now.toDateString();
   }).length;
 
+  const [showAddTask, setShowAddTask] = useState(false);
+
   return (
     <div className="space-y-5">
-      <div className="section-fade-in">
-        <h1 className="text-[1.9rem] font-normal">Samarbejde</h1>
-        <p className="label-upper mt-1">JERES FÆLLES OVERBLIK</p>
+      <div className="section-fade-in flex items-start justify-between">
+        <div>
+          <h1 className="text-[1.9rem] font-normal">Samarbejde</h1>
+          <p className="label-upper mt-1">JERES FÆLLES OVERBLIK</p>
+        </div>
+        <button
+          onClick={() => setShowAddTask(!showAddTask)}
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[0.72rem] font-medium transition-all active:scale-95 bg-[hsl(var(--moss))] text-white hover:opacity-90 mt-1"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          Tilføj opgave
+        </button>
       </div>
 
       {/* Task list — top priority */}
       <div className="section-fade-in" style={{ animationDelay: "60ms" }}>
-        <TaskList />
+        <TaskList externalShowAdd={showAddTask} onExternalShowAddChange={setShowAddTask} />
       </div>
 
       {/* Parent cards with live stats */}
