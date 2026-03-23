@@ -53,15 +53,15 @@ export default function Dashboard() {
         <>
           <PregnancyWeekBar />
           <BabySizeCard />
-          <PregnancyInsight />
           <TaskList />
+          <PregnancyInsight />
           <PartnerNudge />
           <MilestoneTimeline />
         </>
       ) : (
         <>
-          <NewbornDashboard />
           <TaskList />
+          <NewbornDashboard />
           <PartnerNudge />
           <MilestoneTimeline />
         </>
