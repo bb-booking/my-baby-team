@@ -372,33 +372,97 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
     );
   };
 
+  const renderWeekDayColumn = (day: Date) => {
+    const dateStr = toDateStr(day);
+    const dayTasks = getTasksForDate(dateStr);
+    const isSelected = isSameDay(day, selectedDate);
+    const today = isToday(day);
+
+    return (
+      <div key={dateStr} className="flex-1 min-w-0">
+        <button
+          onClick={() => { setSelectedDate(day); setViewMode("day"); }}
+          className={cn(
+            "w-full text-center py-1.5 rounded-lg mb-2 transition-all",
+            isSelected ? "bg-foreground text-background" : today ? "bg-[hsl(var(--sage-light))]" : "hover:bg-[hsl(var(--stone-lighter))]"
+          )}
+        >
+          <p className="text-[0.5rem] tracking-[0.1em] uppercase">{format(day, "EEE", { locale: da })}</p>
+          <p className={cn("text-[0.75rem] font-medium", today && !isSelected && "text-[hsl(var(--moss))]")}>{format(day, "d")}</p>
+        </button>
+        <div className="space-y-1">
+          {dayTasks.slice(0, 4).map(task => (
+            <button
+              key={task.id}
+              onClick={() => { setSelectedDate(day); setViewMode("day"); }}
+              className={cn(
+                "w-full text-left px-1.5 py-1 rounded-md text-[0.6rem] leading-tight truncate transition-colors",
+                task.completed
+                  ? "line-through text-muted-foreground bg-[hsl(var(--stone-lighter))]/50"
+                  : task.assignee === "mor"
+                    ? "bg-[hsl(var(--clay-light))]/60 text-[hsl(var(--bark))]"
+                    : task.assignee === "far"
+                      ? "bg-[hsl(var(--sage-light))]/60 text-[hsl(var(--sage-dark))]"
+                      : "bg-[hsl(var(--sand-light))] text-foreground/80"
+              )}
+            >
+              {task.title}
+            </button>
+          ))}
+          {dayTasks.length > 4 && (
+            <p className="text-[0.55rem] text-muted-foreground text-center">+{dayTasks.length - 4} mere</p>
+          )}
+          {dayTasks.length === 0 && (
+            <p className="text-[0.55rem] text-muted-foreground text-center py-2">—</p>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-3">
-      {/* Date navigation */}
+      {/* Date navigation + view toggle */}
       <div className="flex items-center justify-between">
         <button
-          onClick={() => setSelectedDate(prev => subDays(prev, 1))}
+          onClick={() => setSelectedDate(prev => viewMode === "week" ? subDays(prev, 7) : subDays(prev, 1))}
           className="p-2 rounded-xl hover:bg-[hsl(var(--stone-lighter))] transition-colors active:scale-95"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <button
-          onClick={() => setSelectedDate(new Date())}
-          className={cn(
-            "text-[0.85rem] font-medium capitalize px-3 py-1 rounded-lg transition-colors",
-            isToday(selectedDate) ? "text-foreground" : "text-[hsl(var(--moss))] hover:bg-[hsl(var(--sage-light))]"
-          )}
-        >
-          {formatDateLabel(selectedDate)}
-        </button>
-        <button
-          onClick={() => setSelectedDate(prev => addDays(prev, 1))}
-          className="p-2 rounded-xl hover:bg-[hsl(var(--stone-lighter))] transition-colors active:scale-95"
-        >
-          <ChevronRight className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setSelectedDate(new Date())}
+            className={cn(
+              "text-[0.85rem] font-medium capitalize px-3 py-1 rounded-lg transition-colors",
+              isToday(selectedDate) ? "text-foreground" : "text-[hsl(var(--moss))] hover:bg-[hsl(var(--sage-light))]"
+            )}
+          >
+            {viewMode === "week"
+              ? `Uge ${format(weekStart, "w", { locale: da })}`
+              : formatDateLabel(selectedDate)
+            }
+          </button>
+        </div>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setViewMode(viewMode === "day" ? "week" : "day")}
+            className={cn(
+              "p-2 rounded-xl transition-colors active:scale-95",
+              "hover:bg-[hsl(var(--stone-lighter))]"
+            )}
+            title={viewMode === "day" ? "Ugevisning" : "Dagvisning"}
+          >
+            {viewMode === "day" ? <CalendarDays className="w-4 h-4" /> : <Calendar className="w-4 h-4" />}
+          </button>
+          <button
+            onClick={() => setSelectedDate(prev => viewMode === "week" ? addDays(prev, 7) : addDays(prev, 1))}
+            className="p-2 rounded-xl hover:bg-[hsl(var(--stone-lighter))] transition-colors active:scale-95"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
       </div>
-
 
       {/* Top-level add task form */}
       {showAdd && (
@@ -411,64 +475,79 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
         />
       )}
 
-      {/* Filter tabs */}
-      <div className="flex gap-1 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => { setFilter(tab.key); setInlineAddFilter(null); }}
-            className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[0.68rem] tracking-[0.06em] uppercase whitespace-nowrap transition-all active:scale-95",
-              filter === tab.key
-                ? "bg-foreground text-background font-medium"
-                : "text-muted-foreground hover:bg-[hsl(var(--stone-lighter))]"
-            )}
-          >
-            {tab.label}
-            <span className={cn(
-              "text-[0.6rem] tabular-nums min-w-[1.1rem] text-center rounded-md px-1 py-0.5",
-              filter === tab.key ? "bg-background/20" : "bg-[hsl(var(--stone-lighter))]"
-            )}>
-              {tab.count}
-            </span>
-          </button>
-        ))}
-      </div>
+      {viewMode === "week" ? (
+        /* Week view */
+        <div className="card-soft">
+          <div className="flex gap-1">
+            {weekDays.map(day => renderWeekDayColumn(day))}
+          </div>
+          <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[hsl(var(--stone-lighter))] text-[0.58rem] text-muted-foreground">
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm" style={{ background: "hsl(var(--clay-light))" }} /> {morName}</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm" style={{ background: "hsl(var(--sage-light))" }} /> {farName}</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm" style={{ background: "hsl(var(--sand-light))" }} /> Fælles</span>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Filter tabs */}
+          <div className="flex gap-1 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
+            {tabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => { setFilter(tab.key); setInlineAddFilter(null); }}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[0.68rem] tracking-[0.06em] uppercase whitespace-nowrap transition-all active:scale-95",
+                  filter === tab.key
+                    ? "bg-foreground text-background font-medium"
+                    : "text-muted-foreground hover:bg-[hsl(var(--stone-lighter))]"
+                )}
+              >
+                {tab.label}
+                <span className={cn(
+                  "text-[0.6rem] tabular-nums min-w-[1.1rem] text-center rounded-md px-1 py-0.5",
+                  filter === tab.key ? "bg-background/20" : "bg-[hsl(var(--stone-lighter))]"
+                )}>
+                  {tab.count}
+                </span>
+              </button>
+            ))}
+          </div>
 
-      {/* Task list */}
-      <div className="card-soft">
-        {filteredTasks.length > 0 ? (
-          <div className="space-y-1">
-            {filteredTasks.map(t => renderTask(t))}
+          {/* Task list */}
+          <div className="card-soft">
+            {filteredTasks.length > 0 ? (
+              <div className="space-y-1">
+                {filteredTasks.map(t => renderTask(t))}
+              </div>
+            ) : (
+              <p className="text-center text-[0.8rem] text-muted-foreground py-6">
+                {filter === "afsluttet" ? "Ingen afsluttede opgaver endnu" : "Ingen opgaver denne dag ✨"}
+              </p>
+            )}
+            {filter !== "alle" && filter !== "afsluttet" && !inlineAddFilter && (
+              <button
+                onClick={() => setInlineAddFilter(filter)}
+                className="flex items-center gap-1.5 w-full px-3 py-2 text-[0.72rem] text-muted-foreground hover:text-foreground transition-colors rounded-xl hover:bg-[hsl(var(--cream))]"
+              >
+                <Plus className="w-3 h-3" />
+                Tilføj til {tabs.find(t => t.key === filter)?.label}
+              </button>
+            )}
+            {inlineAddFilter && (
+              <div className="mt-2">
+                <AddTaskInline
+                  onAdd={handleAdd}
+                  onCancel={() => setInlineAddFilter(null)}
+                  morName={morName}
+                  farName={farName}
+                  defaultAssignee={defaultAssigneeForFilter(filter)}
+                  compact
+                />
+              </div>
+            )}
           </div>
-        ) : (
-          <p className="text-center text-[0.8rem] text-muted-foreground py-6">
-            {filter === "afsluttet" ? "Ingen afsluttede opgaver endnu" : "Ingen opgaver denne dag ✨"}
-          </p>
-        )}
-        {/* Inline add for filtered tab */}
-        {filter !== "alle" && filter !== "afsluttet" && !inlineAddFilter && (
-          <button
-            onClick={() => setInlineAddFilter(filter)}
-            className="flex items-center gap-1.5 w-full px-3 py-2 text-[0.72rem] text-muted-foreground hover:text-foreground transition-colors rounded-xl hover:bg-[hsl(var(--cream))]"
-          >
-            <Plus className="w-3 h-3" />
-            Tilføj til {tabs.find(t => t.key === filter)?.label}
-          </button>
-        )}
-        {inlineAddFilter && (
-          <div className="mt-2">
-            <AddTaskInline
-              onAdd={handleAdd}
-              onCancel={() => setInlineAddFilter(null)}
-              morName={morName}
-              farName={farName}
-              defaultAssignee={defaultAssigneeForFilter(filter)}
-              compact
-            />
-          </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 }
