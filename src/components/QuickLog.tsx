@@ -133,7 +133,7 @@ export function QuickLog() {
         <button onClick={() => { setShowDiaperPicker(!showDiaperPicker); setShowNursingPicker(false); setDiaperStep("type"); }}
           className="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl border transition-all active:scale-95 hover:-translate-y-0.5 hover:shadow-md relative"
           style={{ borderColor: showDiaperPicker ? "hsl(var(--clay))" : "hsl(var(--stone-light))", background: showDiaperPicker ? "hsl(var(--cream))" : "hsl(var(--warm-white))" }}>
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M8 10h16v4c0 5-3 10-8 10s-8-5-8-10V10z" fill="hsl(var(--cream))" stroke="hsl(var(--stone))" strokeWidth="1.2"/><path d="M10 10c2-2 4-3 6-3s4 1 6 3" stroke="hsl(var(--stone))" strokeWidth="1.2" strokeLinecap="round"/><circle cx="14" cy="17" r="1" fill="hsl(var(--sage))"/><circle cx="18" cy="16" r="1" fill="hsl(var(--sage))"/><circle cx="16" cy="19" r="1" fill="hsl(var(--sage))"/></svg>
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M9 11h14v3c0 5-3 9-7 9s-7-4-7-9V11z" fill="hsl(var(--cream))" stroke="hsl(var(--stone))" strokeWidth="1.2"/><path d="M11 11c2-2 3.5-3 5-3s3 1 5 3" stroke="hsl(var(--stone))" strokeWidth="1.2" strokeLinecap="round"/><circle cx="14" cy="17" r="1.2" fill="hsl(var(--sage))"/><circle cx="18" cy="16.5" r="1.2" fill="hsl(var(--sage))"/></svg>
           <span className="text-[0.62rem] tracking-[0.06em] uppercase text-muted-foreground">Ble</span>
           <span className="absolute -top-1 -right-1 text-[0.6rem] font-bold w-5 h-5 rounded-full flex items-center justify-center"
             style={{ background: "hsl(var(--clay-light))", color: "hsl(var(--bark))" }}>

@@ -196,6 +196,14 @@ function MorHealthEditor({ onSave }: { onSave?: () => void }) {
           ))}
         </div>
       </div>
+
+      <button
+        onClick={onSave}
+        className="w-full py-2.5 rounded-xl text-[0.82rem] font-medium transition-all active:scale-[0.97]"
+        style={{ background: "hsl(var(--moss))", color: "white" }}
+      >
+        Gem ændringer
+      </button>
     </div>
   );
 }
