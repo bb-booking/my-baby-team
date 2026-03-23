@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useFamily } from "@/context/FamilyContext";
-import { getBabyInsight, developmentalLeaps, getLeapStatus } from "@/lib/phaseData";
+import { getBabyInsight, developmentalLeaps, getLeapStatus, getActiveLeap } from "@/lib/phaseData";
 import { Baby as BabyIcon, Check, ChevronDown, ChevronUp, Smile, Hand, Moon, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
+import BabyMeasurements from "@/components/BabyMeasurements";
+import { Link } from "react-router-dom";
 
 export default function BarnPage() {
   const { profile, currentWeek, babyAgeWeeks, babyAgeMonths } = useFamily();
@@ -82,8 +84,8 @@ function BornBarnPage({ ageWeeks, ageMonths }: { ageWeeks: number; ageMonths: nu
   const { profile } = useFamily();
   const childName = profile.children?.[0]?.name || "Baby";
   const insight = getBabyInsight(ageWeeks, childName);
+  const activeLeap = getActiveLeap(ageWeeks);
 
-  // Completed leaps stored in localStorage
   const [completedLeaps, setCompletedLeaps] = useState<string[]>(() => {
     try {
       const stored = localStorage.getItem("lille-completed-leaps");
@@ -122,6 +124,27 @@ function BornBarnPage({ ageWeeks, ageMonths }: { ageWeeks: number; ageMonths: nu
           <p className="text-[0.82rem]">💡 {insight.tip}</p>
         </div>
       </div>
+
+      {/* Measurements */}
+      <div className="section-fade-in" style={{ animationDelay: "120ms" }}>
+        <BabyMeasurements childName={childName} ageWeeks={ageWeeks} />
+      </div>
+
+      {/* Play & Activities link */}
+      <Link to="/leg" className="block">
+        <div className="rounded-2xl p-4 flex items-center gap-3 section-fade-in transition-all hover:shadow-sm active:scale-[0.98]" style={{
+          animationDelay: "140ms",
+          background: "linear-gradient(135deg, hsl(var(--sage) / 0.08), hsl(var(--sage) / 0.03))",
+          border: "1px solid hsl(var(--sage) / 0.2)",
+        }}>
+          <span className="text-2xl">🎨</span>
+          <div className="flex-1">
+            <p className="text-[0.88rem] font-medium">Leg & aktiviteter</p>
+            <p className="text-[0.68rem] text-muted-foreground">Forslag tilpasset {childName}s alder</p>
+          </div>
+          <span className="text-muted-foreground">→</span>
+        </div>
+      </Link>
 
       {/* Developmental leaps / Tigerspring */}
       <div className="section-fade-in" style={{ animationDelay: "160ms" }}>

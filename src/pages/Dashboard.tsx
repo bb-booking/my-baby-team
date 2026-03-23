@@ -5,12 +5,12 @@ import { QuickLog } from "@/components/QuickLog";
 import { TaskList } from "@/components/TaskList";
 import { PartnerNudge } from "@/components/PartnerNudge";
 import { MilestoneTimeline } from "@/components/MilestoneTimeline";
-import { Heart, Shield, Zap, Stethoscope, Brain } from "lucide-react";
+import { Heart, Shield, Zap, Stethoscope, Brain, MessageCircle, Gamepad2 } from "lucide-react";
 import { format } from "date-fns";
 import { da } from "date-fns/locale";
 import { getBabyInsight, getKnowledgeCards, getActiveLeap, getNextLeap } from "@/lib/phaseData";
 import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function Dashboard() {
   const { profile, phaseLabel, morName, farName, babyAgeWeeks, babyAgeMonths } = useFamily();
@@ -71,13 +71,34 @@ export default function Dashboard() {
           {/* 3. Sleep status */}
           <SleepStatusBanner childName={childName || "Baby"} />
 
-          {/* 4. Tasks */}
+          {/* 4. "Relevant now" module */}
+          <RelevantNowCard ageWeeks={babyAgeWeeks} childName={childName || "Baby"} isMor={isMor} partnerName={isMor ? farName : morName} />
+
+          {/* 5. Tasks */}
           <TaskList />
 
-          {/* 5. Tigerspring */}
+          {/* 6. Quick links: Chat + Activities */}
+          <div className="grid grid-cols-2 gap-2.5 section-fade-in">
+            <Link to="/chat" className="card-soft !p-4 flex flex-col items-center gap-2 transition-all hover:shadow-sm active:scale-[0.98]">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--sage-light))" }}>
+                <MessageCircle className="w-5 h-5" style={{ color: "hsl(var(--moss))" }} />
+              </div>
+              <p className="text-[0.78rem] font-medium">Spørg Lille</p>
+              <p className="text-[0.6rem] text-muted-foreground text-center">Søvn, udvikling, trivsel</p>
+            </Link>
+            <Link to="/leg" className="card-soft !p-4 flex flex-col items-center gap-2 transition-all hover:shadow-sm active:scale-[0.98]">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--clay-light))" }}>
+                <Gamepad2 className="w-5 h-5" style={{ color: "hsl(var(--clay))" }} />
+              </div>
+              <p className="text-[0.78rem] font-medium">Leg & aktiviteter</p>
+              <p className="text-[0.6rem] text-muted-foreground text-center">Tilpasset {childName || "baby"}s alder</p>
+            </Link>
+          </div>
+
+          {/* 7. Tigerspring */}
           <LeapBanner ageWeeks={babyAgeWeeks} childName={childName || "Baby"} />
 
-          {/* 6. Knowledge & insight */}
+          {/* 8. Knowledge & insight */}
           <KnowledgeCarousel ageWeeks={babyAgeWeeks} childName={childName || "Baby"} />
           <BabyInsightCard ageWeeks={babyAgeWeeks} ageMonths={babyAgeMonths} childName={childName || "Baby"} />
 
@@ -87,6 +108,45 @@ export default function Dashboard() {
       )}
 
       <div className="h-20 md:h-0" />
+    </div>
+  );
+}
+
+// ── "Relevant now" module ──
+function RelevantNowCard({ ageWeeks, childName, isMor, partnerName }: { ageWeeks: number; childName: string; isMor: boolean; partnerName: string }) {
+  const activeLeap = getActiveLeap(ageWeeks);
+
+  const focuses: string[] = [];
+  if (ageWeeks < 4) {
+    focuses.push("Hud-mod-hud kontakt og ro");
+    focuses.push("Etabler amning/flaske-rytme");
+    if (!isMor) focuses.push(`Støt ${partnerName} med praktisk hjælp`);
+  } else if (ageWeeks < 12) {
+    focuses.push("Korte mavetids-øvelser");
+    focuses.push("Øjenkontakt og smil");
+    if (activeLeap) focuses.push(`Tålmodighed — tigerspring i gang`);
+  } else if (ageWeeks < 26) {
+    focuses.push("Gribelegetøj og sanseleg");
+    focuses.push("Tummy time med legetøj");
+    if (!isMor) focuses.push(`Tag ${childName} med på gåtur alene`);
+  } else {
+    focuses.push("Tittit-bansen og pegebøger");
+    focuses.push("Babysikring af hjemmet");
+    focuses.push("Faste rutiner giver tryghed");
+  }
+
+  return (
+    <div className="card-soft section-fade-in">
+      <p className="text-[0.6rem] tracking-[0.14em] uppercase text-muted-foreground mb-2">🎯 FOKUS LIGE NU</p>
+      <p className="text-[0.92rem] font-medium mb-2">Lige nu kan I fokusere på…</p>
+      <ul className="space-y-1.5">
+        {focuses.map((f, i) => (
+          <li key={i} className="flex items-start gap-2 text-[0.78rem] text-foreground/70 leading-relaxed">
+            <span className="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0" style={{ background: "hsl(var(--sage))" }} />
+            {f}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -121,7 +181,7 @@ function QuickStatsStrip({ babyAgeWeeks, babyAgeMonths, childName }: { babyAgeWe
   );
 }
 
-// ── Sleep status banner (uses real diary data) ──
+// ── Sleep status banner ──
 function SleepStatusBanner({ childName }: { childName: string }) {
   const { activeSleep, todaySleepMinutes } = useDiary();
   const hours = Math.floor(todaySleepMinutes / 60);
@@ -279,7 +339,7 @@ function BabyInsightCard({ ageWeeks, ageMonths, childName }: { ageWeeks: number;
   );
 }
 
-// ── Role focus card (unchanged) ──
+// ── Role focus card ──
 function RoleFocusCard({ isMor, phase, childName, partnerName, babyAgeWeeks }: { isMor: boolean; phase: string; childName?: string; partnerName: string; babyAgeWeeks: number }) {
   const name = childName || "baby";
 
