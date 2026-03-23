@@ -65,16 +65,19 @@ export default function Dashboard() {
           {/* 1. Quick Log — always first */}
           <QuickLog />
 
-          {/* 2. Sleep status */}
+          {/* 2. Stats strip */}
+          <QuickStatsStrip babyAgeWeeks={babyAgeWeeks} babyAgeMonths={babyAgeMonths} childName={childName || "Baby"} />
+
+          {/* 3. Sleep status */}
           <SleepStatusBanner childName={childName || "Baby"} />
 
-          {/* 3. Tasks */}
+          {/* 4. Tasks */}
           <TaskList />
 
-          {/* 4. Tigerspring */}
+          {/* 5. Tigerspring */}
           <LeapBanner ageWeeks={babyAgeWeeks} childName={childName || "Baby"} />
 
-          {/* 5. Knowledge & insight */}
+          {/* 6. Knowledge & insight */}
           <KnowledgeCarousel ageWeeks={babyAgeWeeks} childName={childName || "Baby"} />
           <BabyInsightCard ageWeeks={babyAgeWeeks} ageMonths={babyAgeMonths} childName={childName || "Baby"} />
 
