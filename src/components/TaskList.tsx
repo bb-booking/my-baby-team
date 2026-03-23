@@ -223,6 +223,7 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
   const [filter, setFilter] = useState<FilterTab>("alle");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>("day");
+  const [movingTaskId, setMovingTaskId] = useState<string | null>(null);
 
   const selectedDateStr = toDateStr(selectedDate);
 
