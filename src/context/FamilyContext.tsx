@@ -69,6 +69,7 @@ interface FamilyContextType {
   removeTask: (id: string) => void;
   reassignTask: (id: string, newAssignee: TaskAssignee) => void;
   editTaskTitle: (id: string, newTitle: string) => void;
+  moveTaskToDate: (id: string, newDate: string) => void;
   // Children
   addChild: (name: string, birthDate: string) => void;
   removeChild: (id: string) => void;
