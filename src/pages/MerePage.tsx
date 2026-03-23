@@ -134,7 +134,7 @@ export default function MerePage() {
   );
 }
 
-function MorHealthEditor() {
+function MorHealthEditor({ onSave }: { onSave?: () => void }) {
   const { profile, setProfile } = useFamily();
   const mh = profile.morHealth || {};
 
