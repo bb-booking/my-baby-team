@@ -144,7 +144,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)] md:h-[calc(100vh-5rem)]">
+    <div className="flex flex-col h-[calc(100vh-12rem)] md:h-[calc(100vh-5rem)]">
       {/* Header */}
       <div className="section-fade-in px-1 pb-3">
         <h1 className="text-[1.9rem] font-normal">Spørg Lille</h1>
