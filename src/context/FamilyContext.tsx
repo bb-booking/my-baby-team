@@ -69,6 +69,7 @@ interface FamilyContextType {
   removeTask: (id: string) => void;
   reassignTask: (id: string, newAssignee: TaskAssignee) => void;
   editTaskTitle: (id: string, newTitle: string) => void;
+  moveTaskToDate: (id: string, newDate: string) => void;
   // Children
   addChild: (name: string, birthDate: string) => void;
   removeChild: (id: string) => void;
@@ -213,6 +214,12 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const moveTaskToDate = (id: string, newDate: string) => {
+    setTasks((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, dueDate: newDate } : t))
+    );
+  };
+
   // Children management
   const addChild = (name: string, birthDate: string) => {
     setProfileState((prev) => ({
@@ -234,6 +241,7 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
       import("@/lib/phaseData").then(({ getTasksForPhase }) => {
         const week = effectivePhase === "pregnant" ? currentWeek : babyAgeWeeks;
         const phaseTasks = getTasksForPhase(effectivePhase, week);
+        const today = new Date().toISOString().split("T")[0];
         setTasks(
           phaseTasks.map((t) => ({
             ...t,
@@ -241,12 +249,12 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
             category: t.category || "custom",
             createdAt: new Date().toISOString(),
             recurrence: "never" as TaskRecurrence,
-            dueDate: new Date().toISOString().split("T")[0],
+            dueDate: today,
           }))
         );
       });
     }
-  }, [profile.onboarded]);
+  }, [profile.onboarded, effectivePhase]);
 
   return (
     <FamilyContext.Provider
@@ -266,6 +274,7 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
         removeTask,
         reassignTask,
         editTaskTitle,
+        moveTaskToDate,
         addChild,
         removeChild,
         morName,

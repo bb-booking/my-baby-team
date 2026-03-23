@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useFamily, type TaskAssignee, type TaskRecurrence } from "@/context/FamilyContext";
-import { Check, Plus, X, ChevronDown, ChevronLeft, ChevronRight, User, Users, Pencil, Trash2, RefreshCw, CalendarDays, Calendar } from "lucide-react";
+import { Check, Plus, X, ChevronDown, ChevronLeft, ChevronRight, User, Users, Pencil, Trash2, RefreshCw, CalendarDays, Calendar, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, addDays, subDays, isToday, isTomorrow, isYesterday, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay } from "date-fns";
 import { da } from "date-fns/locale";
@@ -213,7 +213,7 @@ function AddTaskInline({ onAdd, onCancel, morName, farName, defaultAssignee, com
 type FilterTab = "alle" | "mor" | "far" | "fælles" | "afsluttet";
 
 export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externalShowAdd?: boolean; onExternalShowAddChange?: (v: boolean) => void } = {}) {
-  const { tasks, toggleTask, removeTask, reassignTask, addTask, editTaskTitle, morName, farName, profile } = useFamily();
+  const { tasks, toggleTask, removeTask, reassignTask, addTask, editTaskTitle, moveTaskToDate, morName, farName, profile } = useFamily();
   const [internalShowAdd, setInternalShowAdd] = useState(false);
   const showAdd = externalShowAdd ?? internalShowAdd;
   const setShowAdd = (v: boolean) => { onExternalShowAddChange ? onExternalShowAddChange(v) : setInternalShowAdd(v); };
@@ -223,6 +223,7 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
   const [filter, setFilter] = useState<FilterTab>("alle");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>("day");
+  const [movingTaskId, setMovingTaskId] = useState<string | null>(null);
 
   const selectedDateStr = toDateStr(selectedDate);
 
@@ -299,75 +300,120 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
     return profile.role === "mor" ? "mor" : "far";
   };
 
+  const handleMoveTask = (taskId: string, dayOffset: number) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    const currentDate = task.dueDate ? new Date(task.dueDate) : new Date();
+    const newDate = addDays(currentDate, dayOffset);
+    moveTaskToDate(taskId, toDateStr(newDate));
+    setMovingTaskId(null);
+  };
+
+  const moveOptions = [
+    { label: "I morgen", offset: 1 },
+    { label: "Om 2 dage", offset: 2 },
+    { label: "Næste uge", offset: 7 },
+  ];
+
   const renderTask = (task: typeof tasks[0]) => {
     const isCompleted = task.completed;
+    const isMoving = movingTaskId === task.id;
     return (
-      <div
-        key={task.id}
-        className={cn(
-          "group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all hover:bg-[hsl(var(--cream))]",
-          isCompleted && "opacity-60"
-        )}
-      >
-        <button
-          onClick={() => handleToggle(task.id)}
+      <div key={task.id}>
+        <div
           className={cn(
-            "w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 transition-all active:scale-90",
-            isCompleted
-              ? "bg-[hsl(var(--sage))]"
-              : "border-[1.5px] border-[hsl(var(--stone-light))] hover:border-[hsl(var(--sage))]"
+            "group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all hover:bg-[hsl(var(--cream))]",
+            isCompleted && "opacity-60"
           )}
         >
-          {isCompleted && <Check className="w-3 h-3 text-white" />}
-        </button>
-        <div className="flex-1 min-w-0">
-          {editingId === task.id ? (
-            <input
-              value={editText}
-              onChange={(e) => setEditText(e.target.value)}
-              onBlur={saveEdit}
-              onKeyDown={(e) => e.key === "Enter" && saveEdit()}
-              autoFocus
-              className="w-full bg-transparent text-[0.85rem] focus:outline-none border-b border-[hsl(var(--sage))]"
-            />
-          ) : (
-            <div>
-              <p className={cn("text-[0.85rem] leading-snug", isCompleted && "text-muted-foreground line-through")}>
-                {task.title}
-              </p>
-              {task.recurrence && task.recurrence !== "never" && (
-                <span className="flex items-center gap-0.5 text-[0.58rem] text-muted-foreground mt-0.5">
-                  <RefreshCw className="w-2 h-2" />
-                  {recurrenceLabel(task.recurrence)}
-                </span>
-              )}
-            </div>
-          )}
-        </div>
-        <div className="flex items-center gap-1.5">
-          {!isCompleted && (
-            <button
-              onClick={() => startEdit(task.id, task.title)}
-              className="opacity-0 group-hover:opacity-60 transition-opacity p-1 hover:opacity-100"
-            >
-              <Pencil className="w-3 h-3" />
-            </button>
-          )}
           <button
-            onClick={() => removeTask(task.id)}
-            className="opacity-0 group-hover:opacity-60 transition-opacity p-1 hover:opacity-100 hover:text-destructive"
+            onClick={() => handleToggle(task.id)}
+            className={cn(
+              "w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 transition-all active:scale-90",
+              isCompleted
+                ? "bg-[hsl(var(--sage))]"
+                : "border-[1.5px] border-[hsl(var(--stone-light))] hover:border-[hsl(var(--sage))]"
+            )}
           >
-            <Trash2 className="w-3 h-3" />
+            {isCompleted && <Check className="w-3 h-3 text-white" />}
           </button>
-          {!isCompleted && (
-            <AssigneeChip
-              assignee={task.assignee}
-              onReassign={(a) => reassignTask(task.id, a)}
-              morName={morName}
-              farName={farName}
-            />
-          )}
+          <div className="flex-1 min-w-0">
+            {editingId === task.id ? (
+              <input
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                onBlur={saveEdit}
+                onKeyDown={(e) => e.key === "Enter" && saveEdit()}
+                autoFocus
+                className="w-full bg-transparent text-[0.85rem] focus:outline-none border-b border-[hsl(var(--sage))]"
+              />
+            ) : (
+              <div>
+                <p className={cn("text-[0.85rem] leading-snug", isCompleted && "text-muted-foreground line-through")}>
+                  {task.title}
+                </p>
+                {task.recurrence && task.recurrence !== "never" && (
+                  <span className="flex items-center gap-0.5 text-[0.58rem] text-muted-foreground mt-0.5">
+                    <RefreshCw className="w-2 h-2" />
+                    {recurrenceLabel(task.recurrence)}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-1.5">
+            {!isCompleted && (
+              <button
+                onClick={() => setMovingTaskId(isMoving ? null : task.id)}
+                className="opacity-0 group-hover:opacity-60 transition-opacity p-1 hover:opacity-100"
+                title="Flyt til anden dag"
+              >
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            )}
+            {!isCompleted && (
+              <button
+                onClick={() => startEdit(task.id, task.title)}
+                className="opacity-0 group-hover:opacity-60 transition-opacity p-1 hover:opacity-100"
+              >
+                <Pencil className="w-3 h-3" />
+              </button>
+            )}
+            <button
+              onClick={() => removeTask(task.id)}
+              className="opacity-0 group-hover:opacity-60 transition-opacity p-1 hover:opacity-100 hover:text-destructive"
+            >
+              <Trash2 className="w-3 h-3" />
+            </button>
+            {!isCompleted && (
+              <AssigneeChip
+                assignee={task.assignee}
+                onReassign={(a) => reassignTask(task.id, a)}
+                morName={morName}
+                farName={farName}
+              />
+            )}
+          </div>
         </div>
+        {isMoving && (
+          <div className="flex gap-1.5 px-3 pb-2 ml-8">
+            {moveOptions.map(opt => (
+              <button
+                key={opt.offset}
+                onClick={() => handleMoveTask(task.id, opt.offset)}
+                className="px-2.5 py-1 rounded-full text-[0.62rem] bg-[hsl(var(--sage-light))] text-[hsl(var(--sage-dark))] hover:bg-[hsl(var(--sage))] hover:text-white transition-all active:scale-95"
+              >
+                {opt.label}
+              </button>
+            ))}
+            <button
+              onClick={() => setMovingTaskId(null)}
+              className="px-2 py-1 rounded-full text-[0.62rem] text-muted-foreground hover:bg-[hsl(var(--stone-lighter))]"
+            >
+              Annullér
+            </button>
+          </div>
+        )}
       </div>
     );
   };
