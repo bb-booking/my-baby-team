@@ -1,15 +1,19 @@
 import { useLocation, Link } from "react-router-dom";
-import { Home, Baby, Users, BookOpen } from "lucide-react";
-
-const navItems = [
-  { label: "Hjem", icon: Home, path: "/" },
-  { label: "Barn", icon: Baby, path: "/barn" },
-  { label: "Dagbog", icon: BookOpen, path: "/dagbog" },
-  { label: "Sammen", icon: Users, path: "/sammen" },
-];
+import { useFamily } from "@/context/FamilyContext";
+import { Home, Baby, Users, BookOpen, MessageCircle } from "lucide-react";
 
 export function BottomNav() {
   const { pathname } = useLocation();
+  const { profile } = useFamily();
+  const isPregnant = profile.phase === "pregnant";
+
+  const navItems = [
+    { label: "Hjem", icon: Home, path: "/" },
+    { label: isPregnant ? "Graviditet" : "Barn", icon: Baby, path: "/barn" },
+    { label: "Spørg", icon: MessageCircle, path: "/chat" },
+    { label: "Dagbog", icon: BookOpen, path: "/dagbog" },
+    { label: "Sammen", icon: Users, path: "/sammen" },
+  ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around md:hidden"

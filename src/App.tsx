@@ -18,6 +18,8 @@ import RaadGuidesPage from "@/pages/RaadGuidesPage";
 import BabynavnePage from "@/pages/BabynavnePage";
 import ShopPage from "@/pages/ShopPage";
 import SovnPage from "@/pages/SovnPage";
+import ChatPage from "@/pages/ChatPage";
+import LegPage from "@/pages/LegPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +46,8 @@ const App = () => (
                 <Route path="/raad" element={<RaadGuidesPage />} />
                 <Route path="/babynavne" element={<BabynavnePage />} />
                 <Route path="/shop" element={<ShopPage />} />
+                <Route path="/chat" element={<ChatPage />} />
+                <Route path="/leg" element={<LegPage />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
