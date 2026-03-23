@@ -44,7 +44,7 @@ export function ProfileSwitcher() {
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div
-            className="absolute top-full right-0 mt-2 w-52 rounded-2xl p-2 z-50 shadow-lg"
+            className="absolute top-full left-0 mt-2 w-52 rounded-2xl p-2 z-50 shadow-lg"
             style={{
               background: "hsl(var(--warm-white))",
               border: "1px solid hsl(var(--stone-light))",
