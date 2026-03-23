@@ -238,6 +238,7 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
             completed: false,
             category: t.category || "custom",
             createdAt: new Date().toISOString(),
+            recurrence: "never" as TaskRecurrence,
           }))
         );
       });
