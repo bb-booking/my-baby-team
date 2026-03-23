@@ -175,7 +175,7 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
   const farName = profile.role === "far" ? profile.parentName : profile.partnerName;
 
   // Task management
-  const addTask = (title: string, assignee: TaskAssignee, recurrence: TaskRecurrence = "never") => {
+  const addTask = (title: string, assignee: TaskAssignee, recurrence: TaskRecurrence = "never", dueDate?: string) => {
     setTasks((prev) => [
       ...prev,
       {
@@ -186,6 +186,7 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
         completed: false,
         createdAt: new Date().toISOString(),
         recurrence,
+        dueDate: dueDate || new Date().toISOString().split("T")[0],
       },
     ]);
   };
