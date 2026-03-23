@@ -28,6 +28,7 @@ export interface FamilyTask {
   completed: boolean;
   createdAt: string;
   recurrence: TaskRecurrence;
+  dueDate: string; // ISO date string YYYY-MM-DD
 }
 
 export interface FamilyProfile {
