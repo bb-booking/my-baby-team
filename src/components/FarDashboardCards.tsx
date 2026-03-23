@@ -12,7 +12,9 @@ export function FarDailyActionCard() {
   const allActions = getDailyActions(babyAgeWeeks, morName, childName);
   // Pick 3 actions based on day rotation
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
-  const actions = allActions.sort((_, __, i) => ((dayOfYear + (i || 0)) % 3) - 1).slice(0, 3);
+  const shuffled = [...allActions].map((a, i) => ({ ...a, sort: (dayOfYear * 7 + i * 13) % 100 }))
+    .sort((a, b) => a.sort - b.sort);
+  const actions = shuffled.slice(0, 3);
 
   const handleComplete = (id: string) => {
     setCompletedActions(prev => [...prev, id]);
