@@ -241,6 +241,7 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
             category: t.category || "custom",
             createdAt: new Date().toISOString(),
             recurrence: "never" as TaskRecurrence,
+            dueDate: new Date().toISOString().split("T")[0],
           }))
         );
       });
