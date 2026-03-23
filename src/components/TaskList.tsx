@@ -7,7 +7,6 @@ import { da } from "date-fns/locale";
 import confetti from "canvas-confetti";
 
 type ViewMode = "day" | "week";
-import confetti from "canvas-confetti";
 
 const assigneeOptions: { value: TaskAssignee; label: string; icon: React.ReactNode }[] = [
   { value: "mor", label: "Mor", icon: <User className="w-3 h-3" /> },
