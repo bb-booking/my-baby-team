@@ -2,8 +2,8 @@ import { useLocation, Link } from "react-router-dom";
 import { useFamily } from "@/context/FamilyContext";
 import {
   Home, Baby, Users, Settings, BookOpen, Calendar, CheckSquare,
-  Lightbulb, Heart, Moon, ShoppingBag, Droplets, Utensils,
-  MessageCircle, Gamepad2
+  Lightbulb, Heart, Moon, ShoppingBag, Circle, Droplet,
+  MessageCircle, PuzzleIcon
 } from "lucide-react";
 
 interface NavItem {
@@ -47,14 +47,14 @@ function getNavSections(phase: "pregnant" | "newborn" | "baby", role: "mor" | "f
       label: "FAMILIE",
       items: [
         { label: "Samarbejde", icon: Users, path: "/sammen" },
-        { label: "Leg & aktiviteter", icon: Gamepad2, path: "/leg" },
+        { label: "Leg & aktiviteter", icon: PuzzleIcon, path: "/leg" },
       ],
     });
     sections.push({
       label: "DAGBOG",
       items: [
-        { label: "Amning", icon: Droplets, path: "/dagbog?tab=amning" },
-        { label: "Ble", icon: Utensils, path: "/dagbog?tab=ble" },
+        { label: "Amning", icon: Circle, path: "/dagbog?tab=amning" },
+        { label: "Ble", icon: Droplet, path: "/dagbog?tab=ble" },
         { label: "Søvn", icon: Moon, path: "/sovn" },
       ],
     });

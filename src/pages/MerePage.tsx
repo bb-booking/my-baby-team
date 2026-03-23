@@ -104,7 +104,7 @@ export default function MerePage() {
             <p className="text-[1rem] font-semibold flex-1">Mors recovery</p>
             <span className="text-muted-foreground text-sm">{showMorHealth ? "▲" : "▼"}</span>
           </button>
-          {showMorHealth && <MorHealthEditor />}
+      {showMorHealth && <MorHealthEditor onSave={() => setShowMorHealth(false)} />}
         </div>
       )}
 
@@ -134,7 +134,7 @@ export default function MerePage() {
   );
 }
 
-function MorHealthEditor() {
+function MorHealthEditor({ onSave }: { onSave?: () => void }) {
   const { profile, setProfile } = useFamily();
   const mh = profile.morHealth || {};
 
@@ -196,6 +196,14 @@ function MorHealthEditor() {
           ))}
         </div>
       </div>
+
+      <button
+        onClick={onSave}
+        className="w-full py-2.5 rounded-xl text-[0.82rem] font-medium transition-all active:scale-[0.97]"
+        style={{ background: "hsl(var(--moss))", color: "white" }}
+      >
+        Gem ændringer
+      </button>
     </div>
   );
 }
