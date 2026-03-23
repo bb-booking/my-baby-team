@@ -17,6 +17,7 @@ import KalenderPage from "@/pages/KalenderPage";
 import RaadGuidesPage from "@/pages/RaadGuidesPage";
 import BabynavnePage from "@/pages/BabynavnePage";
 import ShopPage from "@/pages/ShopPage";
+import SovnPage from "@/pages/SovnPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/barn" element={<BarnPage />} />
                 <Route path="/dagbog" element={<DagbogPage />} />
+                <Route path="/sovn" element={<SovnPage />} />
                 <Route path="/sammen" element={<SammenPage />} />
                 <Route path="/mere" element={<MerePage />} />
                 <Route path="/tjekliste" element={<TjeklistePage />} />

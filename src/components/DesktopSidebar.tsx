@@ -45,7 +45,7 @@ function getNavSections(phase: "pregnant" | "newborn" | "baby", role: "mor" | "f
       items: [
         { label: "Amning", icon: Droplets, path: "/dagbog?tab=amning" },
         { label: "Ble", icon: Utensils, path: "/dagbog?tab=ble" },
-        { label: "Søvn", icon: Moon, path: "/dagbog?tab=sovn" },
+        { label: "Søvn", icon: Moon, path: "/sovn" },
       ],
     });
   }

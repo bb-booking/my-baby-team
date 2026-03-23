@@ -65,16 +65,19 @@ export default function Dashboard() {
           {/* 1. Quick Log — always first */}
           <QuickLog />
 
-          {/* 2. Sleep status */}
+          {/* 2. Stats strip */}
+          <QuickStatsStrip babyAgeWeeks={babyAgeWeeks} babyAgeMonths={babyAgeMonths} childName={childName || "Baby"} />
+
+          {/* 3. Sleep status */}
           <SleepStatusBanner childName={childName || "Baby"} />
 
-          {/* 3. Tasks */}
+          {/* 4. Tasks */}
           <TaskList />
 
-          {/* 4. Tigerspring */}
+          {/* 5. Tigerspring */}
           <LeapBanner ageWeeks={babyAgeWeeks} childName={childName || "Baby"} />
 
-          {/* 5. Knowledge & insight */}
+          {/* 6. Knowledge & insight */}
           <KnowledgeCarousel ageWeeks={babyAgeWeeks} childName={childName || "Baby"} />
           <BabyInsightCard ageWeeks={babyAgeWeeks} ageMonths={babyAgeMonths} childName={childName || "Baby"} />
 
@@ -84,6 +87,36 @@ export default function Dashboard() {
       )}
 
       <div className="h-20 md:h-0" />
+    </div>
+  );
+}
+
+// ── Quick stats strip ──
+function QuickStatsStrip({ babyAgeWeeks, babyAgeMonths, childName }: { babyAgeWeeks: number; babyAgeMonths: number; childName: string }) {
+  const { todayNursingCount, todayDiaperCount, todaySleepMinutes } = useDiary();
+  const ageLabel = babyAgeMonths >= 1 ? `${babyAgeMonths} mdr.` : `${babyAgeWeeks} uger`;
+  const sleepH = Math.floor(todaySleepMinutes / 60);
+  const sleepM = Math.round(todaySleepMinutes % 60);
+  const sleepStr = sleepH > 0 ? `${sleepH}t ${sleepM}m` : `${sleepM}m`;
+
+  const stats = [
+    { emoji: "🌙", value: sleepStr, label: "Søvn" },
+    { emoji: "🤱", value: `${todayNursingCount}×`, label: "Amning" },
+    { emoji: "🧷", value: `${todayDiaperCount}×`, label: "Bleer" },
+    { emoji: "👶", value: ageLabel, label: childName },
+  ];
+
+  return (
+    <div className="rounded-2xl border overflow-hidden section-fade-in" style={{ borderColor: "hsl(var(--stone-light))", animationDelay: "60ms" }}>
+      <div className="grid grid-cols-4 divide-x divide-[hsl(var(--stone-lighter))]">
+        {stats.map(s => (
+          <div key={s.label} className="flex flex-col items-center py-3 px-1.5 gap-0.5">
+            <span className="text-base">{s.emoji}</span>
+            <span className="text-[0.88rem] font-semibold">{s.value}</span>
+            <span className="text-[0.52rem] tracking-[0.12em] uppercase text-muted-foreground">{s.label}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
