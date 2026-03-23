@@ -222,6 +222,7 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
   const [editText, setEditText] = useState("");
   const [filter, setFilter] = useState<FilterTab>("alle");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [viewMode, setViewMode] = useState<ViewMode>("day");
 
   const selectedDateStr = toDateStr(selectedDate);
 
