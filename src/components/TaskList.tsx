@@ -474,7 +474,14 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 relative">
+      {/* XP toast */}
+      {xpToast && (
+        <div className="absolute -top-2 right-4 z-50 animate-fade-in px-3 py-1.5 rounded-full text-[0.75rem] font-bold text-white shadow-lg"
+          style={{ background: "linear-gradient(135deg, hsl(var(--sage)), hsl(var(--moss)))" }}>
+          {xpToast}
+        </div>
+      )}
       {/* Date navigation + view toggle */}
       <div className="flex items-center justify-between">
         <button
