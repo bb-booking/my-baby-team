@@ -12,10 +12,15 @@ export interface MorHealth {
   feedingMethod?: FeedingMethod;
 }
 
+export interface ParentalLeave {
+  mor: boolean;
+  far: boolean;
+}
+
 export interface Child {
   id: string;
   name: string;
-  birthDate: string; // ISO
+  birthDate: string;
 }
 
 export type TaskRecurrence = "never" | "daily" | "weekly" | "monthly";
@@ -28,7 +33,13 @@ export interface FamilyTask {
   completed: boolean;
   createdAt: string;
   recurrence: TaskRecurrence;
-  dueDate: string; // ISO date string YYYY-MM-DD
+  dueDate: string;
+}
+
+export interface DailyCheckIn {
+  date: string;
+  mood: string;
+  role: ParentRole;
 }
 
 export interface FamilyProfile {
@@ -40,6 +51,7 @@ export interface FamilyProfile {
   children: Child[];
   onboarded: boolean;
   morHealth?: MorHealth;
+  parentalLeave?: ParentalLeave;
 }
 
 const defaultProfile: FamilyProfile = {
@@ -50,6 +62,7 @@ const defaultProfile: FamilyProfile = {
   partnerName: "",
   children: [],
   onboarded: false,
+  parentalLeave: { mor: true, far: false },
 };
 
 interface FamilyContextType {
@@ -62,7 +75,6 @@ interface FamilyContextType {
   babyAgeWeeks: number;
   babyAgeMonths: number;
   phaseLabel: string;
-  // Tasks
   tasks: FamilyTask[];
   addTask: (title: string, assignee: TaskAssignee, recurrence?: TaskRecurrence, dueDate?: string) => void;
   toggleTask: (id: string) => void;
@@ -70,12 +82,18 @@ interface FamilyContextType {
   reassignTask: (id: string, newAssignee: TaskAssignee) => void;
   editTaskTitle: (id: string, newTitle: string) => void;
   moveTaskToDate: (id: string, newDate: string) => void;
-  // Children
   addChild: (name: string, birthDate: string) => void;
   removeChild: (id: string) => void;
-  // Helpers
   morName: string;
   farName: string;
+  // Daily check-ins
+  checkIns: DailyCheckIn[];
+  addCheckIn: (mood: string) => void;
+  todayCheckIn: DailyCheckIn | null;
+  // Parental leave helpers
+  isOnLeave: (role: ParentRole) => boolean;
+  partnerOnLeave: boolean;
+  currentUserOnLeave: boolean;
 }
 
 const FamilyContext = createContext<FamilyContextType | null>(null);
@@ -89,26 +107,14 @@ function generateId() {
   return Math.random().toString(36).substring(2, 10);
 }
 
-// Default tasks seeded from phase
-function getDefaultTasks(phase: LifePhase, week: number): FamilyTask[] {
-  const { getTasksForPhase } = require("@/lib/phaseData");
-  const phaseTasks = getTasksForPhase(phase, week);
-  return phaseTasks.map((t: any) => ({
-    ...t,
-    completed: false,
-    category: t.category || "custom",
-    createdAt: new Date().toISOString(),
-  }));
-}
-
 export function FamilyProvider({ children }: { children: ReactNode }) {
   const [profile, setProfileState] = useState<FamilyProfile>(() => {
     try {
       const stored = localStorage.getItem("lille-family");
       if (stored) {
         const parsed = JSON.parse(stored);
-        // Migrate old profiles without children
         if (!parsed.children) parsed.children = [];
+        if (!parsed.parentalLeave) parsed.parentalLeave = { mor: true, far: false };
         return parsed;
       }
     } catch {}
@@ -123,6 +129,14 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
     return [];
   });
 
+  const [checkIns, setCheckIns] = useState<DailyCheckIn[]>(() => {
+    try {
+      const stored = localStorage.getItem("melo-checkins");
+      if (stored) return JSON.parse(stored);
+    } catch {}
+    return [];
+  });
+
   useEffect(() => {
     localStorage.setItem("lille-family", JSON.stringify(profile));
   }, [profile]);
@@ -131,12 +145,18 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("lille-tasks", JSON.stringify(tasks));
   }, [tasks]);
 
+  useEffect(() => {
+    localStorage.setItem("melo-checkins", JSON.stringify(checkIns));
+  }, [checkIns]);
+
   const setProfile = (p: FamilyProfile) => setProfileState(p);
   const resetProfile = () => {
     localStorage.removeItem("lille-family");
     localStorage.removeItem("lille-tasks");
+    localStorage.removeItem("melo-checkins");
     setProfileState(defaultProfile);
     setTasks([]);
+    setCheckIns([]);
   };
 
   const now = new Date();
@@ -171,9 +191,25 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
       ? "newborn"
       : "baby";
 
-  // Helper: who is mor/far
   const morName = profile.role === "mor" ? profile.parentName : profile.partnerName;
   const farName = profile.role === "far" ? profile.parentName : profile.partnerName;
+
+  // Parental leave helpers
+  const leave = profile.parentalLeave || { mor: true, far: false };
+  const isOnLeave = (role: ParentRole) => role === "mor" ? leave.mor : leave.far;
+  const partnerOnLeave = profile.role === "mor" ? leave.far : leave.mor;
+  const currentUserOnLeave = profile.role === "mor" ? leave.mor : leave.far;
+
+  // Check-in helpers
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayCheckIn = checkIns.find(c => c.date === todayStr && c.role === profile.role) || null;
+
+  const addCheckIn = (mood: string) => {
+    setCheckIns(prev => {
+      const filtered = prev.filter(c => !(c.date === todayStr && c.role === profile.role));
+      return [...filtered, { date: todayStr, mood, role: profile.role }];
+    });
+  };
 
   // Task management
   const addTask = (title: string, assignee: TaskAssignee, recurrence: TaskRecurrence = "never", dueDate?: string) => {
@@ -220,7 +256,6 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  // Children management
   const addChild = (name: string, birthDate: string) => {
     setProfileState((prev) => ({
       ...prev,
@@ -235,7 +270,6 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
     }));
   };
 
-  // Seed default tasks if empty and onboarded
   useEffect(() => {
     if (profile.onboarded && tasks.length === 0) {
       import("@/lib/phaseData").then(({ getTasksForPhase }) => {
@@ -279,6 +313,12 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
         removeChild,
         morName,
         farName,
+        checkIns,
+        addCheckIn,
+        todayCheckIn,
+        isOnLeave,
+        partnerOnLeave,
+        currentUserOnLeave,
       }}
     >
       {children}

@@ -96,6 +96,40 @@ export default function MerePage() {
         </div>
       </div>
 
+      {/* Parental leave */}
+      {profile.phase !== "pregnant" && (
+        <div className="card-soft section-fade-in" style={{ animationDelay: "60ms" }}>
+          <div className="flex items-center gap-2 mb-3">
+            <Users className="w-4 h-4" style={{ color: "hsl(var(--moss))" }} />
+            <p className="text-[1rem] font-semibold">Barsel</p>
+          </div>
+          <div className="space-y-2">
+            {[
+              { role: "mor" as const, name: profile.role === "mor" ? profile.parentName : profile.partnerName, emoji: "👩" },
+              { role: "far" as const, name: profile.role === "far" ? profile.parentName : profile.partnerName, emoji: "👨" },
+            ].map(p => {
+              const isOn = profile.parentalLeave?.[p.role] ?? (p.role === "mor");
+              return (
+                <button key={p.role} onClick={() => {
+                  setProfile({
+                    ...profile,
+                    parentalLeave: { ...profile.parentalLeave || { mor: true, far: false }, [p.role]: !isOn },
+                  });
+                }} className={cn("w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-[0.98]",
+                  isOn ? "bg-[hsl(var(--sage-light))]" : "bg-[hsl(var(--stone-lighter))]")}>
+                  <span className="text-lg">{p.emoji}</span>
+                  <span className="text-[0.85rem] flex-1 text-left">{p.name}</span>
+                  <span className={cn("text-[0.68rem] px-2.5 py-1 rounded-full",
+                    isOn ? "bg-[hsl(var(--sage))] text-white" : "text-muted-foreground")}>
+                    {isOn ? "På barsel" : "Ikke på barsel"}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Mor Health section */}
       {profile.phase !== "pregnant" && (
         <div className="card-soft section-fade-in" style={{ animationDelay: "80ms" }}>
@@ -104,7 +138,7 @@ export default function MerePage() {
             <p className="text-[1rem] font-semibold flex-1">Mors recovery</p>
             <span className="text-muted-foreground text-sm">{showMorHealth ? "▲" : "▼"}</span>
           </button>
-      {showMorHealth && <MorHealthEditor onSave={() => setShowMorHealth(false)} />}
+          {showMorHealth && <MorHealthEditor onSave={() => setShowMorHealth(false)} />}
         </div>
       )}
 

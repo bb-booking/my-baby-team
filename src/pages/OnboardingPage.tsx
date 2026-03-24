@@ -9,7 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import meloLogoImg from "@/assets/melo-logo.png";
 
-type Step = "phase" | "date" | "role" | "names" | "child" | "morhealth";
+type Step = "phase" | "date" | "role" | "names" | "child" | "morhealth" | "leave";
 
 const complications = [
   { id: "rift", label: "Bristning / klip", emoji: "🩹" },
@@ -37,11 +37,16 @@ export default function OnboardingPage() {
   const [selectedComplications, setSelectedComplications] = useState<string[]>([]);
   const [feedingMethod, setFeedingMethod] = useState<FeedingMethod | undefined>();
 
+  // Parental leave
+  const [morLeave, setMorLeave] = useState(true);
+  const [farLeave, setFarLeave] = useState(false);
+
   const isMorBorn = role === "mor" && phase === "born";
   const steps: Step[] = [
     "phase", "date", "role", "names",
     ...(phase === "born" ? ["child" as Step] : []),
     ...(isMorBorn ? ["morhealth" as Step] : []),
+    ...(phase === "born" ? ["leave" as Step] : []),
   ];
   const stepIndex = steps.indexOf(step);
   const progress = ((stepIndex + 1) / steps.length) * 100;
@@ -52,7 +57,8 @@ export default function OnboardingPage() {
     if (step === "role") return role !== null;
     if (step === "names") return parentName.trim().length > 0 && partnerName.trim().length > 0;
     if (step === "child") return true;
-    if (step === "morhealth") return true; // all optional
+    if (step === "morhealth") return true;
+    if (step === "leave") return true;
     return false;
   };
 
@@ -78,6 +84,7 @@ export default function OnboardingPage() {
         : [],
       onboarded: true,
       morHealth,
+      parentalLeave: { mor: morLeave, far: farLeave },
     });
     navigate("/");
   };
@@ -228,6 +235,40 @@ export default function OnboardingPage() {
                   ))}
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Parental Leave */}
+          {step === "leave" && (
+            <div className="space-y-5 section-fade-in" key="leave">
+              <StepHeader num={stepIndex + 1} total={steps.length} title="Hvem er på barsel?" sub="Så vi kan tilpasse hvem der gør hvad i hverdagen." />
+              <div className="space-y-3">
+                <button onClick={() => setMorLeave(!morLeave)}
+                  className={cn("w-full flex items-center gap-3.5 rounded-2xl border-[1.5px] text-left px-4 py-3.5 transition-all active:scale-[0.98]",
+                    morLeave ? "border-[hsl(var(--clay))] bg-[hsl(var(--clay))]/5" : "border-[hsl(var(--stone-light))] bg-background")}>
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-xl" style={{ background: morLeave ? "hsl(var(--clay-light))" : "hsl(var(--stone-lighter))" }}>👩</div>
+                  <div className="flex-1">
+                    <p className="text-[0.95rem] font-semibold">{role === "mor" ? parentName || "Mor" : partnerName || "Mor"}</p>
+                    <p className="text-[0.62rem] tracking-[0.12em] uppercase text-muted-foreground">{morLeave ? "På barsel" : "Ikke på barsel"}</p>
+                  </div>
+                  <div className={cn("w-5 h-5 rounded-md flex items-center justify-center", morLeave ? "bg-[hsl(var(--clay))]" : "border-[1.5px] border-[hsl(var(--stone-light))]")}>
+                    {morLeave && <span className="text-white text-[0.7rem]">✓</span>}
+                  </div>
+                </button>
+                <button onClick={() => setFarLeave(!farLeave)}
+                  className={cn("w-full flex items-center gap-3.5 rounded-2xl border-[1.5px] text-left px-4 py-3.5 transition-all active:scale-[0.98]",
+                    farLeave ? "border-[hsl(var(--sage))] bg-[hsl(var(--sage))]/5" : "border-[hsl(var(--stone-light))] bg-background")}>
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-xl" style={{ background: farLeave ? "hsl(var(--sage-light))" : "hsl(var(--stone-lighter))" }}>👨</div>
+                  <div className="flex-1">
+                    <p className="text-[0.95rem] font-semibold">{role === "far" ? parentName || "Far" : partnerName || "Far"}</p>
+                    <p className="text-[0.62rem] tracking-[0.12em] uppercase text-muted-foreground">{farLeave ? "På barsel" : "Ikke på barsel"}</p>
+                  </div>
+                  <div className={cn("w-5 h-5 rounded-md flex items-center justify-center", farLeave ? "bg-[hsl(var(--sage))]" : "border-[1.5px] border-[hsl(var(--stone-light))]")}>
+                    {farLeave && <span className="text-white text-[0.7rem]">✓</span>}
+                  </div>
+                </button>
+              </div>
+              <p className="text-[0.68rem] text-muted-foreground text-center">Du kan altid ændre dette i indstillinger.</p>
             </div>
           )}
         </div>
