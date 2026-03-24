@@ -7,7 +7,7 @@ import { da } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import lilleLogoImg from "@/assets/lille-logo.png";
+import meloLogoImg from "@/assets/melo-logo.png";
 
 type Step = "phase" | "date" | "role" | "names" | "child" | "morhealth";
 
@@ -104,8 +104,8 @@ export default function OnboardingPage() {
           {/* Logo */}
           <div className="flex flex-col items-center mb-12 section-fade-in">
             <div className="flex items-center gap-2 mb-1">
-              <img src={lilleLogoImg} alt="" className="w-7 h-7" />
-              <span className="font-sans font-extrabold text-[2.6rem] tracking-[0.28em] uppercase leading-none" style={{ color: "hsl(var(--moss))" }}>LILLE</span>
+              <img src={meloLogoImg} alt="" className="w-7 h-7" />
+              <span className="font-sans font-extrabold text-[2.6rem] tracking-[0.28em] uppercase leading-none" style={{ color: "hsl(var(--moss))" }}>MELO</span>
             </div>
             <span className="text-[0.58rem] tracking-[0.28em] uppercase text-muted-foreground font-light">for nye forældre</span>
           </div>

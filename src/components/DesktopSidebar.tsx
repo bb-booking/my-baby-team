@@ -34,7 +34,7 @@ function getNavSections(phase: "pregnant" | "newborn" | "baby", role: "mor" | "f
   // AI Chat — always visible
   sections.push({
     label: "SPØRG",
-    items: [{ label: "Spørg Lille", icon: MessageCircle, path: "/chat" }],
+    items: [{ label: "Spørg Melo", icon: MessageCircle, path: "/chat" }],
   });
 
   if (isPregnant) {
