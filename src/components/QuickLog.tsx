@@ -287,29 +287,33 @@ export function QuickLog({ showStatsStrip = false }: { showStatsStrip?: boolean 
       )}
 
       {/* Progress trackers */}
-      <div className="grid grid-cols-2 gap-2.5">
+      <div className="grid grid-cols-3 gap-2">
+        {/* Feeding */}
         <div className="card-soft !p-3">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[0.6rem] tracking-[0.12em] uppercase text-muted-foreground">{feedingLabel}</span>
-            <span className="text-[0.78rem] font-semibold" style={{ color: nursingDone ? "hsl(var(--moss))" : "hsl(var(--bark))" }}>{todayNursingCount}/{rec.nursing}</span>
+            <span className="text-[0.55rem] tracking-[0.1em] uppercase text-muted-foreground">{feedingLabel}</span>
           </div>
-          <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "hsl(var(--stone-lighter))" }}>
+          <span className="text-[0.82rem] font-semibold" style={{ color: nursingDone ? "hsl(var(--moss))" : "hsl(var(--bark))" }}>{todayNursingCount}/{rec.nursing}</span>
+          <div className="h-1.5 rounded-full overflow-hidden mt-1.5" style={{ background: "hsl(var(--stone-lighter))" }}>
             <div className="h-full rounded-full transition-all duration-500" style={{ width: `${nursingPct}%`, background: nursingDone ? "hsl(var(--sage))" : "hsl(var(--clay))" }} />
           </div>
           {nursingDone
-            ? <p className="text-[0.62rem] mt-1.5" style={{ color: "hsl(var(--moss))" }}>✓ Flot! Anbefalet antal nået</p>
-            : <p className="text-[0.62rem] text-muted-foreground mt-1.5">{rec.nursing - todayNursingCount} mere anbefalet</p>}
+            ? <p className="text-[0.55rem] mt-1" style={{ color: "hsl(var(--moss))" }}>✓ Nået</p>
+            : <p className="text-[0.55rem] text-muted-foreground mt-1">{rec.nursing - todayNursingCount} mere</p>}
         </div>
+        {/* Diapers */}
         <div className="card-soft !p-3">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[0.6rem] tracking-[0.12em] uppercase text-muted-foreground">Bleer</span>
-            <span className="text-[0.78rem] font-semibold" style={{ color: "hsl(var(--bark))" }}>{todayDiaperCount}/{rec.wetDiapers + rec.dirtyDiapers}</span>
+            <span className="text-[0.55rem] tracking-[0.1em] uppercase text-muted-foreground">Bleer</span>
           </div>
-          <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "hsl(var(--stone-lighter))" }}>
+          <span className="text-[0.82rem] font-semibold" style={{ color: "hsl(var(--bark))" }}>{todayDiaperCount}/{rec.wetDiapers + rec.dirtyDiapers}</span>
+          <div className="h-1.5 rounded-full overflow-hidden mt-1.5" style={{ background: "hsl(var(--stone-lighter))" }}>
             <div className="h-full rounded-full transition-all duration-500" style={{ width: `${diaperPct}%`, background: diaperPct >= 100 ? "hsl(var(--sage))" : "hsl(var(--clay))" }} />
           </div>
-          <p className="text-[0.62rem] text-muted-foreground mt-1.5">💧 {todayWet} tisse · 💩 {todayDirty} afføring</p>
+          <p className="text-[0.55rem] text-muted-foreground mt-1">💧{todayWet} · 💩{todayDirty}</p>
         </div>
+        {/* Sleep */}
+        <SleepOverviewCard />
       </div>
 
       {!nursingDone && todayNursingCount > 0 && todayNursingCount < rec.nursing - 2 && (

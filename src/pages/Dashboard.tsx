@@ -68,14 +68,11 @@ export default function Dashboard() {
             {/* 1. Recovery check-in */}
             <MorRecoveryCard />
 
-            {/* 2. Quick Log */}
-            <QuickLog />
-
-            {/* 3. Stats strip */}
-            <QuickStatsStrip babyAgeWeeks={babyAgeWeeks} babyAgeMonths={babyAgeMonths} childName={childName || "Baby"} />
-
-            {/* 4. Live sleep tracker */}
+            {/* 2. Live sleep tracker — top when active */}
             <LiveSleepTracker childName={childName || "Baby"} />
+
+            {/* 3. Quick Log (unified with progress trackers) */}
+            <QuickLog />
 
             {/* 5. Support & nudges */}
             <MorSupportCard />
