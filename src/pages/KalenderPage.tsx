@@ -193,7 +193,7 @@ function LeapCard({ leap, index, status, onMarkCompleted, ageWeeks }: {
 export default function KalenderPage() {
   const { profile, currentWeek, babyAgeWeeks } = useFamily();
   const isPregnant = profile.phase === "pregnant";
-  const { completed, markCompleted } = useCompletedLeaps();
+  const { completed, markCompleted, levelUpInfo, dismissLevelUp } = useCompletedLeaps();
 
   // Find current/next leap index
   const getCurrentLeapIndex = () => {
