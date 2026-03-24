@@ -118,34 +118,31 @@ export default function Dashboard() {
         ) : (
           <>
             {/* FAR DASHBOARD */}
-            {/* 1. Live sleep tracker — top when active */}
+            {/* 1. Live sleep tracker — ONLY when actively sleeping */}
             <LiveSleepTracker childName={childName || "Baby"} />
 
-            {/* 2. Quick Log (includes stats strip) */}
+            {/* 2. Quick Log (with progress trackers) */}
             <QuickLog />
 
-            {/* 4. Daily action card */}
-            <FarDailyActionCard />
-
-            {/* 5. Fun hook */}
-            <FarFunHook />
-
-            {/* 6. Emotional nudge */}
-            <FarEmotionalNudge />
-
-            {/* 7. Ownership card */}
-            <FarOwnershipCard />
-
-            {/* 8. Guide */}
-            <FarGuideCard />
-
-            {/* 9. Relevant now */}
-            <RelevantNowCard ageWeeks={babyAgeWeeks} childName={childName || "Baby"} isMor={false} partnerName={morName} />
-
-            {/* 10. Tasks */}
+            {/* 3. Tasks — right after log for actionability */}
             <TaskList />
 
-            {/* 11. Quick links */}
+            {/* 4. Far streak + XP bar */}
+            <FarStreakBar />
+
+            {/* 5. Daily missions (gamified) */}
+            <FarDailyActionCard />
+
+            {/* 6. Empathy card — understand what mor goes through */}
+            <MorEmpathyCard ageWeeks={babyAgeWeeks} morName={morName} />
+
+            {/* 7. Fun hook */}
+            <FarFunHook />
+
+            {/* 8. Emotional nudge */}
+            <FarEmotionalNudge />
+
+            {/* 9. Quick links */}
             <div className="grid grid-cols-2 gap-2.5 section-fade-in">
               <Link to="/chat" className="card-soft !p-4 flex flex-col items-center gap-2 transition-all hover:shadow-sm active:scale-[0.98]">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--sage-light))" }}>
@@ -163,12 +160,11 @@ export default function Dashboard() {
               </Link>
             </div>
 
-            {/* 12. Leap + knowledge */}
+            {/* 10. Leap + knowledge */}
             <LeapBanner ageWeeks={babyAgeWeeks} childName={childName || "Baby"} />
             <KnowledgeCarousel ageWeeks={babyAgeWeeks} childName={childName || "Baby"} />
             <BabyInsightCard ageWeeks={babyAgeWeeks} ageMonths={babyAgeMonths} childName={childName || "Baby"} />
 
-            <PartnerNudge />
             <MilestoneTimeline />
         </>
       )}
