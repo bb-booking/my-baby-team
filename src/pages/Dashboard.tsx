@@ -126,14 +126,11 @@ export default function Dashboard() {
             {/* 2. Quick Log (with progress trackers) */}
             <QuickLog />
 
-            {/* 3. Tasks — right after log for actionability */}
-            <TaskList />
-
-            {/* 4. Far streak + XP bar */}
+            {/* 3. XP bar — motivation right after log */}
             <FarStreakBar />
 
-            {/* 5. Daily missions (gamified) */}
-            <FarDailyActionCard />
+            {/* 4. Tasks — the ONE to-do list */}
+            <TaskList />
 
             {/* 6. Empathy card — understand what mor goes through */}
             <MorEmpathyCard ageWeeks={babyAgeWeeks} morName={morName} />
