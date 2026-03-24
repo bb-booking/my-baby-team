@@ -37,11 +37,16 @@ export default function OnboardingPage() {
   const [selectedComplications, setSelectedComplications] = useState<string[]>([]);
   const [feedingMethod, setFeedingMethod] = useState<FeedingMethod | undefined>();
 
+  // Parental leave
+  const [morLeave, setMorLeave] = useState(true);
+  const [farLeave, setFarLeave] = useState(false);
+
   const isMorBorn = role === "mor" && phase === "born";
   const steps: Step[] = [
     "phase", "date", "role", "names",
     ...(phase === "born" ? ["child" as Step] : []),
     ...(isMorBorn ? ["morhealth" as Step] : []),
+    ...(phase === "born" ? ["leave" as Step] : []),
   ];
   const stepIndex = steps.indexOf(step);
   const progress = ((stepIndex + 1) / steps.length) * 100;
