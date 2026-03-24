@@ -236,7 +236,6 @@ export default function KalenderPage() {
   const completedCount = leapStatuses.filter(s => s === "completed").length;
   const totalLeaps = developmentalLeaps.length;
   const progressPct = Math.round((completedCount / totalLeaps) * 100);
-  const [showTimeline, setShowTimeline] = useState(false);
 
   // XP system
   const xpPerLeap = 125;
