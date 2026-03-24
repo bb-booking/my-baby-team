@@ -232,12 +232,137 @@ export default function KalenderPage() {
   // Progress dots
   const leapStatuses = developmentalLeaps.map(l => getLeapStatus(babyAgeWeeks, completed, l));
 
+  const completedCount = leapStatuses.filter(s => s === "completed").length;
+  const totalLeaps = developmentalLeaps.length;
+  const progressPct = Math.round((completedCount / totalLeaps) * 100);
+  const [showTimeline, setShowTimeline] = useState(false);
+
+  // XP system
+  const xpPerLeap = 125;
+  const totalXP = completedCount * xpPerLeap;
+  const maxXP = totalLeaps * xpPerLeap;
+  const level = completedCount === 0 ? 1 : completedCount <= 2 ? 2 : completedCount <= 4 ? 3 : completedCount <= 6 ? 4 : 5;
+  const levelTitles = ["", "Ny forælder", "Rutineret", "Erfaren", "Veteran", "Mester"];
+
   return (
     <div className="space-y-5">
       <div className="section-fade-in">
         <h1 className="text-[1.9rem] font-normal">Tigerspring</h1>
         <p className="label-upper mt-1">UDVIKLING OG MILEPÆLE</p>
       </div>
+
+      {/* Gamification banner */}
+      <div
+        className="rounded-2xl p-4 section-fade-in"
+        style={{ animationDelay: "30ms", background: "linear-gradient(135deg, hsl(var(--sage-light)), hsl(var(--cream)))" }}
+      >
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--moss))" }}>
+              <Trophy className="w-4.5 h-4.5 text-white" />
+            </div>
+            <div>
+              <p className="text-[0.72rem] font-semibold">Level {level} · {levelTitles[level]}</p>
+              <p className="text-[0.6rem] text-muted-foreground">{totalXP} / {maxXP} XP</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-[1.1rem] font-bold" style={{ color: "hsl(var(--moss))" }}>{completedCount}/{totalLeaps}</p>
+            <p className="text-[0.55rem] text-muted-foreground uppercase tracking-wider">Opnået</p>
+          </div>
+        </div>
+
+        {/* XP bar */}
+        <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: "hsl(var(--stone-lighter))" }}>
+          <div
+            className="h-full rounded-full transition-all duration-700 ease-out"
+            style={{ width: `${progressPct}%`, background: "linear-gradient(90deg, hsl(var(--sage)), hsl(var(--moss)))" }}
+          />
+        </div>
+
+        {/* Toggle timeline */}
+        <button
+          onClick={() => setShowTimeline(v => !v)}
+          className="w-full flex items-center justify-center gap-1 mt-3 text-[0.72rem] font-medium transition-colors"
+          style={{ color: "hsl(var(--moss))" }}
+        >
+          {showTimeline ? "Skjul tidslinje" : "Se alle tigerspring"}
+          {showTimeline ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+        </button>
+      </div>
+
+      {/* Timeline */}
+      {showTimeline && (
+        <div className="rounded-2xl p-4 space-y-0 section-fade-in" style={{ background: "hsl(var(--warm-white))" }}>
+          {developmentalLeaps.map((leap, i) => {
+            const status = leapStatuses[i];
+            const isLast = i === totalLeaps - 1;
+            const color = leapColors[i % leapColors.length];
+            return (
+              <button
+                key={leap.id}
+                onClick={() => { setViewIndex(i); setShowTimeline(false); }}
+                className="w-full flex items-start gap-3 text-left group"
+              >
+                {/* Vertical line + node */}
+                <div className="flex flex-col items-center flex-shrink-0">
+                  <div
+                    className={cn(
+                      "w-8 h-8 rounded-full flex items-center justify-center transition-all border-2",
+                      status === "completed" ? "border-transparent" : status === "active" ? "border-current animate-pulse" : "border-transparent"
+                    )}
+                    style={{
+                      background: status === "completed"
+                        ? "hsl(var(--sage))"
+                        : status === "active"
+                          ? color.bg
+                          : "hsl(var(--stone-lighter))",
+                      color: status === "active" ? color.accent : undefined,
+                    }}
+                  >
+                    {status === "completed" ? (
+                      <Check className="w-3.5 h-3.5 text-white" />
+                    ) : status === "active" ? (
+                      <Star className="w-3.5 h-3.5" style={{ color: color.accent }} />
+                    ) : (
+                      <span className="text-[0.65rem]">{leap.emoji}</span>
+                    )}
+                  </div>
+                  {!isLast && (
+                    <div
+                      className="w-0.5 h-8 my-0.5"
+                      style={{
+                        background: status === "completed" ? "hsl(var(--sage))" : "hsl(var(--stone-lighter))",
+                      }}
+                    />
+                  )}
+                </div>
+
+                {/* Content */}
+                <div className={cn("pb-4 pt-1", !isLast && "border-b-0")}>
+                  <div className="flex items-center gap-2">
+                    <p className={cn(
+                      "text-[0.82rem] font-medium leading-tight",
+                      status === "upcoming" && "text-muted-foreground"
+                    )}>
+                      {leap.title}
+                    </p>
+                    {status === "completed" && (
+                      <span className="text-[0.55rem] px-1.5 py-0.5 rounded-full font-medium" style={{ background: "hsl(var(--sage-light))", color: "hsl(var(--moss))" }}>
+                        +{xpPerLeap} XP
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[0.65rem] text-muted-foreground mt-0.5">
+                    Uge {leap.weekStart}–{leap.weekEnd}
+                    {status === "active" && " · Aktivt nu"}
+                  </p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Navigation */}
       <div className="flex items-center justify-between section-fade-in" style={{ animationDelay: "40ms" }}>
