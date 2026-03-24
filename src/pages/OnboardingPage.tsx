@@ -84,6 +84,7 @@ export default function OnboardingPage() {
         : [],
       onboarded: true,
       morHealth,
+      parentalLeave: { mor: morLeave, far: farLeave },
     });
     navigate("/");
   };
