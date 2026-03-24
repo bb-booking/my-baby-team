@@ -46,7 +46,9 @@ const STOOL_CONSISTENCIES: { value: StoolConsistency; label: string; icon: strin
 
 export function QuickLog() {
   const { nursingLogs, addNursing, diaperLogs, addDiaper, todayNursingCount, todayDiaperCount, activeSleep, addSleep, endSleep } = useDiary();
-  const { babyAgeWeeks } = useFamily();
+  const { babyAgeWeeks, profile } = useFamily();
+  const feedingMethod = profile.morHealth?.feedingMethod;
+  const feedingLabel = feedingMethod === "flaske" ? "Flaske" : feedingMethod === "begge" ? "Amning/Flaske" : "Amning";
   const ageDays = babyAgeWeeks * 7;
   const rec = getRecommended(ageDays);
 

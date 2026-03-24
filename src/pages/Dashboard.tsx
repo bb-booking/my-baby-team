@@ -226,6 +226,10 @@ function RelevantNowCard({ ageWeeks, childName, isMor, partnerName }: { ageWeeks
 // ── Quick stats strip ──
 function QuickStatsStrip({ babyAgeWeeks, babyAgeMonths, childName }: { babyAgeWeeks: number; babyAgeMonths: number; childName: string }) {
   const { todayNursingCount, todayDiaperCount, todaySleepMinutes } = useDiary();
+  const { profile } = useFamily();
+  const feedingMethod = profile.morHealth?.feedingMethod;
+  const feedingLabel = feedingMethod === "flaske" ? "Flaske" : feedingMethod === "begge" ? "Måltider" : "Amning";
+  const feedingEmoji = feedingMethod === "flaske" ? "🍼" : feedingMethod === "begge" ? "🍼" : "🤱";
   const ageLabel = babyAgeMonths >= 1 ? `${babyAgeMonths} mdr.` : `${babyAgeWeeks} uger`;
   const sleepH = Math.floor(todaySleepMinutes / 60);
   const sleepM = Math.round(todaySleepMinutes % 60);
@@ -233,7 +237,7 @@ function QuickStatsStrip({ babyAgeWeeks, babyAgeMonths, childName }: { babyAgeWe
 
   const stats = [
     { emoji: "🌙", value: sleepStr, label: "Søvn" },
-    { emoji: "🤱", value: `${todayNursingCount}×`, label: "Amning" },
+    { emoji: feedingEmoji, value: `${todayNursingCount}×`, label: feedingLabel },
     { emoji: "🧷", value: `${todayDiaperCount}×`, label: "Bleer" },
     { emoji: "👶", value: ageLabel, label: childName },
   ];
