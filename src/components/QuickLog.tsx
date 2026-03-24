@@ -44,11 +44,12 @@ const STOOL_CONSISTENCIES: { value: StoolConsistency; label: string; icon: strin
   { value: "slimet", label: "Slimet", icon: "◎" },
 ];
 
-export function QuickLog() {
-  const { nursingLogs, addNursing, diaperLogs, addDiaper, todayNursingCount, todayDiaperCount, activeSleep, addSleep, endSleep } = useDiary();
-  const { babyAgeWeeks, profile } = useFamily();
+export function QuickLog({ showStatsStrip = false }: { showStatsStrip?: boolean }) {
+  const { nursingLogs, addNursing, diaperLogs, addDiaper, todayNursingCount, todayDiaperCount, activeSleep, addSleep, endSleep, todaySleepMinutes } = useDiary();
+  const { babyAgeWeeks, babyAgeMonths, profile } = useFamily();
   const feedingMethod = profile.morHealth?.feedingMethod;
   const feedingLabel = feedingMethod === "flaske" ? "Flaske" : feedingMethod === "begge" ? "Amning/Flaske" : "Amning";
+  const feedingEmoji = feedingMethod === "flaske" ? "🍼" : feedingMethod === "begge" ? "🍼" : "🤱";
   const ageDays = babyAgeWeeks * 7;
   const rec = getRecommended(ageDays);
 
