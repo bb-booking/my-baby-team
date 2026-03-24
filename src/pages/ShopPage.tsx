@@ -153,7 +153,7 @@ export default function ShopPage() {
               Smart genbestilling <Sparkles className="w-5 h-5 opacity-80" />
             </h2>
             <p className="text-[0.82rem] opacity-85 mt-1 leading-relaxed max-w-[26ch]">
-              Lille ved hvornår I løber tør — og bestiller automatisk
+              Melo ved hvornår I løber tør — og bestiller automatisk
             </p>
             <div className="mt-3 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[0.65rem] tracking-[0.1em] uppercase font-medium"
               style={{ background: "hsl(0 0% 0% / 0.2)" }}>
