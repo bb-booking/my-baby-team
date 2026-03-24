@@ -57,7 +57,8 @@ export default function OnboardingPage() {
     if (step === "role") return role !== null;
     if (step === "names") return parentName.trim().length > 0 && partnerName.trim().length > 0;
     if (step === "child") return true;
-    if (step === "morhealth") return true; // all optional
+    if (step === "morhealth") return true;
+    if (step === "leave") return true;
     return false;
   };
 
