@@ -257,64 +257,95 @@ function QuickStatsStrip({ babyAgeWeeks, babyAgeMonths, childName }: { babyAgeWe
   );
 }
 
-// ── Sleep status banner ──
-function SleepStatusBanner({ childName }: { childName: string }) {
-  const { activeSleep, todaySleepMinutes } = useDiary();
-  const hours = Math.floor(todaySleepMinutes / 60);
-  const mins = Math.round(todaySleepMinutes % 60);
+// ── Live Sleep Tracker (Huckleberry-inspired) ──
+function LiveSleepTracker({ childName }: { childName: string }) {
+  const { activeSleep, endSleep, todaySleepMinutes } = useDiary();
+  const [now, setNow] = useState(Date.now());
 
-  if (activeSleep) {
-    const startTime = format(new Date(activeSleep.startTime), "HH:mm");
-    const elapsed = Math.round((Date.now() - new Date(activeSleep.startTime).getTime()) / 60000);
-    const eH = Math.floor(elapsed / 60);
-    const eM = elapsed % 60;
+  useEffect(() => {
+    if (!activeSleep) return;
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, [activeSleep]);
 
-    return (
-      <div
-        className="rounded-2xl px-5 py-4 flex items-center gap-4 relative overflow-hidden section-fade-in"
-        style={{
-          background: "linear-gradient(135deg, hsl(var(--sage-light)), hsl(var(--sage) / 0.35))",
-          border: "1px solid hsl(var(--sage) / 0.25)",
-        }}
-      >
-        <span className="text-2xl flex-shrink-0">🌙</span>
-        <div className="flex-1">
-          <p className="text-[0.95rem] font-semibold" style={{ color: "hsl(var(--moss))" }}>
-            {childName} sover
-          </p>
-          <p className="text-[0.7rem]" style={{ color: "hsl(var(--sage-dark))" }}>
-            Startede kl. {startTime} · {activeSleep.type === "nap" ? "Lur" : "Nattesøvn"}
-          </p>
+  if (!activeSleep) {
+    if (todaySleepMinutes > 0) {
+      const hours = Math.floor(todaySleepMinutes / 60);
+      const mins = Math.round(todaySleepMinutes % 60);
+      return (
+        <div className="rounded-2xl px-4 py-3 flex items-center gap-3 section-fade-in"
+          style={{ background: "hsl(var(--cream))", border: "1px solid hsl(var(--stone-light))" }}>
+          <span className="text-lg">😴</span>
+          <div className="flex-1">
+            <p className="text-[0.82rem] font-medium">Søvn i dag</p>
+            <p className="text-[0.68rem] text-muted-foreground">{hours > 0 ? `${hours}t ${mins}m` : `${mins}m`} samlet</p>
+          </div>
         </div>
-        <span className="relative flex h-2.5 w-2.5">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-50" style={{ background: "hsl(var(--sage))" }} />
-          <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ background: "hsl(var(--moss))" }} />
-        </span>
-        <span className="text-xl font-light" style={{ color: "hsl(var(--moss))" }}>
-          {eH > 0 ? `${eH}t ${eM}m` : `${eM}m`}
-        </span>
-      </div>
-    );
+      );
+    }
+    return null;
   }
 
-  if (todaySleepMinutes > 0) {
-    return (
-      <div
-        className="rounded-2xl px-4 py-3 flex items-center gap-3 section-fade-in"
-        style={{ background: "hsl(var(--cream))", border: "1px solid hsl(var(--stone-light))" }}
-      >
-        <span className="text-lg">😴</span>
-        <div className="flex-1">
-          <p className="text-[0.82rem] font-medium">Søvn i dag</p>
-          <p className="text-[0.68rem] text-muted-foreground">
-            {hours > 0 ? `${hours}t ${mins}m` : `${mins}m`} samlet
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const startTime = new Date(activeSleep.startTime);
+  const elapsedMs = now - startTime.getTime();
+  const totalSeconds = Math.floor(elapsedMs / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  const pad = (n: number) => n.toString().padStart(2, "0");
 
-  return null;
+  return (
+    <div className="rounded-2xl overflow-hidden section-fade-in" style={{
+      background: "linear-gradient(145deg, hsl(var(--moss)), hsl(var(--sage-dark)))",
+      border: "1px solid hsl(var(--moss) / 0.3)",
+    }}>
+      <div className="px-5 py-5 flex flex-col items-center gap-3">
+        {/* Baby name + status */}
+        <div className="flex items-center gap-2">
+          <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg font-semibold"
+            style={{ background: "hsl(var(--sage))", color: "white" }}>
+            {childName.charAt(0)}
+          </div>
+          <div>
+            <p className="text-[0.95rem] font-semibold text-white">{childName}</p>
+            <div className="flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-50" style={{ background: "hsl(var(--sage-light))" }} />
+                <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: "hsl(var(--sage-light))" }} />
+              </span>
+              <p className="text-[0.68rem] text-white/70">
+                Sover siden {format(startTime, "HH:mm")} · {activeSleep.type === "nap" ? "Lur" : "Nattesøvn"}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Big timer */}
+        <div className="flex items-baseline gap-1 tabular-nums">
+          <span className="text-[2.8rem] font-light text-white leading-none">{pad(hours)}</span>
+          <span className="text-[2rem] text-white/50 font-light leading-none">:</span>
+          <span className="text-[2.8rem] font-light text-white leading-none">{pad(minutes)}</span>
+          <span className="text-[2rem] text-white/50 font-light leading-none">:</span>
+          <span className="text-[2.8rem] font-light text-white leading-none">{pad(seconds)}</span>
+        </div>
+        <div className="flex gap-8 text-[0.55rem] tracking-[0.14em] uppercase text-white/40">
+          <span>Timer</span>
+          <span>Min</span>
+          <span>Sek</span>
+        </div>
+
+        {/* Stop button */}
+        <button
+          onClick={() => endSleep(activeSleep.id)}
+          className="mt-1 w-14 h-14 rounded-full flex items-center justify-center transition-all active:scale-90"
+          style={{ background: "hsl(var(--sage-light))", boxShadow: "0 0 20px hsl(var(--sage) / 0.3)" }}
+        >
+          <Square className="w-5 h-5" style={{ color: "hsl(var(--moss))", fill: "hsl(var(--moss))" }} />
+        </button>
+        <p className="text-[0.6rem] text-white/40 uppercase tracking-wider">Stop søvn</p>
+      </div>
+    </div>
+  );
 }
 
 // ── Leap banner ──
