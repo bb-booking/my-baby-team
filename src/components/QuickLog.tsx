@@ -166,9 +166,18 @@ export function QuickLog() {
         </button>
       </div>
 
-      {/* ── Nursing side picker ── */}
-      {showNursingPicker && (
+      {/* ── Nursing side picker (not shown for bottle-only) ── */}
+      {showNursingPicker && feedingMethod !== "flaske" && (
         <div className="card-soft animate-fade-in space-y-3">
+          {feedingMethod === "begge" && (
+            <div className="flex gap-2 mb-2">
+              <button onClick={() => { handleNursing("left"); }}
+                className="flex-1 py-3 rounded-2xl text-[0.82rem] font-medium border transition-all active:scale-[0.97]"
+                style={{ background: "hsl(var(--cream))", borderColor: "hsl(var(--clay))", color: "hsl(var(--bark))" }}>
+                🍼 Flaske
+              </button>
+            </div>
+          )}
           {lastSideHint && <p className="text-[0.72rem] text-muted-foreground">💡 {lastSideHint}</p>}
           <div className="flex gap-2">
             <button onClick={() => handleNursing("left")}
