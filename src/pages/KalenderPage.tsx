@@ -1,11 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useFamily } from "@/context/FamilyContext";
 import { developmentalLeaps, type DevelopmentalLeap } from "@/lib/phaseData";
-import { Check, ChevronRight, ChevronLeft, AlertCircle, Lightbulb, Trophy, Star, ChevronDown, ChevronUp } from "lucide-react";
+import { Check, ChevronRight, ChevronLeft, AlertCircle, Lightbulb, Trophy, Star, ChevronDown, ChevronUp, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 
 const STORAGE_KEY = "lille-completed-leaps";
+const LEVEL_TITLES = ["", "Ny forælder", "Rutineret", "Erfaren", "Veteran", "Mester"];
+
+function getLevel(count: number) {
+  if (count === 0) return 1;
+  if (count <= 2) return 2;
+  if (count <= 4) return 3;
+  if (count <= 6) return 4;
+  return 5;
+}
+
+function fireLevelUpConfetti() {
+  // Big gold + green burst from both sides
+  const defaults = { gravity: 0.7, scalar: 1.1, ticks: 120 };
+  confetti({ ...defaults, particleCount: 60, spread: 80, origin: { x: 0.15, y: 0.45 }, colors: ["#FFD700", "#FFA500", "#5a7a50", "#8fae7e"], angle: 60 });
+  confetti({ ...defaults, particleCount: 60, spread: 80, origin: { x: 0.85, y: 0.45 }, colors: ["#FFD700", "#FFA500", "#5a7a50", "#8fae7e"], angle: 120 });
+  // Stars from center
+  setTimeout(() => {
+    confetti({ particleCount: 40, spread: 120, origin: { y: 0.5 }, colors: ["#FFD700", "#FFFFFF", "#c4a97d"], shapes: ["star" as any], scalar: 1.3, gravity: 0.5 });
+  }, 300);
+}
 
 function useCompletedLeaps() {
   const [completed, setCompleted] = useState<string[]>(() => {
@@ -14,22 +34,36 @@ function useCompletedLeaps() {
       return stored ? JSON.parse(stored) : [];
     } catch { return []; }
   });
+  const [levelUpInfo, setLevelUpInfo] = useState<{ level: number; title: string } | null>(null);
+  const prevCountRef = useRef(completed.length);
 
-  const markCompleted = (id: string) => {
+  const markCompleted = useCallback((id: string) => {
     setCompleted(prev => {
       if (prev.includes(id)) return prev;
       const next = [...prev, id];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      // Normal confetti
       confetti({
         particleCount: 80, spread: 70, origin: { y: 0.5 },
         colors: ["#5a7a50", "#c4a97d", "#8fae7e", "#d4c4a8", "#e8dfd0"],
         scalar: 0.9, gravity: 0.8,
       });
+      // Check level up
+      const oldLevel = getLevel(prev.length);
+      const newLevel = getLevel(next.length);
+      if (newLevel > oldLevel) {
+        setTimeout(() => {
+          fireLevelUpConfetti();
+          setLevelUpInfo({ level: newLevel, title: LEVEL_TITLES[newLevel] });
+        }, 600);
+      }
       return next;
     });
-  };
+  }, []);
 
-  return { completed, markCompleted };
+  const dismissLevelUp = useCallback(() => setLevelUpInfo(null), []);
+
+  return { completed, markCompleted, levelUpInfo, dismissLevelUp };
 }
 
 function getLeapStatus(ageWeeks: number, completedLeaps: string[], leap: DevelopmentalLeap) {
@@ -159,7 +193,7 @@ function LeapCard({ leap, index, status, onMarkCompleted, ageWeeks }: {
 export default function KalenderPage() {
   const { profile, currentWeek, babyAgeWeeks } = useFamily();
   const isPregnant = profile.phase === "pregnant";
-  const { completed, markCompleted } = useCompletedLeaps();
+  const { completed, markCompleted, levelUpInfo, dismissLevelUp } = useCompletedLeaps();
 
   // Find current/next leap index
   const getCurrentLeapIndex = () => {
@@ -241,8 +275,7 @@ export default function KalenderPage() {
   const xpPerLeap = 125;
   const totalXP = completedCount * xpPerLeap;
   const maxXP = totalLeaps * xpPerLeap;
-  const level = completedCount === 0 ? 1 : completedCount <= 2 ? 2 : completedCount <= 4 ? 3 : completedCount <= 6 ? 4 : 5;
-  const levelTitles = ["", "Ny forælder", "Rutineret", "Erfaren", "Veteran", "Mester"];
+  const level = getLevel(completedCount);
 
   return (
     <div className="space-y-5">
@@ -262,7 +295,7 @@ export default function KalenderPage() {
               <Trophy className="w-4.5 h-4.5 text-white" />
             </div>
             <div>
-              <p className="text-[0.72rem] font-semibold">Level {level} · {levelTitles[level]}</p>
+              <p className="text-[0.72rem] font-semibold">Level {level} · {LEVEL_TITLES[level]}</p>
               <p className="text-[0.6rem] text-muted-foreground">{totalXP} / {maxXP} XP</p>
             </div>
           </div>
@@ -433,6 +466,38 @@ export default function KalenderPage() {
       )}
 
       <div className="h-20 md:h-0" />
+
+      {/* Level-up overlay */}
+      {levelUpInfo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center animate-fade-in" style={{ background: "rgba(0,0,0,0.5)" }}>
+          <div
+            className="mx-6 rounded-3xl p-8 text-center animate-scale-in max-w-xs w-full"
+            style={{ background: "linear-gradient(160deg, hsl(var(--cream)), hsl(var(--sage-light)))" }}
+          >
+            <div
+              className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
+              style={{ background: "linear-gradient(135deg, #FFD700, #FFA500)" }}
+            >
+              <Zap className="w-8 h-8 text-white" />
+            </div>
+            <p className="text-[0.6rem] tracking-[0.2em] uppercase text-muted-foreground mb-1">LEVEL UP!</p>
+            <h2 className="text-[1.6rem] font-bold mb-1">Level {levelUpInfo.level}</h2>
+            <p className="text-[1rem] font-medium mb-1" style={{ color: "hsl(var(--moss))" }}>
+              {levelUpInfo.title}
+            </p>
+            <p className="text-[0.78rem] text-muted-foreground mb-6">
+              Du har nået et nyt niveau! Fortsæt den fantastiske rejse 🌟
+            </p>
+            <button
+              onClick={dismissLevelUp}
+              className="w-full py-3 rounded-2xl text-[0.85rem] font-medium text-white transition-all active:scale-[0.97]"
+              style={{ background: "hsl(var(--moss))" }}
+            >
+              Fantastisk! 🎉
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
