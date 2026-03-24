@@ -121,14 +121,11 @@ export default function Dashboard() {
         ) : (
           <>
             {/* FAR DASHBOARD */}
-            {/* 1. Quick Log — first for fast logging */}
-            <QuickLog />
-
-            {/* 2. Stats strip */}
-            <QuickStatsStrip babyAgeWeeks={babyAgeWeeks} babyAgeMonths={babyAgeMonths} childName={childName || "Baby"} />
-
-            {/* 3. Live sleep tracker */}
+            {/* 1. Live sleep tracker — top when active */}
             <LiveSleepTracker childName={childName || "Baby"} />
+
+            {/* 2. Quick Log (includes stats strip) */}
+            <QuickLog showStatsStrip />
 
             {/* 4. Daily action card */}
             <FarDailyActionCard />
