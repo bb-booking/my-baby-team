@@ -272,7 +272,7 @@ export function QuickLog() {
       <div className="grid grid-cols-2 gap-2.5">
         <div className="card-soft !p-3">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[0.6rem] tracking-[0.12em] uppercase text-muted-foreground">Amning</span>
+            <span className="text-[0.6rem] tracking-[0.12em] uppercase text-muted-foreground">{feedingLabel}</span>
             <span className="text-[0.78rem] font-semibold" style={{ color: nursingDone ? "hsl(var(--moss))" : "hsl(var(--bark))" }}>{todayNursingCount}/{rec.nursing}</span>
           </div>
           <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "hsl(var(--stone-lighter))" }}>
