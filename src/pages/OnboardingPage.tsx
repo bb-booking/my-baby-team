@@ -9,7 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import meloLogoImg from "@/assets/melo-logo.png";
 
-type Step = "phase" | "date" | "role" | "names" | "child" | "morhealth";
+type Step = "phase" | "date" | "role" | "names" | "child" | "morhealth" | "leave";
 
 const complications = [
   { id: "rift", label: "Bristning / klip", emoji: "🩹" },
