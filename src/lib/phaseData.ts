@@ -320,7 +320,7 @@ export function getPartnerNudge(phase: "pregnant" | "newborn" | "baby", role: "m
     { title: "Planlæg en rolig aften", hint: "Kvalitetstid styrker jeres team inden baby kommer." },
   ];
   if (phase === "newborn") return [
-    { title: "Tag en nattevagt", hint: "Delt søvn = stærkere team." },
+    { title: "Tag en nattevagt", hint: "Delt søvn = stærkere team. Husk: du kan sagtens putte — det kræver nærhed, ikke amning." },
     { title: "Sig 'du klarer det godt'", hint: "I har begge brug for at høre det." },
   ];
   return [

@@ -153,7 +153,7 @@ export function FarGuideCard() {
     ...(feedingMethod === "amning" || feedingMethod === "begge" ? [
       { emoji: "🤱", title: "Sådan støtter du under amning", body: `Hent vand, pude og telefon FØR hun sætter sig. Sid ved hende — din tilstedeværelse betyder alt.` },
     ] : []),
-    { emoji: "🌙", title: "Tag en nattevagt", body: `Selv én uafbrudt søvnperiode for ${morName} gør en kæmpe forskel.` },
+    { emoji: "🌙", title: "Tag en nattevagt", body: `Selv én uafbrudt søvnperiode for ${morName} gør en kæmpe forskel. Og husk — du kan sagtens putte! Det kræver nærhed, ikke amning.` },
     { emoji: "🏠", title: "Overtag det praktiske", body: "Indkøb, madlavning, opvask, tøjvask. Gør det uden at blive spurgt." },
   ] : babyAgeWeeks < 12 ? [
     { emoji: "👶", title: `Alene-tid med ${profile.children?.[0]?.name || "baby"}`, body: "Tag barnevognsturen, baderutinen eller legepladsen alene. Det bygger selvtillid for jer begge." },
@@ -240,6 +240,7 @@ function getDailyActions(ageWeeks: number, morName: string, childName: string) {
     { id: "bath", emoji: "🛁", title: `Tag badetid med ${childName}`, subtitle: "Hud-mod-hud og nærhed" },
     { id: "laundry", emoji: "👕", title: "Start en maskine tøj", subtitle: "Det lyder småt, men det letter enormt" },
     { id: "night", emoji: "🌙", title: "Tag nattevagten", subtitle: `En hel nats søvn for ${morName}` },
+    { id: "putning", emoji: "🌛", title: `Put ${childName} i seng`, subtitle: "Putning kræver nærhed — ikke amning. Du kan det!" },
     { id: "nice", emoji: "💬", title: `Sig noget rart til ${morName}`, subtitle: "'Du er fantastisk' virker altid" },
     { id: "shop", emoji: "🛒", title: "Gør ugens indkøb", subtitle: "Bleer, mad, snacks — uden huskeliste" },
   ];

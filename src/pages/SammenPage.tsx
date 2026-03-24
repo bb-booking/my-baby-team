@@ -125,7 +125,7 @@ export default function SammenPage() {
               </div>
               {profile.phase !== "pregnant" && (
                 <div className="flex justify-between text-[0.65rem]">
-                  <span className="text-muted-foreground">Nattevagter</span>
+                  <span className="text-muted-foreground">Nattevagter (uge)</span>
                   <span className="font-medium tabular-nums">{p.shifts} denne uge</span>
                 </div>
               )}
@@ -212,10 +212,14 @@ export default function SammenPage() {
       {/* Night shift planner */}
       {profile.phase !== "pregnant" && (
         <div className="card-soft section-fade-in" style={{ animationDelay: "180ms" }}>
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 mb-2">
             <Moon className="w-4 h-4" style={{ color: "hsl(var(--sage-dark))" }} />
-            <p className="text-[1rem] font-normal">Puttevagter</p>
+            <p className="text-[1rem] font-normal">Nattevagter</p>
           </div>
+          <p className="text-[0.72rem] text-muted-foreground mb-4 leading-relaxed">
+            Nattevagten handler om at tage ansvar for baby om natten — trøste, skifte ble og give ro. 
+            Det er ikke det samme som putning. Far kan sagtens putte baby i seng — det kræver nærhed, ikke amning. 💪
+          </p>
 
           {/* Tonight highlight */}
           <div className="rounded-2xl p-3 mb-4 flex items-center justify-between"
