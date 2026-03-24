@@ -319,11 +319,11 @@ export function QuickLog() {
       {!nursingDone && todayNursingCount > 0 && todayNursingCount < rec.nursing - 2 && (
         <div className="rounded-2xl px-4 py-3 text-[0.78rem] leading-relaxed animate-fade-in"
           style={{ background: "hsl(var(--cream))", border: "1px solid hsl(var(--clay) / 0.15)" }}>
-          <p className="font-medium text-[0.8rem] mb-1">💛 Helt i orden</p>
+          <p className="font-medium text-[0.8rem] mb-1">💡 Far-tip</p>
           <p className="text-muted-foreground text-[0.72rem]">
             {ageDays < 3
-              ? "I de første dage er det normalt at baby sover meget. Prøv at lægge baby til brystet når I ser tidlige tegn på sult."
-              : "Hyppig amning stimulerer mælkeproduktionen. Prøv hud-mod-hud — det fremmer jeres bånd og naturlig amning."}
+              ? "Baby spiser ofte de første dage. Sørg for at have vand, snacks og pude klar — det gør en kæmpe forskel."
+              : "Hent vand, en pude og lad telefonen ligge når der fodres. Din støtte gør det nemmere for jer begge."}
           </p>
         </div>
       )}
