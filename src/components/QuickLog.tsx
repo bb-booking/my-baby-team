@@ -75,7 +75,8 @@ export function QuickLog() {
   const handleNursing = useCallback((side: "left" | "right") => {
     addNursing(side);
     fireConfetti();
-    flash(`Amning (${side === "left" ? "venstre" : "højre"}) registreret ✨`);
+    const label = feedingMethod === "flaske" ? "Flaske" : feedingMethod === "begge" ? "Måltid" : "Amning";
+    flash(`${label}${feedingMethod !== "flaske" ? ` (${side === "left" ? "venstre" : "højre"})` : ""} registreret ✨`);
     setShowNursingPicker(false);
   }, [addNursing]);
 
