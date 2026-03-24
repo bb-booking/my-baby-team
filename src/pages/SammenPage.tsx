@@ -125,7 +125,7 @@ export default function SammenPage() {
               </div>
               {profile.phase !== "pregnant" && (
                 <div className="flex justify-between text-[0.65rem]">
-                  <span className="text-muted-foreground">Nattevagter</span>
+                  <span className="text-muted-foreground">Nattevagter (uge)</span>
                   <span className="font-medium tabular-nums">{p.shifts} denne uge</span>
                 </div>
               )}

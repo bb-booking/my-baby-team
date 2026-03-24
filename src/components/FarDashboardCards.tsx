@@ -240,6 +240,7 @@ function getDailyActions(ageWeeks: number, morName: string, childName: string) {
     { id: "bath", emoji: "🛁", title: `Tag badetid med ${childName}`, subtitle: "Hud-mod-hud og nærhed" },
     { id: "laundry", emoji: "👕", title: "Start en maskine tøj", subtitle: "Det lyder småt, men det letter enormt" },
     { id: "night", emoji: "🌙", title: "Tag nattevagten", subtitle: `En hel nats søvn for ${morName}` },
+    { id: "putning", emoji: "🌛", title: `Put ${childName} i seng`, subtitle: "Putning kræver nærhed — ikke amning. Du kan det!" },
     { id: "nice", emoji: "💬", title: `Sig noget rart til ${morName}`, subtitle: "'Du er fantastisk' virker altid" },
     { id: "shop", emoji: "🛒", title: "Gør ugens indkøb", subtitle: "Bleer, mad, snacks — uden huskeliste" },
   ];
