@@ -259,24 +259,17 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
     { key: "afsluttet", label: "Afsluttet", count: completed.length },
   ];
 
-  const [xpToast, setXpToast] = useState<string | null>(null);
-
   const handleToggle = (id: string) => {
     const task = tasks.find(t => t.id === id);
     if (task && !task.completed) {
       confetti({
-        particleCount: 60,
+        particleCount: 40,
         spread: 50,
         origin: { y: 0.7 },
         colors: ["#5a7a50", "#c4a97d", "#8fae7e", "#d4c4a8"],
         scalar: 0.7,
         gravity: 1.2,
       });
-      // XP toast for far
-      if (profile.role === "far") {
-        setXpToast("+20 XP");
-        setTimeout(() => setXpToast(null), 1800);
-      }
     }
     toggleTask(id);
   };
