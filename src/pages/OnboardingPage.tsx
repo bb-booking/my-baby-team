@@ -270,7 +270,7 @@ export default function OnboardingPage() {
               </div>
               <p className="text-[0.68rem] text-muted-foreground text-center">Du kan altid ændre dette i indstillinger.</p>
             </div>
-          )
+          )}
         </div>
       </div>
 
