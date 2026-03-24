@@ -74,8 +74,8 @@ export default function Dashboard() {
             {/* 3. Stats strip */}
             <QuickStatsStrip babyAgeWeeks={babyAgeWeeks} babyAgeMonths={babyAgeMonths} childName={childName || "Baby"} />
 
-            {/* 4. Sleep status */}
-            <SleepStatusBanner childName={childName || "Baby"} />
+            {/* 4. Live sleep tracker */}
+            <LiveSleepTracker childName={childName || "Baby"} />
 
             {/* 5. Support & nudges */}
             <MorSupportCard />
