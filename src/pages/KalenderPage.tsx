@@ -172,6 +172,7 @@ export default function KalenderPage() {
   };
 
   const [viewIndex, setViewIndex] = useState(getCurrentLeapIndex);
+  const [showTimeline, setShowTimeline] = useState(false);
 
   const canPrev = viewIndex > 0;
   const canNext = viewIndex < developmentalLeaps.length - 1;
