@@ -122,7 +122,7 @@ export default function Dashboard() {
             <LiveSleepTracker childName={childName || "Baby"} />
 
             {/* 2. Quick Log (includes stats strip) */}
-            <QuickLog showStatsStrip />
+            <QuickLog />
 
             {/* 4. Daily action card */}
             <FarDailyActionCard />
