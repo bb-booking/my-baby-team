@@ -44,7 +44,7 @@ const STOOL_CONSISTENCIES: { value: StoolConsistency; label: string; icon: strin
   { value: "slimet", label: "Slimet", icon: "◎" },
 ];
 
-export function QuickLog({ showStatsStrip = false }: { showStatsStrip?: boolean }) {
+export function QuickLog() {
   const { nursingLogs, addNursing, diaperLogs, addDiaper, todayNursingCount, todayDiaperCount, activeSleep, addSleep, endSleep, todaySleepMinutes } = useDiary();
   const { babyAgeWeeks, babyAgeMonths, profile } = useFamily();
   const feedingMethod = profile.morHealth?.feedingMethod;
