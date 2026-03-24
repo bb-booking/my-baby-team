@@ -6,7 +6,7 @@ import { TaskList } from "@/components/TaskList";
 import { PartnerNudge } from "@/components/PartnerNudge";
 import { MilestoneTimeline } from "@/components/MilestoneTimeline";
 import { MorRecoveryCard, MorSupportCard, MorFeedingCard, MorMicroSupport } from "@/components/MorDashboardCards";
-import { FarDailyActionCard, FarEmotionalNudge, FarFunHook, FarStreakBar, MorEmpathyCard } from "@/components/FarDashboardCards";
+import { FarEmotionalNudge, FarFunHook, FarStreakBar, MorEmpathyCard } from "@/components/FarDashboardCards";
 import { Heart, Shield, Zap, Stethoscope, Brain, MessageCircle, Gamepad2, Square } from "lucide-react";
 import { format } from "date-fns";
 import { da } from "date-fns/locale";
