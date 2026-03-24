@@ -46,7 +46,9 @@ const STOOL_CONSISTENCIES: { value: StoolConsistency; label: string; icon: strin
 
 export function QuickLog() {
   const { nursingLogs, addNursing, diaperLogs, addDiaper, todayNursingCount, todayDiaperCount, activeSleep, addSleep, endSleep } = useDiary();
-  const { babyAgeWeeks } = useFamily();
+  const { babyAgeWeeks, profile } = useFamily();
+  const feedingMethod = profile.morHealth?.feedingMethod;
+  const feedingLabel = feedingMethod === "flaske" ? "Flaske" : feedingMethod === "begge" ? "Amning/Flaske" : "Amning";
   const ageDays = babyAgeWeeks * 7;
   const rec = getRecommended(ageDays);
 
@@ -73,7 +75,8 @@ export function QuickLog() {
   const handleNursing = useCallback((side: "left" | "right") => {
     addNursing(side);
     fireConfetti();
-    flash(`Amning (${side === "left" ? "venstre" : "højre"}) registreret ✨`);
+    const label = feedingMethod === "flaske" ? "Flaske" : feedingMethod === "begge" ? "Måltid" : "Amning";
+    flash(`${label}${feedingMethod !== "flaske" ? ` (${side === "left" ? "venstre" : "højre"})` : ""} registreret ✨`);
     setShowNursingPicker(false);
   }, [addNursing]);
 
@@ -117,12 +120,19 @@ export function QuickLog() {
 
       {/* Quick action buttons */}
       <div className="grid grid-cols-3 gap-2.5">
-        {/* Nursing */}
-        <button onClick={() => { setShowNursingPicker(!showNursingPicker); setShowDiaperPicker(false); }}
+        {/* Nursing / Bottle */}
+        <button onClick={() => {
+          if (feedingMethod === "flaske") { handleNursing("left"); return; }
+          setShowNursingPicker(!showNursingPicker); setShowDiaperPicker(false);
+        }}
           className="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl border transition-all active:scale-95 hover:-translate-y-0.5 hover:shadow-md relative"
           style={{ borderColor: showNursingPicker ? "hsl(var(--sage))" : "hsl(var(--stone-light))", background: showNursingPicker ? "hsl(var(--sage-light))" : "hsl(var(--warm-white))" }}>
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="14" r="9" stroke="hsl(var(--clay))" strokeWidth="1.3" fill="hsl(var(--clay-light))"/><circle cx="16" cy="14" r="2.5" fill="hsl(var(--clay))"/></svg>
-          <span className="text-[0.62rem] tracking-[0.06em] uppercase text-muted-foreground">Amning</span>
+          {feedingMethod === "flaske" ? (
+            <span className="text-2xl">🍼</span>
+          ) : (
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="14" r="9" stroke="hsl(var(--clay))" strokeWidth="1.3" fill="hsl(var(--clay-light))"/><circle cx="16" cy="14" r="2.5" fill="hsl(var(--clay))"/></svg>
+          )}
+          <span className="text-[0.62rem] tracking-[0.06em] uppercase text-muted-foreground">{feedingLabel}</span>
           <span className="absolute -top-1 -right-1 text-[0.6rem] font-bold w-5 h-5 rounded-full flex items-center justify-center"
             style={{ background: nursingDone ? "hsl(var(--sage))" : "hsl(var(--clay-light))", color: nursingDone ? "white" : "hsl(var(--bark))" }}>
             {todayNursingCount}
@@ -156,9 +166,18 @@ export function QuickLog() {
         </button>
       </div>
 
-      {/* ── Nursing side picker ── */}
-      {showNursingPicker && (
+      {/* ── Nursing side picker (not shown for bottle-only) ── */}
+      {showNursingPicker && feedingMethod !== "flaske" && (
         <div className="card-soft animate-fade-in space-y-3">
+          {feedingMethod === "begge" && (
+            <div className="flex gap-2 mb-2">
+              <button onClick={() => { handleNursing("left"); }}
+                className="flex-1 py-3 rounded-2xl text-[0.82rem] font-medium border transition-all active:scale-[0.97]"
+                style={{ background: "hsl(var(--cream))", borderColor: "hsl(var(--clay))", color: "hsl(var(--bark))" }}>
+                🍼 Flaske
+              </button>
+            </div>
+          )}
           {lastSideHint && <p className="text-[0.72rem] text-muted-foreground">💡 {lastSideHint}</p>}
           <div className="flex gap-2">
             <button onClick={() => handleNursing("left")}
@@ -270,7 +289,7 @@ export function QuickLog() {
       <div className="grid grid-cols-2 gap-2.5">
         <div className="card-soft !p-3">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[0.6rem] tracking-[0.12em] uppercase text-muted-foreground">Amning</span>
+            <span className="text-[0.6rem] tracking-[0.12em] uppercase text-muted-foreground">{feedingLabel}</span>
             <span className="text-[0.78rem] font-semibold" style={{ color: nursingDone ? "hsl(var(--moss))" : "hsl(var(--bark))" }}>{todayNursingCount}/{rec.nursing}</span>
           </div>
           <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "hsl(var(--stone-lighter))" }}>
