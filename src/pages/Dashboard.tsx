@@ -44,14 +44,16 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {/* Role focus card */}
-      <RoleFocusCard
-        isMor={isMor}
-        phase={profile.phase}
-        childName={childName}
-        partnerName={isMor ? farName : morName}
-        babyAgeWeeks={babyAgeWeeks}
-      />
+      {/* Role focus card — only for mor/pregnant */}
+      {(isMor || profile.phase === "pregnant") && (
+        <RoleFocusCard
+          isMor={isMor}
+          phase={profile.phase}
+          childName={childName}
+          partnerName={isMor ? farName : morName}
+          babyAgeWeeks={babyAgeWeeks}
+        />
+      )}
 
       {profile.phase === "pregnant" ? (
         <>
