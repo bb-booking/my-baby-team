@@ -6,7 +6,7 @@ import { TaskList } from "@/components/TaskList";
 import { PartnerNudge } from "@/components/PartnerNudge";
 import { MilestoneTimeline } from "@/components/MilestoneTimeline";
 import { MorRecoveryCard, MorSupportCard, MorFeedingCard, MorMicroSupport } from "@/components/MorDashboardCards";
-import { FarDailyActionCard, FarEmotionalNudge, FarFunHook, FarStreakBar, MorEmpathyCard } from "@/components/FarDashboardCards";
+import { FarEmotionalNudge, FarFunHook, FarStreakBar, MorEmpathyCard } from "@/components/FarDashboardCards";
 import { Heart, Shield, Zap, Stethoscope, Brain, MessageCircle, Gamepad2, Square } from "lucide-react";
 import { format } from "date-fns";
 import { da } from "date-fns/locale";
@@ -126,14 +126,11 @@ export default function Dashboard() {
             {/* 2. Quick Log (with progress trackers) */}
             <QuickLog />
 
-            {/* 3. Tasks — right after log for actionability */}
-            <TaskList />
-
-            {/* 4. Far streak + XP bar */}
+            {/* 3. XP bar — motivation right after log */}
             <FarStreakBar />
 
-            {/* 5. Daily missions (gamified) */}
-            <FarDailyActionCard />
+            {/* 4. Tasks — the ONE to-do list */}
+            <TaskList />
 
             {/* 6. Empathy card — understand what mor goes through */}
             <MorEmpathyCard ageWeeks={babyAgeWeeks} morName={morName} />
