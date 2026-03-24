@@ -328,33 +328,38 @@ export function QuickLog() {
         </div>
       )}
 
-      {/* Emoji stats strip (shown when showStatsStrip is true) */}
-      {showStatsStrip && (() => {
-        const childName = profile.children?.[0]?.name || "Baby";
-        const ageLabel = babyAgeMonths >= 1 ? `${babyAgeMonths} mdr.` : `${babyAgeWeeks} uger`;
-        const sleepH = Math.floor(todaySleepMinutes / 60);
-        const sleepM = Math.round(todaySleepMinutes % 60);
-        const sleepStr = sleepH > 0 ? `${sleepH}t ${sleepM}m` : `${sleepM}m`;
-        const stats = [
-          { emoji: "🌙", value: sleepStr, label: "Søvn" },
-          { emoji: feedingEmoji, value: `${todayNursingCount}×`, label: feedingLabel },
-          { emoji: "🧷", value: `${todayDiaperCount}×`, label: "Bleer" },
-          { emoji: "👶", value: ageLabel, label: childName },
-        ];
-        return (
-          <div className="rounded-2xl border overflow-hidden" style={{ borderColor: "hsl(var(--stone-light))" }}>
-            <div className="grid grid-cols-4 divide-x divide-[hsl(var(--stone-lighter))]">
-              {stats.map(s => (
-                <div key={s.label} className="flex flex-col items-center py-3 px-1.5 gap-0.5">
-                  <span className="text-base">{s.emoji}</span>
-                  <span className="text-[0.88rem] font-semibold">{s.value}</span>
-                  <span className="text-[0.52rem] tracking-[0.12em] uppercase text-muted-foreground">{s.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      })()}
+    </div>
+  );
+}
+
+// ── Sleep overview card ──
+function SleepOverviewCard() {
+  const { sleepLogs, todaySleepMinutes, activeSleep } = useDiary();
+  const today = new Date().toDateString();
+  const todayLogs = sleepLogs.filter(l => new Date(l.startTime).toDateString() === today && l.endTime);
+  const napCount = todayLogs.filter(l => l.type === "nap").length;
+
+  const recMinutes = 8 * 60;
+  const pct = Math.min((todaySleepMinutes / recMinutes) * 100, 100);
+  const done = pct >= 100;
+  const sleepH = Math.floor(todaySleepMinutes / 60);
+  const sleepM = Math.round(todaySleepMinutes % 60);
+  const sleepStr = sleepH > 0 ? `${sleepH}t ${sleepM}m` : `${sleepM}m`;
+
+  return (
+    <div className="card-soft !p-3">
+      <div className="flex items-center justify-between mb-1.5">
+        <span className="text-[0.55rem] tracking-[0.1em] uppercase text-muted-foreground">Søvn</span>
+      </div>
+      <span className="text-[0.82rem] font-semibold" style={{ color: done ? "hsl(var(--moss))" : "hsl(var(--bark))" }}>
+        {sleepStr}
+      </span>
+      <div className="h-1.5 rounded-full overflow-hidden mt-1.5" style={{ background: "hsl(var(--stone-lighter))" }}>
+        <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: done ? "hsl(var(--sage))" : "hsl(var(--sage))" }} />
+      </div>
+      <p className="text-[0.55rem] text-muted-foreground mt-1">
+        {activeSleep ? "💤 Sover nu" : `${napCount} lur${napCount !== 1 ? "e" : ""}`}
+      </p>
     </div>
   );
 }
