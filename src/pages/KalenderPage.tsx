@@ -275,8 +275,7 @@ export default function KalenderPage() {
   const xpPerLeap = 125;
   const totalXP = completedCount * xpPerLeap;
   const maxXP = totalLeaps * xpPerLeap;
-  const level = completedCount === 0 ? 1 : completedCount <= 2 ? 2 : completedCount <= 4 ? 3 : completedCount <= 6 ? 4 : 5;
-  const levelTitles = ["", "Ny forælder", "Rutineret", "Erfaren", "Veteran", "Mester"];
+  const level = getLevel(completedCount);
 
   return (
     <div className="space-y-5">
