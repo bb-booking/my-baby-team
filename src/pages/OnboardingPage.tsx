@@ -7,7 +7,7 @@ import { da } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import lilleLogoImg from "@/assets/lille-logo.png";
+import meloLogoImg from "@/assets/melo-logo.png";
 
 type Step = "phase" | "date" | "role" | "names" | "child" | "morhealth";
 

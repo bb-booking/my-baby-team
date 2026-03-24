@@ -150,7 +150,7 @@ export default function ChatPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-12rem)] md:h-[calc(100vh-5rem)]">
       <div className="section-fade-in px-1 pb-3">
-        <h1 className="text-[1.9rem] font-normal">Spørg Lille</h1>
+        <h1 className="text-[1.9rem] font-normal">Spørg Melo</h1>
         <p className="label-upper mt-1">DIN TRYGGE RÅDGIVER</p>
       </div>
 

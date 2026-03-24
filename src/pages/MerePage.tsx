@@ -127,7 +127,7 @@ export default function MerePage() {
       </div>
 
       <div className="card-soft text-center section-fade-in" style={{ animationDelay: "560ms" }}>
-        <p className="text-[0.68rem] text-muted-foreground">Lille v1.0 — lavet med kærlighed 🌿</p>
+        <p className="text-[0.68rem] text-muted-foreground">Melo v1.0 — lavet med kærlighed 🌿</p>
       </div>
       <div className="h-20 md:h-0" />
     </div>
