@@ -466,6 +466,38 @@ export default function KalenderPage() {
       )}
 
       <div className="h-20 md:h-0" />
+
+      {/* Level-up overlay */}
+      {levelUpInfo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center animate-fade-in" style={{ background: "rgba(0,0,0,0.5)" }}>
+          <div
+            className="mx-6 rounded-3xl p-8 text-center animate-scale-in max-w-xs w-full"
+            style={{ background: "linear-gradient(160deg, hsl(var(--cream)), hsl(var(--sage-light)))" }}
+          >
+            <div
+              className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
+              style={{ background: "linear-gradient(135deg, #FFD700, #FFA500)" }}
+            >
+              <Zap className="w-8 h-8 text-white" />
+            </div>
+            <p className="text-[0.6rem] tracking-[0.2em] uppercase text-muted-foreground mb-1">LEVEL UP!</p>
+            <h2 className="text-[1.6rem] font-bold mb-1">Level {levelUpInfo.level}</h2>
+            <p className="text-[1rem] font-medium mb-1" style={{ color: "hsl(var(--moss))" }}>
+              {levelUpInfo.title}
+            </p>
+            <p className="text-[0.78rem] text-muted-foreground mb-6">
+              Du har nået et nyt niveau! Fortsæt den fantastiske rejse 🌟
+            </p>
+            <button
+              onClick={dismissLevelUp}
+              className="w-full py-3 rounded-2xl text-[0.85rem] font-medium text-white transition-all active:scale-[0.97]"
+              style={{ background: "hsl(var(--moss))" }}
+            >
+              Fantastisk! 🎉
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
