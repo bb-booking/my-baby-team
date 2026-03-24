@@ -295,7 +295,7 @@ export default function KalenderPage() {
               <Trophy className="w-4.5 h-4.5 text-white" />
             </div>
             <div>
-              <p className="text-[0.72rem] font-semibold">Level {level} · {levelTitles[level]}</p>
+              <p className="text-[0.72rem] font-semibold">Level {level} · {LEVEL_TITLES[level]}</p>
               <p className="text-[0.6rem] text-muted-foreground">{totalXP} / {maxXP} XP</p>
             </div>
           </div>
