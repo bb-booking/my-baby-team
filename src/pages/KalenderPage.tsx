@@ -1,11 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useFamily } from "@/context/FamilyContext";
 import { developmentalLeaps, type DevelopmentalLeap } from "@/lib/phaseData";
-import { Check, ChevronRight, ChevronLeft, AlertCircle, Lightbulb, Trophy, Star, ChevronDown, ChevronUp } from "lucide-react";
+import { Check, ChevronRight, ChevronLeft, AlertCircle, Lightbulb, Trophy, Star, ChevronDown, ChevronUp, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 
 const STORAGE_KEY = "lille-completed-leaps";
+const LEVEL_TITLES = ["", "Ny forælder", "Rutineret", "Erfaren", "Veteran", "Mester"];
+
+function getLevel(count: number) {
+  if (count === 0) return 1;
+  if (count <= 2) return 2;
+  if (count <= 4) return 3;
+  if (count <= 6) return 4;
+  return 5;
+}
+
+function fireLevelUpConfetti() {
+  // Big gold + green burst from both sides
+  const defaults = { gravity: 0.7, scalar: 1.1, ticks: 120 };
+  confetti({ ...defaults, particleCount: 60, spread: 80, origin: { x: 0.15, y: 0.45 }, colors: ["#FFD700", "#FFA500", "#5a7a50", "#8fae7e"], angle: 60 });
+  confetti({ ...defaults, particleCount: 60, spread: 80, origin: { x: 0.85, y: 0.45 }, colors: ["#FFD700", "#FFA500", "#5a7a50", "#8fae7e"], angle: 120 });
+  // Stars from center
+  setTimeout(() => {
+    confetti({ particleCount: 40, spread: 120, origin: { y: 0.5 }, colors: ["#FFD700", "#FFFFFF", "#c4a97d"], shapes: ["star" as any], scalar: 1.3, gravity: 0.5 });
+  }, 300);
+}
 
 function useCompletedLeaps() {
   const [completed, setCompleted] = useState<string[]>(() => {
@@ -14,22 +34,36 @@ function useCompletedLeaps() {
       return stored ? JSON.parse(stored) : [];
     } catch { return []; }
   });
+  const [levelUpInfo, setLevelUpInfo] = useState<{ level: number; title: string } | null>(null);
+  const prevCountRef = useRef(completed.length);
 
-  const markCompleted = (id: string) => {
+  const markCompleted = useCallback((id: string) => {
     setCompleted(prev => {
       if (prev.includes(id)) return prev;
       const next = [...prev, id];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      // Normal confetti
       confetti({
         particleCount: 80, spread: 70, origin: { y: 0.5 },
         colors: ["#5a7a50", "#c4a97d", "#8fae7e", "#d4c4a8", "#e8dfd0"],
         scalar: 0.9, gravity: 0.8,
       });
+      // Check level up
+      const oldLevel = getLevel(prev.length);
+      const newLevel = getLevel(next.length);
+      if (newLevel > oldLevel) {
+        setTimeout(() => {
+          fireLevelUpConfetti();
+          setLevelUpInfo({ level: newLevel, title: LEVEL_TITLES[newLevel] });
+        }, 600);
+      }
       return next;
     });
-  };
+  }, []);
 
-  return { completed, markCompleted };
+  const dismissLevelUp = useCallback(() => setLevelUpInfo(null), []);
+
+  return { completed, markCompleted, levelUpInfo, dismissLevelUp };
 }
 
 function getLeapStatus(ageWeeks: number, completedLeaps: string[], leap: DevelopmentalLeap) {
