@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useFamily } from "@/context/FamilyContext";
 import { developmentalLeaps, type DevelopmentalLeap } from "@/lib/phaseData";
-import { Check, ChevronRight, ChevronLeft, Sparkles, AlertCircle, Lightbulb } from "lucide-react";
+import { Check, ChevronRight, ChevronLeft, AlertCircle, Lightbulb, Trophy, Star, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 
