@@ -258,23 +258,7 @@ function LiveSleepTracker({ childName }: { childName: string }) {
     return () => clearInterval(interval);
   }, [activeSleep]);
 
-  if (!activeSleep) {
-    if (todaySleepMinutes > 0) {
-      const hours = Math.floor(todaySleepMinutes / 60);
-      const mins = Math.round(todaySleepMinutes % 60);
-      return (
-        <div className="rounded-2xl px-4 py-3 flex items-center gap-3 section-fade-in"
-          style={{ background: "hsl(var(--cream))", border: "1px solid hsl(var(--stone-light))" }}>
-          <span className="text-lg">😴</span>
-          <div className="flex-1">
-            <p className="text-[0.82rem] font-medium">Søvn i dag</p>
-            <p className="text-[0.68rem] text-muted-foreground">{hours > 0 ? `${hours}t ${mins}m` : `${mins}m`} samlet</p>
-          </div>
-        </div>
-      );
-    }
-    return null;
-  }
+  if (!activeSleep) return null;
 
   const startTime = new Date(activeSleep.startTime);
   const elapsedMs = now - startTime.getTime();
