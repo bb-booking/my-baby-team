@@ -6,7 +6,7 @@ import { TaskList } from "@/components/TaskList";
 import { PartnerNudge } from "@/components/PartnerNudge";
 import { MilestoneTimeline } from "@/components/MilestoneTimeline";
 import { MorRecoveryCard, MorSupportCard, MorFeedingCard, MorMicroSupport } from "@/components/MorDashboardCards";
-import { FarDailyActionCard, FarEmotionalNudge, FarFunHook, FarGuideCard, FarOwnershipCard } from "@/components/FarDashboardCards";
+import { FarDailyActionCard, FarEmotionalNudge, FarFunHook, FarStreakBar, MorEmpathyCard } from "@/components/FarDashboardCards";
 import { Heart, Shield, Zap, Stethoscope, Brain, MessageCircle, Gamepad2, Square } from "lucide-react";
 import { format } from "date-fns";
 import { da } from "date-fns/locale";
@@ -118,34 +118,31 @@ export default function Dashboard() {
         ) : (
           <>
             {/* FAR DASHBOARD */}
-            {/* 1. Live sleep tracker — top when active */}
+            {/* 1. Live sleep tracker — ONLY when actively sleeping */}
             <LiveSleepTracker childName={childName || "Baby"} />
 
-            {/* 2. Quick Log (includes stats strip) */}
+            {/* 2. Quick Log (with progress trackers) */}
             <QuickLog />
 
-            {/* 4. Daily action card */}
-            <FarDailyActionCard />
-
-            {/* 5. Fun hook */}
-            <FarFunHook />
-
-            {/* 6. Emotional nudge */}
-            <FarEmotionalNudge />
-
-            {/* 7. Ownership card */}
-            <FarOwnershipCard />
-
-            {/* 8. Guide */}
-            <FarGuideCard />
-
-            {/* 9. Relevant now */}
-            <RelevantNowCard ageWeeks={babyAgeWeeks} childName={childName || "Baby"} isMor={false} partnerName={morName} />
-
-            {/* 10. Tasks */}
+            {/* 3. Tasks — right after log for actionability */}
             <TaskList />
 
-            {/* 11. Quick links */}
+            {/* 4. Far streak + XP bar */}
+            <FarStreakBar />
+
+            {/* 5. Daily missions (gamified) */}
+            <FarDailyActionCard />
+
+            {/* 6. Empathy card — understand what mor goes through */}
+            <MorEmpathyCard ageWeeks={babyAgeWeeks} morName={morName} />
+
+            {/* 7. Fun hook */}
+            <FarFunHook />
+
+            {/* 8. Emotional nudge */}
+            <FarEmotionalNudge />
+
+            {/* 9. Quick links */}
             <div className="grid grid-cols-2 gap-2.5 section-fade-in">
               <Link to="/chat" className="card-soft !p-4 flex flex-col items-center gap-2 transition-all hover:shadow-sm active:scale-[0.98]">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--sage-light))" }}>
@@ -163,12 +160,11 @@ export default function Dashboard() {
               </Link>
             </div>
 
-            {/* 12. Leap + knowledge */}
+            {/* 10. Leap + knowledge */}
             <LeapBanner ageWeeks={babyAgeWeeks} childName={childName || "Baby"} />
             <KnowledgeCarousel ageWeeks={babyAgeWeeks} childName={childName || "Baby"} />
             <BabyInsightCard ageWeeks={babyAgeWeeks} ageMonths={babyAgeMonths} childName={childName || "Baby"} />
 
-            <PartnerNudge />
             <MilestoneTimeline />
         </>
       )}
@@ -262,23 +258,7 @@ function LiveSleepTracker({ childName }: { childName: string }) {
     return () => clearInterval(interval);
   }, [activeSleep]);
 
-  if (!activeSleep) {
-    if (todaySleepMinutes > 0) {
-      const hours = Math.floor(todaySleepMinutes / 60);
-      const mins = Math.round(todaySleepMinutes % 60);
-      return (
-        <div className="rounded-2xl px-4 py-3 flex items-center gap-3 section-fade-in"
-          style={{ background: "hsl(var(--cream))", border: "1px solid hsl(var(--stone-light))" }}>
-          <span className="text-lg">😴</span>
-          <div className="flex-1">
-            <p className="text-[0.82rem] font-medium">Søvn i dag</p>
-            <p className="text-[0.68rem] text-muted-foreground">{hours > 0 ? `${hours}t ${mins}m` : `${mins}m`} samlet</p>
-          </div>
-        </div>
-      );
-    }
-    return null;
-  }
+  if (!activeSleep) return null;
 
   const startTime = new Date(activeSleep.startTime);
   const elapsedMs = now - startTime.getTime();

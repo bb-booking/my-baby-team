@@ -1,7 +1,179 @@
 import { useFamily } from "@/context/FamilyContext";
-import { Zap, ArrowRight, Trophy, Target, Heart } from "lucide-react";
+import { useDiary } from "@/context/DiaryContext";
+import { Zap, ArrowRight, Trophy, Target, Heart, Flame, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import confetti from "canvas-confetti";
+
+// ── Far Streak Bar — gamification XP system ──
+export function FarStreakBar() {
+  const { profile } = useFamily();
+  const { todayNursingCount, todayDiaperCount, todaySleepMinutes } = useDiary();
+
+  // Calculate XP from today's actions
+  const feedingXP = todayNursingCount * 10;
+  const diaperXP = todayDiaperCount * 15;
+  const sleepXP = Math.floor(todaySleepMinutes / 30) * 5;
+  const totalXP = feedingXP + diaperXP + sleepXP;
+
+  // Streak from localStorage
+  const [streak, setStreak] = useState(() => {
+    try {
+      const s = localStorage.getItem("lille-far-streak");
+      return s ? JSON.parse(s) : { days: 0, lastDate: "" };
+    } catch { return { days: 0, lastDate: "" }; }
+  });
+
+  useEffect(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    if (totalXP > 0 && streak.lastDate !== today) {
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      const newDays = streak.lastDate === yesterday ? streak.days + 1 : 1;
+      const newStreak = { days: newDays, lastDate: today };
+      setStreak(newStreak);
+      localStorage.setItem("lille-far-streak", JSON.stringify(newStreak));
+    }
+  }, [totalXP]);
+
+  // Level system
+  const level = Math.floor(totalXP / 50) + 1;
+  const xpInLevel = totalXP % 50;
+  const xpPct = Math.min((xpInLevel / 50) * 100, 100);
+
+  const levelTitles = ["Rookie", "Sidekick", "Wingman", "Kaptajn", "Legende", "MVP"];
+  const title = levelTitles[Math.min(level - 1, levelTitles.length - 1)];
+
+  return (
+    <div className="rounded-2xl overflow-hidden section-fade-in" style={{
+      background: "linear-gradient(135deg, hsl(var(--sage) / 0.08), hsl(var(--sage) / 0.03))",
+      border: "1px solid hsl(var(--sage) / 0.15)",
+    }}>
+      <div className="px-4 py-3.5">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "hsl(var(--sage-light))" }}>
+              <Trophy className="w-4 h-4" style={{ color: "hsl(var(--moss))" }} />
+            </div>
+            <div>
+              <p className="text-[0.72rem] font-semibold">Level {level} · {title}</p>
+              <p className="text-[0.58rem] text-muted-foreground">{totalXP} XP i dag</p>
+            </div>
+          </div>
+          {streak.days > 0 && (
+            <div className="flex items-center gap-1 px-2.5 py-1 rounded-full" style={{ background: "hsl(var(--clay-light))" }}>
+              <Flame className="w-3.5 h-3.5" style={{ color: "hsl(var(--clay))" }} />
+              <span className="text-[0.68rem] font-bold" style={{ color: "hsl(var(--bark))" }}>{streak.days}</span>
+            </div>
+          )}
+        </div>
+
+        {/* XP progress bar */}
+        <div className="h-2 rounded-full overflow-hidden" style={{ background: "hsl(var(--stone-lighter))" }}>
+          <div className="h-full rounded-full transition-all duration-700" style={{
+            width: `${xpPct}%`,
+            background: "linear-gradient(90deg, hsl(var(--sage)), hsl(var(--moss)))",
+          }} />
+        </div>
+        <p className="text-[0.52rem] text-muted-foreground mt-1 text-right">{xpInLevel}/50 XP til næste level</p>
+
+        {/* XP breakdown */}
+        <div className="flex gap-3 mt-2">
+          {feedingXP > 0 && <span className="text-[0.58rem] text-muted-foreground">🍼 +{feedingXP}</span>}
+          {diaperXP > 0 && <span className="text-[0.58rem] text-muted-foreground">🧷 +{diaperXP}</span>}
+          {sleepXP > 0 && <span className="text-[0.58rem] text-muted-foreground">💤 +{sleepXP}</span>}
+          {totalXP === 0 && <span className="text-[0.58rem] text-muted-foreground">Log aktiviteter for at optjene XP</span>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Mor Empathy Card — understand what she's going through ──
+export function MorEmpathyCard({ ageWeeks, morName }: { ageWeeks: number; morName: string }) {
+  const [expanded, setExpanded] = useState(false);
+
+  const content = ageWeeks < 2 ? {
+    emoji: "🫂",
+    title: `Hvad ${morName} oplever lige nu`,
+    headline: "Kroppen heler efter fødslen",
+    facts: [
+      "Livmoderen trækker sig sammen — det gør ondt, især under amning",
+      "Hormonerne crasher: østrogen falder 100× på 3 dage",
+      "Brysterne kan være ømme, hævede og smertefulde",
+      "Søvnmangel påvirker humør, hukommelse og tålmodighed",
+    ],
+    action: `Spørg ikke "kan jeg hjælpe?" — gør det bare. Tag opvasken, hent vand, lav mad.`,
+  } : ageWeeks < 6 ? {
+    emoji: "💛",
+    title: `Hvad ${morName} oplever lige nu`,
+    headline: "Baby blues rammer op til 80%",
+    facts: [
+      "Pludselig gråd, angst, irritabilitet — det er hormonelt og NORMALT",
+      "Hun kan føle sig utilstrækkelig selvom hun gør det fantastisk",
+      "Amning er et fuldtidsjob: 8-12 gange i døgnet, 20-45 min pr. gang",
+      "Mental load: hun tænker på alt — mad, bleer, tøj, læge, næste amning",
+    ],
+    action: `Sig: "Du gør det fantastisk, og jeg ser alt det du gør." Mén det.`,
+  } : ageWeeks < 12 ? {
+    emoji: "🧠",
+    title: `Hvad ${morName} oplever lige nu`,
+    headline: "Mental load er usynligt arbejde",
+    facts: [
+      "Hun holder styr på: sovevinduer, amning, lægeaftaler, tøjstørrelser, madplan",
+      "At bede om hjælp ER også arbejde — tag initiativ selv",
+      "'Mor-guilt': hun føler sig forkert uanset hvad hun vælger",
+      "Identitetskrise: hun er ikke kun 'mor' — hun savner sig selv",
+    ],
+    action: `Tag en hel aften alene med baby. Sig: "Tag ud, gør noget for dig selv."`,
+  } : {
+    emoji: "💪",
+    title: `Hvad ${morName} oplever lige nu`,
+    headline: "Hun finder sin nye rytme",
+    facts: [
+      "Kroppen er stadig under forandring — det tager 12+ mdr. at hele fuldt",
+      "Sammenligning med andre mødre er en konstant kamp",
+      "Hun har brug for anerkendelse, ikke gode råd",
+      "Parforholdet er under pres — prioritér tid sammen",
+    ],
+    action: `Planlæg en date night. Bare 2 timer gør en kæmpe forskel.`,
+  };
+
+  return (
+    <div className="rounded-2xl overflow-hidden section-fade-in" style={{
+      background: "linear-gradient(135deg, hsl(var(--clay) / 0.08), hsl(var(--clay) / 0.03))",
+      border: "1px solid hsl(var(--clay) / 0.15)",
+    }}>
+      <button onClick={() => setExpanded(!expanded)} className="w-full text-left px-4 py-3.5 transition-all active:scale-[0.995]">
+        <div className="flex items-center gap-3">
+          <span className="text-xl">{content.emoji}</span>
+          <div className="flex-1">
+            <p className="text-[0.58rem] tracking-[0.14em] uppercase text-muted-foreground">FORSTÅ HINANDEN</p>
+            <p className="text-[0.88rem] font-medium">{content.headline}</p>
+          </div>
+          <span className={`text-muted-foreground text-[0.7rem] transition-transform ${expanded ? "rotate-180" : ""}`}>▼</span>
+        </div>
+      </button>
+
+      {expanded && (
+        <div className="px-4 pb-4 animate-fade-in">
+          <ul className="space-y-2 mb-3">
+            {content.facts.map((fact, i) => (
+              <li key={i} className="flex items-start gap-2 text-[0.75rem] text-foreground/70 leading-relaxed">
+                <span className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ background: "hsl(var(--clay))" }} />
+                {fact}
+              </li>
+            ))}
+          </ul>
+          <div className="rounded-xl px-3 py-2.5" style={{ background: "hsl(var(--clay) / 0.1)" }}>
+            <p className="text-[0.75rem] font-medium" style={{ color: "hsl(var(--bark))" }}>
+              💡 {content.action}
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ── Far: Daily Action Card ("Hvad kan jeg gøre i dag?") ──
 export function FarDailyActionCard() {
@@ -10,7 +182,6 @@ export function FarDailyActionCard() {
   const [completedActions, setCompletedActions] = useState<string[]>([]);
 
   const allActions = getDailyActions(babyAgeWeeks, morName, childName);
-  // Pick 3 actions based on day rotation
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
   const shuffled = [...allActions].map((a, i) => ({ ...a, sort: (dayOfYear * 7 + i * 13) % 100 }))
     .sort((a, b) => a.sort - b.sort);
@@ -18,6 +189,12 @@ export function FarDailyActionCard() {
 
   const handleComplete = (id: string) => {
     setCompletedActions(prev => [...prev, id]);
+    confetti({
+      particleCount: 30, spread: 50, startVelocity: 18, gravity: 0.9, ticks: 100,
+      origin: { y: 0.6 },
+      colors: ["#8fae7e", "#c4a77d", "#e8dfd0", "#a3c293"],
+      scalar: 0.7,
+    });
   };
 
   return (
@@ -39,9 +216,7 @@ export function FarDailyActionCard() {
             <button
               key={a.id}
               onClick={() => !done && handleComplete(a.id)}
-              className={`flex items-center gap-3 w-full text-left px-3 py-3 rounded-xl transition-all active:scale-[0.98] ${
-                done ? "opacity-60" : ""
-              }`}
+              className={`flex items-center gap-3 w-full text-left px-3 py-3 rounded-xl transition-all active:scale-[0.98] ${done ? "opacity-60" : ""}`}
               style={{
                 background: done ? "hsl(var(--sage) / 0.08)" : "hsl(var(--sage) / 0.05)",
                 border: `1px solid ${done ? "hsl(var(--sage) / 0.25)" : "hsl(var(--sage) / 0.12)"}`,
@@ -53,7 +228,7 @@ export function FarDailyActionCard() {
                 <p className="text-[0.65rem] text-muted-foreground">{a.subtitle}</p>
               </div>
               {done ? (
-                <span className="text-[0.7rem] font-medium" style={{ color: "hsl(var(--moss))" }}>✓ Done</span>
+                <span className="text-[0.7rem] font-medium" style={{ color: "hsl(var(--moss))" }}>✓ +20 XP</span>
               ) : (
                 <Zap className="w-4 h-4 flex-shrink-0" style={{ color: "hsl(var(--sage))" }} />
               )}
@@ -63,9 +238,9 @@ export function FarDailyActionCard() {
       </div>
 
       {completedActions.length >= 2 && (
-        <div className="mt-3 px-3 py-2 rounded-xl text-center" style={{ background: "hsl(var(--sage) / 0.1)" }}>
+        <div className="mt-3 px-3 py-2.5 rounded-xl text-center" style={{ background: "hsl(var(--sage) / 0.1)" }}>
           <p className="text-[0.75rem] font-medium" style={{ color: "hsl(var(--moss))" }}>
-            🏆 Stærkt! Du gør en kæmpe forskel.
+            🏆 Stærkt! Du gør en kæmpe forskel. +50 bonus XP
           </p>
         </div>
       )}
@@ -90,14 +265,11 @@ export function FarEmotionalNudge() {
   const nudge = nudges[dayOfYear % nudges.length];
 
   return (
-    <div
-      className="rounded-2xl px-4 py-4 section-fade-in"
-      style={{
-        background: "linear-gradient(135deg, hsl(var(--sage) / 0.08), hsl(var(--sage) / 0.03))",
-        border: "1px solid hsl(var(--sage) / 0.15)",
-        animationDelay: "120ms",
-      }}
-    >
+    <div className="rounded-2xl px-4 py-4 section-fade-in" style={{
+      background: "linear-gradient(135deg, hsl(var(--sage) / 0.08), hsl(var(--sage) / 0.03))",
+      border: "1px solid hsl(var(--sage) / 0.15)",
+      animationDelay: "120ms",
+    }}>
       <div className="flex items-start gap-3">
         <span className="text-xl flex-shrink-0">{nudge.emoji}</span>
         <div>
@@ -115,7 +287,7 @@ export function FarFunHook() {
   const childName = profile.children?.[0]?.name || "Baby";
 
   const hooks = [
-    { emoji: "🏋️", text: `${childName} vejer nu det samme som en kettlebell`, sub: "Perfekt til bicep curls under amning... wait" },
+    { emoji: "🏋️", text: `${childName} vejer nu det samme som en kettlebell`, sub: "Perfekt til bicep curls under bæring" },
     { emoji: "🎮", text: "XP optjent: Partner Support +10", sub: "Level up: tag nattevagten i aften" },
     { emoji: "🚶", text: "Dagens mission: 2 km barnevogn walk", sub: "Bonus XP hvis du tager en kaffe med hjem" },
     { emoji: "🦸", text: "Far-mode: AKTIVERET", sub: "Du er ikke backup — du er starting lineup" },
@@ -139,91 +311,6 @@ export function FarFunHook() {
           <p className="text-[0.82rem] font-medium">{hook.text}</p>
           <p className="text-[0.65rem] text-muted-foreground">{hook.sub}</p>
         </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Far: Guide to supporting ──
-export function FarGuideCard() {
-  const { morName, babyAgeWeeks, profile } = useFamily();
-  const feedingMethod = profile.morHealth?.feedingMethod;
-
-  const guides = babyAgeWeeks < 4 ? [
-    ...(feedingMethod === "amning" || feedingMethod === "begge" ? [
-      { emoji: "🤱", title: "Sådan støtter du under amning", body: `Hent vand, pude og telefon FØR hun sætter sig. Sid ved hende — din tilstedeværelse betyder alt.` },
-    ] : []),
-    { emoji: "🌙", title: "Tag en nattevagt", body: `Selv én uafbrudt søvnperiode for ${morName} gør en kæmpe forskel. Og husk — du kan sagtens putte! Det kræver nærhed, ikke amning.` },
-    { emoji: "🏠", title: "Overtag det praktiske", body: "Indkøb, madlavning, opvask, tøjvask. Gør det uden at blive spurgt." },
-  ] : babyAgeWeeks < 12 ? [
-    { emoji: "👶", title: `Alene-tid med ${profile.children?.[0]?.name || "baby"}`, body: "Tag barnevognsturen, baderutinen eller legepladsen alene. Det bygger selvtillid for jer begge." },
-    { emoji: "💬", title: "Hvad hun har brug for (uden at sige det)", body: `Anerkendelse. "Du gør det fantastisk" er stærkere end "kan jeg hjælpe?"` },
-    { emoji: "📋", title: "Overtag opgaver", body: "Se samarbejdslisten og tag dem der står som 'fælles'.", link: "/sammen" },
-  ] : [
-    { emoji: "🎯", title: "Ejerskab over rutiner", body: "Vælg en fast rutine — morgenmad, bad, eller sengelægning — og gør den til din." },
-    { emoji: "🧠", title: "Tænk fremad", body: "Bestil tid hos lægen, køb bleer inden de slipper op, planlæg weekenden." },
-  ];
-
-  return (
-    <div className="card-soft section-fade-in" style={{ animationDelay: "240ms" }}>
-      <p className="text-[0.6rem] tracking-[0.14em] uppercase text-muted-foreground mb-2">📖 GUIDE: SÅDAN HJÆLPER DU</p>
-      <div className="space-y-2">
-        {guides.map((g, i) => (
-          g.link ? (
-            <Link key={i} to={g.link} className="flex items-start gap-3 px-3 py-2.5 rounded-xl transition-all hover:shadow-sm active:scale-[0.98]"
-              style={{ background: "hsl(var(--sage) / 0.05)", border: "1px solid hsl(var(--sage) / 0.1)" }}>
-              <span className="text-base flex-shrink-0 mt-0.5">{g.emoji}</span>
-              <div className="flex-1">
-                <p className="text-[0.82rem] font-medium">{g.title}</p>
-                <p className="text-[0.68rem] text-muted-foreground leading-relaxed">{g.body}</p>
-              </div>
-              <ArrowRight className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0 mt-1" />
-            </Link>
-          ) : (
-            <div key={i} className="flex items-start gap-3 px-3 py-2.5 rounded-xl"
-              style={{ background: "hsl(var(--sage) / 0.05)" }}>
-              <span className="text-base flex-shrink-0 mt-0.5">{g.emoji}</span>
-              <div>
-                <p className="text-[0.82rem] font-medium">{g.title}</p>
-                <p className="text-[0.68rem] text-muted-foreground leading-relaxed">{g.body}</p>
-              </div>
-            </div>
-          )
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ── Far: Ownership / responsibility card ──
-export function FarOwnershipCard() {
-  const { tasks, profile } = useFamily();
-  const today = new Date().toISOString().split("T")[0];
-  const myTasks = tasks.filter(t => (t.assignee === "far" || t.assignee === "fælles") && t.dueDate === today && !t.completed);
-  const completedToday = tasks.filter(t => (t.assignee === "far") && t.dueDate === today && t.completed);
-
-  if (myTasks.length === 0 && completedToday.length === 0) return null;
-
-  return (
-    <div className="card-soft section-fade-in" style={{ animationDelay: "300ms" }}>
-      <div className="flex items-center justify-between mb-2">
-        <p className="text-[0.6rem] tracking-[0.14em] uppercase text-muted-foreground">🎯 DIT ANSVAR I DAG</p>
-        <Link to="/sammen" className="text-[0.65rem] font-medium" style={{ color: "hsl(var(--moss))" }}>
-          Se alle →
-        </Link>
-      </div>
-      <div className="space-y-1.5">
-        {myTasks.slice(0, 4).map(t => (
-          <div key={t.id} className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: "hsl(var(--sage) / 0.05)" }}>
-            <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "hsl(var(--sage))" }} />
-            <span className="text-[0.78rem]">{t.title}</span>
-          </div>
-        ))}
-        {completedToday.length > 0 && (
-          <p className="text-[0.65rem] text-muted-foreground mt-2 flex items-center gap-1">
-            <Trophy className="w-3 h-3" /> {completedToday.length} opgave{completedToday.length > 1 ? "r" : ""} klaret i dag
-          </p>
-        )}
       </div>
     </div>
   );
