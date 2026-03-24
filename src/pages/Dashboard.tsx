@@ -7,11 +7,11 @@ import { PartnerNudge } from "@/components/PartnerNudge";
 import { MilestoneTimeline } from "@/components/MilestoneTimeline";
 import { MorRecoveryCard, MorSupportCard, MorFeedingCard, MorMicroSupport } from "@/components/MorDashboardCards";
 import { FarDailyActionCard, FarEmotionalNudge, FarFunHook, FarGuideCard, FarOwnershipCard } from "@/components/FarDashboardCards";
-import { Heart, Shield, Zap, Stethoscope, Brain, MessageCircle, Gamepad2 } from "lucide-react";
+import { Heart, Shield, Zap, Stethoscope, Brain, MessageCircle, Gamepad2, Square } from "lucide-react";
 import { format } from "date-fns";
 import { da } from "date-fns/locale";
 import { getBabyInsight, getKnowledgeCards, getActiveLeap, getNextLeap } from "@/lib/phaseData";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
 export default function Dashboard() {
