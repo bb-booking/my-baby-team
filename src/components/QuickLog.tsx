@@ -120,11 +120,18 @@ export function QuickLog() {
 
       {/* Quick action buttons */}
       <div className="grid grid-cols-3 gap-2.5">
-        {/* Nursing */}
-        <button onClick={() => { setShowNursingPicker(!showNursingPicker); setShowDiaperPicker(false); }}
+        {/* Nursing / Bottle */}
+        <button onClick={() => {
+          if (feedingMethod === "flaske") { handleNursing("left"); return; }
+          setShowNursingPicker(!showNursingPicker); setShowDiaperPicker(false);
+        }}
           className="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl border transition-all active:scale-95 hover:-translate-y-0.5 hover:shadow-md relative"
           style={{ borderColor: showNursingPicker ? "hsl(var(--sage))" : "hsl(var(--stone-light))", background: showNursingPicker ? "hsl(var(--sage-light))" : "hsl(var(--warm-white))" }}>
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="14" r="9" stroke="hsl(var(--clay))" strokeWidth="1.3" fill="hsl(var(--clay-light))"/><circle cx="16" cy="14" r="2.5" fill="hsl(var(--clay))"/></svg>
+          {feedingMethod === "flaske" ? (
+            <span className="text-2xl">🍼</span>
+          ) : (
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="14" r="9" stroke="hsl(var(--clay))" strokeWidth="1.3" fill="hsl(var(--clay-light))"/><circle cx="16" cy="14" r="2.5" fill="hsl(var(--clay))"/></svg>
+          )}
           <span className="text-[0.62rem] tracking-[0.06em] uppercase text-muted-foreground">{feedingLabel}</span>
           <span className="absolute -top-1 -right-1 text-[0.6rem] font-bold w-5 h-5 rounded-full flex items-center justify-center"
             style={{ background: nursingDone ? "hsl(var(--sage))" : "hsl(var(--clay-light))", color: nursingDone ? "white" : "hsl(var(--bark))" }}>
