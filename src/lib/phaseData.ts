@@ -329,25 +329,50 @@ export function getPartnerNudge(phase: "pregnant" | "newborn" | "baby", role: "m
   ];
 }
 
-export function getMilestones(phase: "pregnant" | "newborn" | "baby", currentWeek: number, babyAgeWeeks: number) {
+export interface MilestoneLevel {
+  week: number;
+  label: string;
+  emoji: string;
+  level: number;
+  unlocked: boolean;
+  active: boolean;
+  description: string;
+  activities: string[];
+  dadSuggestions: string[];
+  dadRelatable: string;
+  momSuggestions: string[];
+  momRelatable: string;
+}
+
+export function getMilestones(phase: "pregnant" | "newborn" | "baby", currentWeek: number, babyAgeWeeks: number): MilestoneLevel[] {
   if (phase === "pregnant") {
-    return [
-      { week: 8, label: "Hjertet slår", unlocked: currentWeek >= 8, active: currentWeek >= 8 && currentWeek < 12 },
-      { week: 12, label: "1. trimester ✓", unlocked: currentWeek >= 12, active: currentWeek >= 12 && currentWeek < 20 },
-      { week: 20, label: "Halvvejs!", unlocked: currentWeek >= 20, active: currentWeek >= 20 && currentWeek < 24 },
-      { week: 24, label: "Levedygtig", unlocked: currentWeek >= 24, active: currentWeek >= 24 && currentWeek < 28 },
-      { week: 28, label: "3. trimester", unlocked: currentWeek >= 28, active: currentWeek >= 28 && currentWeek < 36 },
-      { week: 36, label: "Snart klar", unlocked: currentWeek >= 36, active: currentWeek >= 36 && currentWeek < 40 },
-      { week: 40, label: "Termin 🎉", unlocked: currentWeek >= 40, active: currentWeek >= 40 },
+    const pMilestones: Omit<MilestoneLevel, "unlocked" | "active">[] = [
+      { week: 8, label: "Hjertet slår", emoji: "💓", level: 1, description: "Jeres baby har et bankende hjerte.", activities: ["Lyt til hjertelyden ved scanning", "Start fotodagbog"], dadSuggestions: ["Kom med til scanningen", "Køb en lille gave til mor"], dadRelatable: "Du kan ikke se noget endnu, men dit hjerte banker lidt hurtigere nu.", momSuggestions: ["Mærk øjeblikket — det er magisk", "Del nyheden når I er klar"], momRelatable: "Den der bølge af følelser? Helt normalt. Alt på én gang." },
+      { week: 12, label: "Første trimester klaret", emoji: "🏆", level: 2, description: "Den sværeste del er overstået!", activities: ["Fejr med en date", "Del nyheden med flere"], dadSuggestions: ["Planlæg en fejring for jer to", "Spørg hvad mor har brug for"], dadRelatable: "Tillykke — du har overlevet 3 måneder med hemmeligheder og bekymringer.", momSuggestions: ["Tag en velfortjent pause", "Forkæl dig selv med noget småt"], momRelatable: "Du har holdt alt sammen i 12 uger. Du er en kriger." },
+      { week: 20, label: "Halvvejs!", emoji: "🎯", level: 3, description: "I er halvvejs! Baby sparker og kan høre jer.", activities: ["Tal til maven", "Syng en sang", "Vælg navne"], dadSuggestions: ["Læg hånden på maven og vent på spark", "Start en 'far-playlist' til baby"], dadRelatable: "Halvvejs. Du kan stadig ikke se dine tæer… vent, det er mor der ikke kan.", momSuggestions: ["Nyd sparkene — de er bare for dig lige nu", "Skriv brev til baby"], momRelatable: "Halvvejs. Du har skabt et helt menneske med øjenvipper. Tænk over det." },
+      { week: 28, label: "Tredje trimester", emoji: "🏠", level: 4, description: "Indret, forbered, og nyd de sidste uger.", activities: ["Indret babyværelset", "Pak hospitalstasken", "Frys mad ned"], dadSuggestions: ["Saml møbler — dit nye speciale", "Lav en 'go-bag' til hospitalet"], dadRelatable: "Du samler en tremmeseng kl. 23 og føler dig som en helt. Det er du også.", momSuggestions: ["Sænk tempoet — kroppen arbejder hårdt", "Hvil når du kan"], momRelatable: "Alt gør ondt og du skal tisse igen. Du er næsten i mål. ❤️" },
+      { week: 36, label: "Snart klar", emoji: "🧳", level: 5, description: "Baby kan komme når som helst!", activities: ["Dobbelttjek hospitalstasken", "Installer autostol", "Øv vejrtrækningsøvelser"], dadSuggestions: ["Kør ruten til hospitalet", "Sørg for at telefonen altid er opladet"], dadRelatable: "Du tjekker telefonen 47 gange om dagen. Det er helt normalt nu.", momSuggestions: ["Stol på din krop — den ved hvad den gør", "Hvil, hvil, hvil"], momRelatable: "Du er en superhelt i slowmotion. Snart møder du dit mirakel." },
+      { week: 40, label: "Termin!", emoji: "🎉", level: 6, description: "I er klar. Stol på hinanden.", activities: ["Nyd de sidste stunder som to", "Vær tålmodige — baby bestemmer"], dadSuggestions: ["Vær til stede — det er det vigtigste", "Hold hendes hånd"], dadRelatable: "Dit eneste job nu: vær der. Mere behøver du ikke.", momSuggestions: ["Lad andre hjælpe dig", "Husk at trække vejret"], momRelatable: "Du har båret et helt menneske i 9 måneder. Du er klar. ❤️" },
     ];
+    return pMilestones.map(m => ({
+      ...m,
+      unlocked: currentWeek >= m.week,
+      active: currentWeek >= m.week && (m.week === 40 || currentWeek < (pMilestones[pMilestones.indexOf(m) + 1]?.week ?? 999)),
+    }));
   }
-  return [
-    { week: 1, label: "Første uge", unlocked: babyAgeWeeks >= 1, active: babyAgeWeeks >= 1 && babyAgeWeeks < 6 },
-    { week: 6, label: "Første smil", unlocked: babyAgeWeeks >= 6, active: babyAgeWeeks >= 6 && babyAgeWeeks < 12 },
-    { week: 12, label: "3 måneder", unlocked: babyAgeWeeks >= 12, active: babyAgeWeeks >= 12 && babyAgeWeeks < 20 },
-    { week: 20, label: "Griber ting", unlocked: babyAgeWeeks >= 20, active: babyAgeWeeks >= 20 && babyAgeWeeks < 26 },
-    { week: 26, label: "Første mad", unlocked: babyAgeWeeks >= 26, active: babyAgeWeeks >= 26 && babyAgeWeeks < 36 },
-    { week: 36, label: "Kravler", unlocked: babyAgeWeeks >= 36, active: babyAgeWeeks >= 36 && babyAgeWeeks < 52 },
-    { week: 52, label: "1 år! 🎉", unlocked: babyAgeWeeks >= 52, active: babyAgeWeeks >= 52 },
+
+  const bMilestones: Omit<MilestoneLevel, "unlocked" | "active">[] = [
+    { week: 1, label: "Nyfødt ninja", emoji: "🥒", level: 1, description: "Alt er nyt. I lærer hinanden at kende.", activities: ["Hud-mod-hud så meget som muligt", "Øv amning/flaske", "Lær babysignaler"], dadSuggestions: ["Tag baby på brystet — hud-mod-hud er også for far", "Lær at svøbe som en pro"], dadRelatable: "Baby vejer ca. 3,5 kg. Det er en halv kettlebell. Bare med mere lyd.", momSuggestions: ["Lad andre holde baby mens du sover", "Drik vand som var det dit job"], momRelatable: "Du har lige lavet det sværeste du nogensinde har gjort. Vær sød ved dig selv." },
+    { week: 6, label: "Smilemonster", emoji: "😊", level: 2, description: "Det første sociale smil! Baby genkender jer.", activities: ["Smil og lav grimasser", "Syng og tal i varierede toner", "Brug kontrastbilleder"], dadSuggestions: ["Lav dit bedste fjollede ansigt — baby elsker det", "20 min alene med baby = bonding-boost"], dadRelatable: "Det første smil direkte til dig. Stærkere end enhver like du nogensinde har fået.", momSuggestions: ["Nyd smilet — det er ægte kærlighed", "Det er okay at græde af glæde"], momRelatable: "6 uger. Du har overlevet. Og nu smiler baby til dig. Alt var det værd." },
+    { week: 12, label: "Grinebansen", emoji: "😂", level: 3, description: "Baby griner højt og 'snakker' med jer.", activities: ["Leg 'tittit-bansen'", "Tummy time 5 min x 3", "Lad baby gribe din finger"], dadSuggestions: ["Tummy time er bedst med far som bane — læg baby på dit bryst", "Lav flyveren"], dadRelatable: "Baby griner af dig. Ikke med dig, AF dig. Og det er det bedste i verden.", momSuggestions: ["3 måneder — den hårdeste del er bag jer", "Forkæl dig med noget du savner"], momRelatable: "Du har fundet en rytme. Det tog tid, men se dig — du er en naturkraft." },
+    { week: 20, label: "Lille opdager", emoji: "🔍", level: 4, description: "Baby griber, undersøger og putter alt i munden.", activities: ["Tilbyd forskellige teksturer", "Rangle og bide-legetøj", "Læs billedbøger med farver"], dadSuggestions: ["Byg en 'sansebane' af puder og tæpper", "Lad baby undersøge sikre køkkenting"], dadRelatable: "Alt. Går. I. Munden. Dine nøgler, din telefon, din næse. Velkommen til level 4.", momSuggestions: ["Babysikring af hjemmet — det er tid", "Lad baby udforske i eget tempo"], momRelatable: "Din baby opdager verden. Og ja, din hårpisk er det mest spændende legetøj." },
+    { week: 26, label: "Madentusiast", emoji: "🥄", level: 5, description: "Baby er klar til at smage verden!", activities: ["Introducer grøntsager først", "Lad baby spise med fingrene", "Spis sammen som familie"], dadSuggestions: ["Lav fars signaturmos — det bliver en tradition", "Dokumentér det roligste ansigt nogensinde"], dadRelatable: "Baby smager broccoli for første gang. Ansigtsudtrykket er Oscar-værdigt.", momSuggestions: ["Mad er leg, ikke pligt", "Det er normalt at 90% havner på gulvet"], momRelatable: "Ja, det er rodet. Nej, de sulter ikke. De lærer. Og du gør det rigtigt." },
+    { week: 36, label: "Eventyrer", emoji: "🚀", level: 6, description: "Baby kravler, trækker sig op og udforsker alt.", activities: ["Lav en sikker udforskningszone", "Stabling og sortering", "Dans og musik"], dadSuggestions: ["Byg en pudde-forhindringsbane", "Kravl med — baby synes det er vildt sjovt"], dadRelatable: "Baby kravler hurtigere end du kan løbe. Cardio-niveauet er: forælder.", momSuggestions: ["Følg baby rundt — de viser vej", "Lad rodet ligge, nyd eventyret"], momRelatable: "Dit hjem ligner et slagmark. Men dit barn er en opdagelsesrejsende. Stærkt." },
+    { week: 52, label: "1 år — Legend!", emoji: "🎂", level: 7, description: "I har klaret et helt år. I er legendariske.", activities: ["Fejr med kage og kaos", "Lav en fotocollage af året", "Skriv brev til jeres fremtidige selv"], dadSuggestions: ["Planlæg festen — du er eventmanager nu", "Skriv et brev til baby om deres første år"], dadRelatable: "1 år. Du har skiftet ca. 2.500 bleer. Du er en legende.", momSuggestions: ["Se tilbage på året — du har klaret utrolige ting", "Fejr dig selv lige så meget som baby"], momRelatable: "365 dage. Du har givet alt. Og det var nok. Det var mere end nok. ❤️" },
   ];
+  return bMilestones.map(m => ({
+    ...m,
+    unlocked: babyAgeWeeks >= m.week,
+    active: babyAgeWeeks >= m.week && (m.week === 52 || babyAgeWeeks < (bMilestones[bMilestones.indexOf(m) + 1]?.week ?? 999)),
+  }));
 }
