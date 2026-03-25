@@ -278,10 +278,10 @@ export default function SammenPage() {
         </div>
       )}
 
+      {/* Nærvær i hverdagen */}
+      <NærværTips />
 
 
-
-      {/* Conversation starters */}
       <div className="card-soft section-fade-in" style={{ animationDelay: "380ms" }}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
