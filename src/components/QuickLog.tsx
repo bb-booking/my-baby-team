@@ -323,7 +323,7 @@ export function QuickLog() {
           <p className="text-muted-foreground text-[0.72rem]">
             {ageDays < 3
               ? "Baby spiser ofte de første dage. Sørg for at have vand, snacks og pude klar — det gør en kæmpe forskel."
-              : "Hent vand, en pude og lad telefonen ligge når der fodres. Din støtte gør det nemmere for jer begge."}
+              : "Hent vand, en pude og lad telefonen ligge når der ammes. Din støtte gør det nemmere for jer begge."}
           </p>
         </div>
       )}
