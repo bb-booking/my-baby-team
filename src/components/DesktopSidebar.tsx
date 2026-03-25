@@ -1,9 +1,9 @@
 import { useLocation, Link } from "react-router-dom";
-import { useFamily } from "@/context/FamilyContext";
+import { useFamily, type ParentRole } from "@/context/FamilyContext";
 import {
   Home, Baby, Users, Settings, BookOpen, Calendar, CheckSquare,
   Lightbulb, Heart, Moon, ShoppingBag, Circle, Droplet,
-  MessageCircle, PuzzleIcon
+  MessageCircle, PuzzleIcon, ArrowLeftRight
 } from "lucide-react";
 
 interface NavItem {
@@ -97,8 +97,22 @@ interface DesktopSidebarProps {
 
 export function DesktopSidebar({ open, onClose }: DesktopSidebarProps) {
   const { pathname } = useLocation();
-  const { profile, phaseLabel } = useFamily();
+  const { profile, setProfile, morName, farName, phaseLabel } = useFamily();
   const sections = getNavSections(profile.phase, profile.role);
+
+  const otherRole: ParentRole = profile.role === "mor" ? "far" : "mor";
+  const otherName = otherRole === "mor" ? morName : farName;
+  const otherEmoji = otherRole === "mor" ? "👩" : "👨";
+
+  const switchRole = (role: ParentRole) => {
+    const newProfile = {
+      ...profile,
+      role,
+      parentName: role === "mor" ? morName : farName,
+      partnerName: role === "mor" ? farName : morName,
+    };
+    setProfile(newProfile);
+  };
 
   const phaseTagLabel = profile.phase === "pregnant"
     ? "GRAVID"
@@ -195,6 +209,26 @@ export function DesktopSidebar({ open, onClose }: DesktopSidebarProps) {
           </div>
         ))}
       </nav>
+
+      {/* Profile switcher at bottom */}
+      <div className="mt-auto border-t border-stone-light px-4 py-3">
+        <p className="text-[0.52rem] tracking-[0.2em] uppercase text-muted-foreground mb-2">
+          SKIFT BRUGER
+        </p>
+        <button
+          onClick={() => switchRole(otherRole)}
+          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl transition-colors hover:bg-muted/50 active:scale-[0.98]"
+        >
+          <span className="text-lg">{otherEmoji}</span>
+          <div className="flex-1 text-left">
+            <p className="text-[0.82rem] font-medium">{otherName || (otherRole === "mor" ? "Mor" : "Far")}</p>
+            <p className="text-[0.58rem] text-muted-foreground uppercase tracking-wider">
+              Skift til {otherRole === "mor" ? "mor" : "far"}
+            </p>
+          </div>
+          <ArrowLeftRight className="w-3.5 h-3.5 text-muted-foreground" />
+        </button>
+      </div>
     </aside>
   );
 }
