@@ -107,7 +107,6 @@ export default function Dashboard() {
           </div>
 
           {/* Knowledge */}
-          <LeapBanner ageWeeks={babyAgeWeeks} childName={childName || "Baby"} />
           <BabyInsightCard ageWeeks={babyAgeWeeks} ageMonths={babyAgeMonths} childName={childName || "Baby"} />
 
           {/* Micro-support (mom only) */}
