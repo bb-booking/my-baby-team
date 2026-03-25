@@ -1,5 +1,5 @@
 import { useFamily } from "@/context/FamilyContext";
-import { getMilestones, type MilestoneLevel } from "@/lib/phaseData";
+import { getMilestones, developmentalLeaps, type MilestoneLevel } from "@/lib/phaseData";
 import { useState, useEffect, useCallback } from "react";
 import { Lock, ChevronRight, Sparkles, X, Check, Zap } from "lucide-react";
 import confetti from "canvas-confetti";
@@ -18,16 +18,104 @@ function saveAchievedLeaps(leaps: string[]) {
   localStorage.setItem("melo-achieved-leaps", JSON.stringify(leaps));
 }
 
+// ── Level-up encouragement messages ──
+const levelUpMessages: Record<number, { title: string; body: string }> = {
+  1: { title: "Første spring klaret!", body: "I har navigeret de første sanseindtryk sammen. Det kræver mod." },
+  2: { title: "Mønstre unlocked!", body: "Baby ser verden i mønstre nu — og I er det smukkeste mønster." },
+  3: { title: "Spring 3 — bløde overgange!", body: "Bevægelser flyder. I har fundet en rytme sammen." },
+  4: { title: "Begivenheder forstået!", body: "Baby forstår årsag og virkning. I er årsagen til al den tryghed." },
+  5: { title: "Sammenhænge knækket!", body: "Baby ved I kan gå — og stoler på at I kommer tilbage. ❤️" },
+  6: { title: "Kategorier på plads!", body: "Verden sorteres. Baby er en lille forsker med jer som laboratorium." },
+  7: { title: "Rækkefølge mestret!", body: "Baby forstår sekvenser. I har bygget et fundament af tillid." },
+  8: { title: "Alle spring gennemført!", body: "I har klaret alle 8 tigerspring. I er legendariske forældre. 🏆" },
+};
+
+function fireLevelUpConfetti() {
+  const defaults = { gravity: 0.6, scalar: 1.2, ticks: 150 };
+  confetti({ ...defaults, particleCount: 80, spread: 90, origin: { x: 0.15, y: 0.4 }, colors: ["#FFD700", "#FFA500", "#588157", "#A3B18A"], angle: 60 });
+  confetti({ ...defaults, particleCount: 80, spread: 90, origin: { x: 0.85, y: 0.4 }, colors: ["#FFD700", "#FFA500", "#588157", "#A3B18A"], angle: 120 });
+  setTimeout(() => {
+    confetti({ particleCount: 50, spread: 140, origin: { y: 0.45 }, colors: ["#FFD700", "#FFFFFF", "#c4a97d", "#588157"], shapes: ["star" as any], scalar: 1.4, gravity: 0.4 });
+  }, 400);
+}
+
+// ── Level-Up Overlay ──
+function LevelUpOverlay({
+  level,
+  emoji,
+  childName,
+  onDismiss,
+}: {
+  level: number;
+  emoji: string;
+  childName: string;
+  onDismiss: () => void;
+}) {
+  const msg = levelUpMessages[level] || { title: `Spring ${level} opnået!`, body: "I klarer det fantastisk." };
+
+  useEffect(() => {
+    fireLevelUpConfetti();
+    const t = setTimeout(() => fireLevelUpConfetti(), 1200);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-6"
+      style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}
+      onClick={onDismiss}
+    >
+      <div
+        className="relative w-full max-w-sm rounded-3xl overflow-hidden text-center levelup-pop"
+        style={{ background: "hsl(var(--card))" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Glow header */}
+        <div className="pt-10 pb-6 px-6" style={{
+          background: "linear-gradient(180deg, hsl(var(--moss) / 0.15), transparent)",
+        }}>
+          <div className="levelup-emoji mx-auto w-20 h-20 rounded-full flex items-center justify-center text-4xl mb-4"
+            style={{ background: "hsl(var(--moss) / 0.12)", boxShadow: "0 0 40px hsl(var(--moss) / 0.2)" }}>
+            {emoji}
+          </div>
+          <p className="text-[0.6rem] tracking-[0.25em] uppercase font-semibold mb-1" style={{ color: "hsl(var(--moss))" }}>
+            Spring {level} af 8
+          </p>
+          <h2 className="text-[1.4rem] font-bold leading-tight mb-2">{msg.title}</h2>
+          <p className="text-[0.85rem] text-muted-foreground leading-relaxed">{msg.body}</p>
+        </div>
+
+        <div className="px-6 pb-8">
+          <p className="text-[0.75rem] text-muted-foreground mb-4">
+            {childName} vokser — og I vokser med. 💛
+          </p>
+          <button
+            onClick={onDismiss}
+            className="w-full py-3.5 rounded-xl text-[0.88rem] font-semibold transition-all active:scale-[0.97]"
+            style={{ background: "hsl(var(--moss))", color: "white" }}
+          >
+            Videre! 🚀
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function MilestoneTimeline() {
   const { profile, currentWeek, babyAgeWeeks } = useFamily();
   const [achievedLeaps, setAchievedLeaps] = useState<string[]>(getAchievedLeaps);
   const [selected, setSelected] = useState<MilestoneLevel | null>(null);
+  const [levelUp, setLevelUp] = useState<{ level: number; emoji: string } | null>(null);
   const isMor = profile.role === "mor";
   const childName = profile.children?.[0]?.name || "Baby";
   const isPregnant = profile.phase === "pregnant";
 
   const milestones = getMilestones(profile.phase, currentWeek, babyAgeWeeks, achievedLeaps);
   const achievedCount = milestones.filter(m => m.unlocked).length;
+
+  // Find the "next" upcoming leap (first non-unlocked)
+  const nextUpIndex = milestones.findIndex(m => !m.unlocked);
 
   useEffect(() => {
     saveAchievedLeaps(achievedLeaps);
@@ -37,17 +125,25 @@ export function MilestoneTimeline() {
     if (!leapId || achievedLeaps.includes(leapId)) return;
     setAchievedLeaps(prev => [...prev, leapId]);
 
-    // Confetti! 🎉
-    confetti({
-      particleCount: 80,
-      spread: 60,
-      origin: { y: 0.7 },
-      colors: ["#8B7355", "#A3B18A", "#DAD7CD", "#588157"],
-    });
+    // Find the leap to get its level and emoji
+    const leap = developmentalLeaps.find(l => l.id === leapId);
+    if (leap) {
+      setLevelUp({ level: leap.level, emoji: leap.emoji });
+    }
   }, [achievedLeaps]);
 
   return (
     <>
+      {/* Level-up overlay */}
+      {levelUp && (
+        <LevelUpOverlay
+          level={levelUp.level}
+          emoji={levelUp.emoji}
+          childName={childName}
+          onDismiss={() => setLevelUp(null)}
+        />
+      )}
+
       <div className="card-soft section-fade-in" style={{ animationDelay: "400ms" }}>
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
@@ -75,12 +171,13 @@ export function MilestoneTimeline() {
         <div className="flex items-center gap-1 overflow-x-auto pb-2 -mx-1 px-1">
           {milestones.map((m, i) => {
             const isAchieved = m.leapId && achievedLeaps.includes(m.leapId);
+            const isNextUp = i === nextUpIndex && !isPregnant;
 
             return (
               <div key={m.leapId || m.week} className="flex items-center flex-shrink-0">
                 <button
                   onClick={() => m.unlocked ? setSelected(m) : null}
-                  className="flex flex-col items-center gap-1.5 group"
+                  className={`flex flex-col items-center gap-1.5 group ${isNextUp ? "next-leap-teaser" : ""}`}
                   disabled={!m.unlocked}
                 >
                   <div
@@ -89,6 +186,8 @@ export function MilestoneTimeline() {
                         ? "ring-4 scale-110"
                         : m.unlocked
                         ? "hover:scale-105 cursor-pointer"
+                        : isNextUp
+                        ? "next-leap-dot"
                         : "cursor-default"
                     }`}
                     style={{
@@ -98,28 +197,54 @@ export function MilestoneTimeline() {
                         ? (isMor ? "hsl(var(--clay))" : "hsl(var(--sage))")
                         : m.unlocked
                         ? (isMor ? "hsl(var(--clay) / 0.6)" : "hsl(var(--sage) / 0.6)")
+                        : isNextUp
+                        ? (isMor ? "hsl(var(--clay) / 0.2)" : "hsl(var(--sage) / 0.2)")
                         : "hsl(var(--muted))",
-                      color: m.unlocked ? "white" : "hsl(var(--muted-foreground))",
+                      color: m.unlocked
+                        ? "white"
+                        : isNextUp
+                        ? (isMor ? "hsl(var(--clay) / 0.6)" : "hsl(var(--sage) / 0.6)")
+                        : "hsl(var(--muted-foreground))",
                       ...(m.active ? { boxShadow: `0 0 0 4px ${isMor ? "hsl(var(--clay-light))" : "hsl(var(--sage-light))"}` } : {}),
+                      ...(isNextUp ? {
+                        border: `2px dashed ${isMor ? "hsl(var(--clay) / 0.4)" : "hsl(var(--sage) / 0.4)"}`,
+                        backgroundImage: `repeating-linear-gradient(
+                          45deg,
+                          transparent,
+                          transparent 3px,
+                          ${isMor ? "hsl(var(--clay) / 0.06)" : "hsl(var(--sage) / 0.06)"} 3px,
+                          ${isMor ? "hsl(var(--clay) / 0.06)" : "hsl(var(--sage) / 0.06)"} 6px
+                        )`,
+                      } : {}),
                     }}
                   >
                     {isAchieved ? (
                       <Check className="w-4 h-4" />
                     ) : m.unlocked ? (
                       <span>{m.emoji}</span>
+                    ) : isNextUp ? (
+                      <span className="opacity-60">{m.emoji}</span>
                     ) : (
                       <Lock className="w-3.5 h-3.5" />
                     )}
                   </div>
                   <div className="text-center w-[4.5rem]">
                     <span className={`text-[0.65rem] leading-tight block font-medium ${
-                      m.active ? "text-foreground" : m.unlocked ? "text-foreground/70" : "text-muted-foreground"
+                      m.active ? "text-foreground"
+                      : m.unlocked ? "text-foreground/70"
+                      : isNextUp ? "text-foreground/50"
+                      : "text-muted-foreground"
                     }`}>
                       {m.label}
                     </span>
                     {m.active && !isAchieved && !isPregnant && (
                       <span className="text-[0.5rem] uppercase tracking-wider font-semibold" style={{ color: isMor ? "hsl(var(--clay))" : "hsl(var(--moss))" }}>
                         Nu
+                      </span>
+                    )}
+                    {isNextUp && (
+                      <span className="text-[0.5rem] uppercase tracking-wider font-medium" style={{ color: isMor ? "hsl(var(--clay) / 0.6)" : "hsl(var(--sage) / 0.7)" }}>
+                        Snart
                       </span>
                     )}
                     {m.unlocked && !m.active && (
@@ -135,6 +260,8 @@ export function MilestoneTimeline() {
                     style={{
                       background: m.unlocked
                         ? (isAchieved ? "hsl(var(--moss) / 0.5)" : isMor ? "hsl(var(--clay) / 0.35)" : "hsl(var(--sage) / 0.35)")
+                        : isNextUp
+                        ? (isMor ? "hsl(var(--clay) / 0.15)" : "hsl(var(--sage) / 0.15)")
                         : "hsl(var(--muted))",
                     }}
                   />
@@ -297,8 +424,8 @@ function LeapDetail({
             onClick={() => { onAchieve(); onClose(); }}
             className="w-full py-3 rounded-xl text-[0.85rem] font-semibold transition-all active:scale-[0.97] flex items-center justify-center gap-2"
             style={{
-              background: isAchieved ? "hsl(var(--moss) / 0.1)" : "hsl(var(--moss))",
-              color: isAchieved ? "hsl(var(--moss))" : "white",
+              background: "hsl(var(--moss))",
+              color: "white",
             }}
           >
             <Zap className="w-4 h-4" />
