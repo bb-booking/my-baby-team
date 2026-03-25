@@ -125,7 +125,7 @@ export default function SammenPage() {
               </div>
               {profile.phase !== "pregnant" && (
                 <div className="flex justify-between text-[0.65rem]">
-                  <span className="text-muted-foreground">Nattevagter (uge)</span>
+                  <span className="text-muted-foreground">Puttevagter (uge)</span>
                   <span className="font-medium tabular-nums">{p.shifts} denne uge</span>
                 </div>
               )}
@@ -214,18 +214,18 @@ export default function SammenPage() {
         <div className="card-soft section-fade-in" style={{ animationDelay: "180ms" }}>
           <div className="flex items-center gap-2 mb-2">
             <Moon className="w-4 h-4" style={{ color: "hsl(var(--sage-dark))" }} />
-            <p className="text-[1rem] font-normal">Nattevagter</p>
+            <p className="text-[1rem] font-normal">Puttevagter</p>
           </div>
           <p className="text-[0.72rem] text-muted-foreground mb-4 leading-relaxed">
-            Nattevagten handler om at tage ansvar for baby om natten — trøste, skifte ble og give ro. 
-            Det er ikke det samme som putning. Far kan sagtens putte baby i seng — det kræver nærhed, ikke amning. 💪
+            Putning handler om at lægge {profile.children?.[0]?.name || "baby"} i seng — nærhed, ro og en fast rutine. 
+            Begge forældre kan putte — det kræver ikke amning, men tilstedeværelse. 🌙
           </p>
 
           {/* Tonight highlight */}
           <div className="rounded-2xl p-3 mb-4 flex items-center justify-between"
             style={{ background: tonight ? "hsl(var(--sage-light) / 0.4)" : "hsl(var(--stone-lighter))" }}>
             <div>
-              <p className="text-[0.65rem] tracking-[0.14em] uppercase text-muted-foreground">I nat</p>
+              <p className="text-[0.65rem] tracking-[0.14em] uppercase text-muted-foreground">I aften</p>
               <p className="text-[0.95rem] font-medium">{tonight ? (tonight.assignee === "mor" ? morName : farName) : "Ikke planlagt"}</p>
             </div>
             {tonight ? (
