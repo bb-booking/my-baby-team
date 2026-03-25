@@ -11,7 +11,7 @@ import { WhatMattersNow, FrictionAlert } from "@/components/CommandCenter";
 import { MessageCircle, Heart, Gamepad2, Square } from "lucide-react";
 import { format } from "date-fns";
 import { da } from "date-fns/locale";
-import { getBabyInsight, getKnowledgeCards, getActiveLeap, getNextLeap } from "@/lib/phaseData";
+import { getBabyInsight } from "@/lib/phaseData";
 import { useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSleepNotifications } from "@/hooks/useSleepNotifications";
@@ -107,7 +107,6 @@ export default function Dashboard() {
           </div>
 
           {/* Knowledge */}
-          <LeapBanner ageWeeks={babyAgeWeeks} childName={childName || "Baby"} />
           <BabyInsightCard ageWeeks={babyAgeWeeks} ageMonths={babyAgeMonths} childName={childName || "Baby"} />
 
           {/* Micro-support (mom only) */}
@@ -238,50 +237,6 @@ function LiveSleepTracker({ childName }: { childName: string }) {
   );
 }
 
-// ── Leap Banner ──
-function LeapBanner({ ageWeeks, childName }: { ageWeeks: number; childName: string }) {
-  const activeLeap = getActiveLeap(ageWeeks);
-  const nextLeap = getNextLeap(ageWeeks);
-
-  if (activeLeap) {
-    return (
-      <div className="rounded-2xl p-4 section-fade-in" style={{
-        background: "linear-gradient(135deg, hsl(var(--clay) / 0.12), hsl(var(--clay) / 0.04))",
-        border: "1px solid hsl(var(--clay) / 0.25)",
-      }}>
-        <div className="flex items-center gap-3 mb-2">
-          <span className="text-xl">{activeLeap.emoji}</span>
-          <div>
-            <p className="text-[0.58rem] tracking-[0.14em] uppercase" style={{ color: "hsl(var(--bark))" }}>Tigerspring nu</p>
-            <p className="text-[0.92rem] font-semibold">{activeLeap.title}</p>
-          </div>
-        </div>
-        <p className="text-[0.78rem] text-foreground/70 leading-relaxed mb-2">{activeLeap.description}</p>
-        <div className="flex flex-wrap gap-1.5">
-          {activeLeap.signs.map((s, i) => (
-            <span key={i} className="text-[0.62rem] px-2 py-0.5 rounded-full" style={{ background: "hsl(var(--clay) / 0.12)", color: "hsl(var(--bark))" }}>
-              {s}
-            </span>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (nextLeap) {
-    const weeksUntil = nextLeap.weekStart - ageWeeks;
-    return (
-      <div className="rounded-2xl p-4 flex items-center gap-3 section-fade-in" style={{ background: "hsl(var(--cream))", border: "1px solid hsl(var(--stone-light))" }}>
-        <span className="text-xl">{nextLeap.emoji}</span>
-        <div className="flex-1">
-          <p className="text-[0.82rem] font-medium">Næste tigerspring: {nextLeap.title}</p>
-          <p className="text-[0.68rem] text-muted-foreground">Om ca. {weeksUntil} {weeksUntil === 1 ? "uge" : "uger"}</p>
-        </div>
-      </div>
-    );
-  }
-  return null;
-}
 
 // ── Baby Insight Card ──
 function BabyInsightCard({ ageWeeks, ageMonths, childName }: { ageWeeks: number; ageMonths: number; childName: string }) {

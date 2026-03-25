@@ -115,6 +115,7 @@ export function getKnowledgeCards(ageWeeks: number, childName: string): Knowledg
 // ── Developmental leaps / Tigerspring ──
 export interface DevelopmentalLeap {
   id: string;
+  level: number;
   weekStart: number; // age in weeks when it typically begins
   weekEnd: number;
   title: string;
@@ -122,88 +123,109 @@ export interface DevelopmentalLeap {
   description: string;
   signs: string[];
   tips: string[];
+  activities: string[];
+  momSuggestions: string[];
+  momRelatable: string;
+  dadSuggestions: string[];
+  dadRelatable: string;
 }
 
 export const developmentalLeaps: DevelopmentalLeap[] = [
   {
-    id: "leap1",
-    weekStart: 5,
-    weekEnd: 6,
-    title: "Sanseindtryk",
-    emoji: "👁️",
+    id: "leap1", level: 1, weekStart: 5, weekEnd: 6,
+    title: "Sanseindtryk", emoji: "👁️",
     description: "Baby opdager verden gennem sanserne for første gang. Alt føles nyt og intenst.",
     signs: ["Mere urolig og grædende", "Vil holdes mere", "Ændret søvnmønster"],
     tips: ["Ekstra hud-mod-hud", "Rolige omgivelser", "Tålmodighed — det går over om 1-2 uger"],
+    activities: ["Hud-mod-hud i rolige omgivelser", "Brug kontrastbilleder tæt på babys ansigt", "Syng stille og rytmisk"],
+    momSuggestions: ["Det er normalt at baby er urolig — du gør det rigtigt", "Bed om hjælp til natterne"],
+    momRelatable: "Alt føles kaotisk. Men du ER babys trygge base. Det er nok.",
+    dadSuggestions: ["Tag baby på brystet — din hud berolige lige så meget", "Lad mor sove — tag en nattevagt"],
+    dadRelatable: "Baby græder mere. Det er ikke dig. Det er hjernen der vokser. Hold fast.",
   },
   {
-    id: "leap2",
-    weekStart: 8,
-    weekEnd: 9,
-    title: "Mønstre",
-    emoji: "🔄",
+    id: "leap2", level: 2, weekStart: 8, weekEnd: 9,
+    title: "Mønstre", emoji: "🔄",
     description: "Baby begynder at se mønstre — i ansigter, lyde og bevægelser. Det sociale smil kommer!",
     signs: ["Mere opmærksom på omgivelser", "Socialt smil", "Følger ting med øjnene"],
     tips: ["Smil og snak meget", "Vis ansigtsudtryk", "Brug kontrastfarver"],
+    activities: ["Lav grimasser og overdrevne ansigtsudtryk", "Vis sort-hvide billeder", "Smil og vent — baby smiler tilbage!"],
+    momSuggestions: ["Nyd det første ægte smil — det er rent kærlighed", "Tag et billede af smilet — du fortjener det minde"],
+    momRelatable: "Det første smil direkte til dig. Alt det hårde var det værd. ❤️",
+    dadSuggestions: ["Dit fjollede ansigt er babys favoritunderholdning nu", "20 minutter alene med baby = kæmpe bonding-boost"],
+    dadRelatable: "Baby smiler af dig. Det er stærkere end enhver like du nogensinde har fået.",
   },
   {
-    id: "leap3",
-    weekStart: 12,
-    weekEnd: 13,
-    title: "Bløde overgange",
-    emoji: "🌊",
+    id: "leap3", level: 3, weekStart: 12, weekEnd: 13,
+    title: "Bløde overgange", emoji: "🌊",
     description: "Baby opdager at bevægelser kan være flydende — ikke kun ryk. Griber mere bevidst efter ting.",
     signs: ["Griber efter ting", "Drejer hovedet mod lyde", "Mere vokal"],
     tips: ["Tilbyd gribelegetøj", "Tummy time dagligt", "Tal i varierede toner"],
+    activities: ["Tummy time 5 min × 3 dagligt", "Hold legetøj så baby rækker ud", "Lav 'flyveren' på dine ben"],
+    momSuggestions: ["3 måneder — den hårdeste del er bag jer", "Forkæl dig med noget du savner"],
+    momRelatable: "Du har fundet en rytme. Det tog tid, men se dig — du er en naturkraft.",
+    dadSuggestions: ["Tummy time er bedst med far som bane — læg baby på dit bryst", "Lav flyveren på dine ben"],
+    dadRelatable: "Baby griner af dig. Ikke med dig, AF dig. Og det er det bedste i verden.",
   },
   {
-    id: "leap4",
-    weekStart: 19,
-    weekEnd: 20,
-    title: "Begivenheder",
-    emoji: "🎯",
+    id: "leap4", level: 4, weekStart: 19, weekEnd: 20,
+    title: "Begivenheder", emoji: "🎯",
     description: "Baby forstår nu at ting har en rækkefølge — bold ruller, ting falder ned, lyde følger handlinger.",
     signs: ["Tester årsag-virkning", "Kaster ting gentagne gange", "Kan virke utålmodig"],
     tips: ["Leg med simple årsag-virkning legetøj", "Vær tålmodig med gentagelser", "Navngiv det baby gør"],
+    activities: ["Rangle og årsag-virkning legetøj", "Lad baby 'tabe' ting og saml op (gentagelse = læring)", "Navngiv alt baby gør"],
+    momSuggestions: ["Baby er ikke besværlig — baby er nysgerrig", "Babysikring af hjemmet — det er tid"],
+    momRelatable: "Din baby opdager verden. Og ja, din hårpisk er det mest spændende legetøj.",
+    dadSuggestions: ["Byg en 'sansebane' af puder og tæpper", "Lad baby undersøge sikre køkkenting"],
+    dadRelatable: "Alt. Går. I. Munden. Dine nøgler, din telefon, din næse. Velkommen til level 4.",
   },
   {
-    id: "leap5",
-    weekStart: 26,
-    weekEnd: 27,
-    title: "Sammenhænge",
-    emoji: "🧩",
+    id: "leap5", level: 5, weekStart: 26, weekEnd: 27,
+    title: "Sammenhænge", emoji: "🧩",
     description: "Baby forstår afstand og relationer. Separationsangst begynder — baby ved nu at I kan gå væk.",
     signs: ["Klynger sig til forældre", "Fremmedangst", "Undersøger ting grundigt"],
     tips: ["Leg tittit-bansen (bygger tillid)", "Kort adskillelse, altid sig farvel", "Anerkend følelserne"],
+    activities: ["Tittit-bansen — bygger objektpermanens og tillid", "Stof-bøger med klapper", "Introducer fast føde hvis klar"],
+    momSuggestions: ["Mad er leg, ikke pligt — 90% havner på gulvet og det er okay", "Separationsangst er et tegn på stærk tilknytning"],
+    momRelatable: "Baby vil kun dig. Det er smukt. Og udmattende. Begge dele er sandt.",
+    dadSuggestions: ["Lav fars signaturmos — det bliver en tradition", "Baby klynger sig til mor? Bliv ved. Din tid kommer."],
+    dadRelatable: "Baby smager broccoli for første gang. Ansigtsudtrykket er Oscar-værdigt.",
   },
   {
-    id: "leap6",
-    weekStart: 37,
-    weekEnd: 38,
-    title: "Kategorier",
-    emoji: "📦",
+    id: "leap6", level: 6, weekStart: 37, weekEnd: 38,
+    title: "Kategorier", emoji: "📦",
     description: "Baby begynder at sortere verden: dyr, mad, mennesker. Peger og 'fortæller' hvad tingene er.",
     signs: ["Peger på ting", "Sorterer legetøj", "Imiterer lyde og handlinger"],
     tips: ["Navngiv alt baby peger på", "Læs billedbøger", "Besøg nye steder"],
+    activities: ["Navngiv alt baby peger på", "Læs billedbøger sammen", "Besøg nye steder — zoo, legeplads, skov"],
+    momSuggestions: ["Følg baby rundt — de viser vej", "Lad rodet ligge, nyd eventyret"],
+    momRelatable: "Dit hjem ligner et slagmark. Men dit barn er en opdagelsesrejsende. Stærkt.",
+    dadSuggestions: ["Byg en pudde-forhindringsbane", "Kravl med — baby synes det er vildt sjovt"],
+    dadRelatable: "Baby kravler hurtigere end du kan løbe. Cardio-niveauet er: forælder.",
   },
   {
-    id: "leap7",
-    weekStart: 46,
-    weekEnd: 47,
-    title: "Rækkefølge",
-    emoji: "📋",
+    id: "leap7", level: 7, weekStart: 46, weekEnd: 47,
+    title: "Rækkefølge", emoji: "📋",
     description: "Baby forstår at handlinger har en rækkefølge — stablelegetøj, putte ting i og ud, følge simple instrukser.",
     signs: ["Stabler klodser", "Putter ting i bokse", "Forsøger at hjælpe med rutiner"],
     tips: ["Involver baby i daglige rutiner", "Stabling og sortering", "Ros indsatsen, ikke resultatet"],
+    activities: ["Stabling og sortering af klodser", "Involver baby i rutiner — hæld vand, rør i gryden", "Dans og musik — følg rytmen"],
+    momSuggestions: ["Lad baby 'hjælpe' — det tager længere tid, men bygger selvtillid", "Du har næsten klaret et helt år!"],
+    momRelatable: "Baby vil hjælpe med alt. Det tager 4× så lang tid. Men det smil? Uvurderligt.",
+    dadSuggestions: ["Lad baby hjælpe dig med 'projekter' — de elsker at imitere far", "Byg ting sammen — tårne, togbaner, hvad som helst"],
+    dadRelatable: "Baby imiterer dig. Ja, også de ting. Tid til at være en god rollemodel. 😅",
   },
   {
-    id: "leap8",
-    weekStart: 55,
-    weekEnd: 56,
-    title: "Programmer",
-    emoji: "⚙️",
+    id: "leap8", level: 8, weekStart: 55, weekEnd: 56,
+    title: "Programmer", emoji: "⚙️",
     description: "Barnet forstår nu regler og kan planlægge simple handlinger. 'Nej' bliver et yndlingsord — det er autonomi!",
     signs: ["Siger nej (selvstændighed)", "Leger rolleleg", "Tester grænser"],
     tips: ["Tilbyd valg (den røde eller blå?)", "Enkle, tydelige grænser", "Anerkend viljen — redirect handlingen"],
+    activities: ["Tilbyd valg: 'den røde eller blå kop?'", "Rolleleg — dukker, dyr, telefoner", "Simpel problemløsning — formkasser og puslespil"],
+    momSuggestions: ["'Nej' er et tegn på selvstændighed — ikke trods", "Se tilbage på året — du har klaret utrolige ting"],
+    momRelatable: "365+ dage. Du har givet alt. Og det var nok. Det var mere end nok. ❤️",
+    dadSuggestions: ["Vælg dine kampe — ikke alt behøver et 'nej' tilbage", "Planlæg festen — du er eventmanager nu"],
+    dadRelatable: "1 år+. Du har skiftet ca. 2.500 bleer og overlevet. Du er en legende.",
   },
 ];
 
@@ -217,12 +239,21 @@ export function getNextLeap(ageWeeks: number): DevelopmentalLeap | null {
   return developmentalLeaps.find((l) => l.weekStart > ageWeeks) || null;
 }
 
-export function getLeapStatus(ageWeeks: number, completedLeaps: string[]): Array<DevelopmentalLeap & { status: "completed" | "active" | "upcoming" }> {
+export type LeapStatus = "completed" | "achieved" | "active" | "upcoming";
+
+export function getLeapStatus(ageWeeks: number, achievedLeaps: string[]): Array<DevelopmentalLeap & { status: LeapStatus; achievedEarly: boolean }> {
   return developmentalLeaps.map((leap) => {
-    if (completedLeaps.includes(leap.id)) return { ...leap, status: "completed" as const };
-    if (ageWeeks >= leap.weekStart - 1 && ageWeeks <= leap.weekEnd + 2) return { ...leap, status: "active" as const };
-    if (ageWeeks > leap.weekEnd + 2) return { ...leap, status: "completed" as const };
-    return { ...leap, status: "upcoming" as const };
+    const manuallyAchieved = achievedLeaps.includes(leap.id);
+    const isActive = ageWeeks >= leap.weekStart - 1 && ageWeeks <= leap.weekEnd + 2;
+    const isPast = ageWeeks > leap.weekEnd + 2;
+
+    if (manuallyAchieved) {
+      const achievedEarly = ageWeeks < leap.weekStart;
+      return { ...leap, status: "achieved" as const, achievedEarly };
+    }
+    if (isActive) return { ...leap, status: "active" as const, achievedEarly: false };
+    if (isPast) return { ...leap, status: "completed" as const, achievedEarly: false };
+    return { ...leap, status: "upcoming" as const, achievedEarly: false };
   });
 }
 
@@ -342,9 +373,12 @@ export interface MilestoneLevel {
   dadRelatable: string;
   momSuggestions: string[];
   momRelatable: string;
+  leapId?: string;
+  signs?: string[];
+  tips?: string[];
 }
 
-export function getMilestones(phase: "pregnant" | "newborn" | "baby", currentWeek: number, babyAgeWeeks: number): MilestoneLevel[] {
+export function getMilestones(phase: "pregnant" | "newborn" | "baby", currentWeek: number, babyAgeWeeks: number, achievedLeaps: string[] = []): MilestoneLevel[] {
   if (phase === "pregnant") {
     const pMilestones: Omit<MilestoneLevel, "unlocked" | "active">[] = [
       { week: 8, label: "Hjertet slår", emoji: "💓", level: 1, description: "Jeres baby har et bankende hjerte.", activities: ["Lyt til hjertelyden ved scanning", "Start fotodagbog"], dadSuggestions: ["Kom med til scanningen", "Køb en lille gave til mor"], dadRelatable: "Du kan ikke se noget endnu, men dit hjerte banker lidt hurtigere nu.", momSuggestions: ["Mærk øjeblikket — det er magisk", "Del nyheden når I er klar"], momRelatable: "Den der bølge af følelser? Helt normalt. Alt på én gang." },
@@ -361,18 +395,29 @@ export function getMilestones(phase: "pregnant" | "newborn" | "baby", currentWee
     }));
   }
 
-  const bMilestones: Omit<MilestoneLevel, "unlocked" | "active">[] = [
-    { week: 1, label: "Nyfødt ninja", emoji: "🥒", level: 1, description: "Alt er nyt. I lærer hinanden at kende.", activities: ["Hud-mod-hud så meget som muligt", "Øv amning/flaske", "Lær babysignaler"], dadSuggestions: ["Tag baby på brystet — hud-mod-hud er også for far", "Lær at svøbe som en pro"], dadRelatable: "Baby vejer ca. 3,5 kg. Det er en halv kettlebell. Bare med mere lyd.", momSuggestions: ["Lad andre holde baby mens du sover", "Drik vand som var det dit job"], momRelatable: "Du har lige lavet det sværeste du nogensinde har gjort. Vær sød ved dig selv." },
-    { week: 6, label: "Smilemonster", emoji: "😊", level: 2, description: "Det første sociale smil! Baby genkender jer.", activities: ["Smil og lav grimasser", "Syng og tal i varierede toner", "Brug kontrastbilleder"], dadSuggestions: ["Lav dit bedste fjollede ansigt — baby elsker det", "20 min alene med baby = bonding-boost"], dadRelatable: "Det første smil direkte til dig. Stærkere end enhver like du nogensinde har fået.", momSuggestions: ["Nyd smilet — det er ægte kærlighed", "Det er okay at græde af glæde"], momRelatable: "6 uger. Du har overlevet. Og nu smiler baby til dig. Alt var det værd." },
-    { week: 12, label: "Grinebansen", emoji: "😂", level: 3, description: "Baby griner højt og 'snakker' med jer.", activities: ["Leg 'tittit-bansen'", "Tummy time 5 min x 3", "Lad baby gribe din finger"], dadSuggestions: ["Tummy time er bedst med far som bane — læg baby på dit bryst", "Lav flyveren"], dadRelatable: "Baby griner af dig. Ikke med dig, AF dig. Og det er det bedste i verden.", momSuggestions: ["3 måneder — den hårdeste del er bag jer", "Forkæl dig med noget du savner"], momRelatable: "Du har fundet en rytme. Det tog tid, men se dig — du er en naturkraft." },
-    { week: 20, label: "Lille opdager", emoji: "🔍", level: 4, description: "Baby griber, undersøger og putter alt i munden.", activities: ["Tilbyd forskellige teksturer", "Rangle og bide-legetøj", "Læs billedbøger med farver"], dadSuggestions: ["Byg en 'sansebane' af puder og tæpper", "Lad baby undersøge sikre køkkenting"], dadRelatable: "Alt. Går. I. Munden. Dine nøgler, din telefon, din næse. Velkommen til level 4.", momSuggestions: ["Babysikring af hjemmet — det er tid", "Lad baby udforske i eget tempo"], momRelatable: "Din baby opdager verden. Og ja, din hårpisk er det mest spændende legetøj." },
-    { week: 26, label: "Madentusiast", emoji: "🥄", level: 5, description: "Baby er klar til at smage verden!", activities: ["Introducer grøntsager først", "Lad baby spise med fingrene", "Spis sammen som familie"], dadSuggestions: ["Lav fars signaturmos — det bliver en tradition", "Dokumentér det roligste ansigt nogensinde"], dadRelatable: "Baby smager broccoli for første gang. Ansigtsudtrykket er Oscar-værdigt.", momSuggestions: ["Mad er leg, ikke pligt", "Det er normalt at 90% havner på gulvet"], momRelatable: "Ja, det er rodet. Nej, de sulter ikke. De lærer. Og du gør det rigtigt." },
-    { week: 36, label: "Eventyrer", emoji: "🚀", level: 6, description: "Baby kravler, trækker sig op og udforsker alt.", activities: ["Lav en sikker udforskningszone", "Stabling og sortering", "Dans og musik"], dadSuggestions: ["Byg en pudde-forhindringsbane", "Kravl med — baby synes det er vildt sjovt"], dadRelatable: "Baby kravler hurtigere end du kan løbe. Cardio-niveauet er: forælder.", momSuggestions: ["Følg baby rundt — de viser vej", "Lad rodet ligge, nyd eventyret"], momRelatable: "Dit hjem ligner et slagmark. Men dit barn er en opdagelsesrejsende. Stærkt." },
-    { week: 52, label: "1 år — Legend!", emoji: "🎂", level: 7, description: "I har klaret et helt år. I er legendariske.", activities: ["Fejr med kage og kaos", "Lav en fotocollage af året", "Skriv brev til jeres fremtidige selv"], dadSuggestions: ["Planlæg festen — du er eventmanager nu", "Skriv et brev til baby om deres første år"], dadRelatable: "1 år. Du har skiftet ca. 2.500 bleer. Du er en legende.", momSuggestions: ["Se tilbage på året — du har klaret utrolige ting", "Fejr dig selv lige så meget som baby"], momRelatable: "365 dage. Du har givet alt. Og det var nok. Det var mere end nok. ❤️" },
-  ];
-  return bMilestones.map(m => ({
-    ...m,
-    unlocked: babyAgeWeeks >= m.week,
-    active: babyAgeWeeks >= m.week && (m.week === 52 || babyAgeWeeks < (bMilestones[bMilestones.indexOf(m) + 1]?.week ?? 999)),
-  }));
+  // Baby/newborn: Use developmental leaps as levels
+  return developmentalLeaps.map((leap) => {
+    const isAchieved = achievedLeaps.includes(leap.id);
+    const isPast = babyAgeWeeks > leap.weekEnd + 2;
+    const isActive = babyAgeWeeks >= leap.weekStart - 1 && babyAgeWeeks <= leap.weekEnd + 2;
+    const unlocked = isAchieved || isPast || isActive;
+
+    return {
+      week: leap.weekStart,
+      label: leap.title,
+      emoji: leap.emoji,
+      level: leap.level,
+      unlocked,
+      active: isActive && !isAchieved,
+      description: leap.description,
+      activities: leap.activities,
+      dadSuggestions: leap.dadSuggestions,
+      dadRelatable: leap.dadRelatable,
+      momSuggestions: leap.momSuggestions,
+      momRelatable: leap.momRelatable,
+      leapId: leap.id,
+      signs: leap.signs,
+      tips: leap.tips,
+    };
+  });
 }
