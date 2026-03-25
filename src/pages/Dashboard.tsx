@@ -6,8 +6,8 @@ import { TaskList } from "@/components/TaskList";
 import { PartnerNudge } from "@/components/PartnerNudge";
 import { MilestoneTimeline } from "@/components/MilestoneTimeline";
 import { MorRecoveryCard, MorAutoSupport, MorFeedingCard, MorMicroSupport } from "@/components/MorDashboardCards";
-import { MorEmpathyCard, DadDailyMissions, DadRelatableHook } from "@/components/FarDashboardCards";
-import { WhatMattersNow, TodaysFlow, SupportInsight, OneNudge, DailyCheckIn, FrictionAlert } from "@/components/CommandCenter";
+import { MorEmpathyCard, DadDailyMissions, DadInsightCard } from "@/components/FarDashboardCards";
+import { WhatMattersNow, FrictionAlert, OneNudge } from "@/components/CommandCenter";
 import { MessageCircle, Heart, Gamepad2, Square } from "lucide-react";
 import { format } from "date-fns";
 import { da } from "date-fns/locale";
@@ -28,15 +28,14 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-4">
-      {/* Header — minimal */}
+      {/* Header — minimal, no duplication */}
       <div className="section-fade-in">
         <div className="flex items-center justify-between">
-          <p className="label-upper">{getGreeting()}</p>
+          <h1 className="text-[1.9rem] font-normal">
+            {getGreetingWord()}, {profile.parentName}
+          </h1>
           <span className="text-[0.58rem] tracking-[0.1em] uppercase text-muted-foreground">{dateStr}</span>
         </div>
-        <h1 className="text-[1.9rem] font-normal mt-2">
-          {getGreetingWord()}, {profile.parentName}
-        </h1>
         <p className="text-[0.62rem] tracking-[0.14em] uppercase text-muted-foreground mt-1">
           {displayPhase}
         </p>
@@ -61,20 +60,12 @@ export default function Dashboard() {
           {/* Live sleep tracker — only when baby is sleeping */}
           <LiveSleepTracker childName={childName || "Baby"} />
 
-          {/* Daily check-in — very light mood check */}
-          <DailyCheckIn />
-
           {/* Friction alert — soft pattern detection */}
           <FrictionAlert />
 
-          {/* B. Today's Flow — who does what */}
-          <TodaysFlow />
-
-          {/* Quick Log — unified logging */}
+          {/* Tasks & Quick Log — moved up for fast access */}
+          <TaskList />
           <QuickLog />
-
-          {/* C. Support Insight — soft balance signal */}
-          <SupportInsight />
 
           {/* ═══ ROLE-SPECIFIC CONTENT ═══ */}
           {isMor ? (
@@ -96,16 +87,13 @@ export default function Dashboard() {
               {/* Dad: Empathy card */}
               <MorEmpathyCard ageWeeks={babyAgeWeeks} morName={morName} />
 
-              {/* Dad: Relatable hook */}
-              <DadRelatableHook />
+              {/* Dad: Insight — fun facts + caring nudges */}
+              <DadInsightCard />
             </>
           )}
 
           {/* D. One Nudge — single actionable suggestion */}
           <OneNudge />
-
-          {/* Tasks */}
-          <TaskList />
 
           {/* Quick links */}
           <div className="grid grid-cols-2 gap-2.5 section-fade-in">
@@ -271,12 +259,6 @@ function BabyInsightCard({ ageWeeks, ageMonths, childName }: { ageWeeks: number;
   );
 }
 
-function getGreeting(): string {
-  const h = new Date().getHours();
-  if (h < 10) return "GOD MORGEN ☀️";
-  if (h < 17) return "GOD DAG 🌿";
-  return "GOD AFTEN 🌙";
-}
 
 function getGreetingWord(): string {
   const h = new Date().getHours();

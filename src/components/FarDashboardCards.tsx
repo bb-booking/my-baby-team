@@ -151,32 +151,40 @@ export function DadDailyMissions() {
   );
 }
 
-// ── Dad Relatable Hook — warm, not gimmicky ──
-export function DadRelatableHook() {
-  const { profile, babyAgeWeeks } = useFamily();
+// ── Dad Insight Card — fun facts + caring nudges, rotating daily ──
+export function DadInsightCard() {
+  const { profile, babyAgeWeeks, morName } = useFamily();
   const childName = profile.children?.[0]?.name || "Baby";
+  const weight = (3.3 + babyAgeWeeks * 0.15).toFixed(1);
 
-  const hooks = [
-    { emoji: "💪", text: `${childName} vejer ca. ${(3.3 + babyAgeWeeks * 0.15).toFixed(1)} kg`, sub: "Perfekt til bicep curls under bæring" },
-    { emoji: "🦸", text: "Du er ikke backup — du er starting lineup", sub: "Baby har brug for begge forældre. Lige meget." },
-    { emoji: "📱", text: "Pro tip: Læg telefonen ned", sub: `${childName} kan se dig — og øjenkontakt > alt` },
-    { emoji: "💤", text: "Antal timer søvn: ja", sub: "Det bliver bedre. Seriøst." },
-    { emoji: "🍳", text: "Achievement: lav morgenmad", sub: "Toast tæller. Alt tæller." },
+  const cards: { emoji: string; text: string; sub: string }[] = [
+    // Fun facts
+    { emoji: "💪", text: `${childName} vejer ca. ${weight} kg`, sub: "Perfekt til bicep curls under bæring" },
+    { emoji: "👃", text: `${childName} kan kende din lugt`, sub: "Babyer foretrækker deres forældes duft fra dag 1" },
+    { emoji: "🧒", text: `${childName}s hjerne vokser 1% om dagen`, sub: "Øjenkontakt, stemme og berøring er raketbrændstof" },
+    { emoji: "👂", text: `${childName} genkender din stemme`, sub: "Tal, syng, lav lyde — det hele tæller" },
+    { emoji: "🍳", text: "Achievement unlocked: lav morgenmad", sub: "Toast tæller. Alt tæller." },
+    // Caring nudges
+    { emoji: "🚪", text: `Tag ${childName} når du kommer ind ad døren`, sub: `${morName} har brug for at lade op — en lur, et bad, eller 15 min alene` },
+    { emoji: "💬", text: `Fortæl ${morName} at hun gør det godt`, sub: `${childName} kan ikke selv sige tak endnu ❤️` },
+    { emoji: "🫂", text: `Giv ${morName} en fuld pause i aften`, sub: "Bare 30 min uden ansvar gør en kæmpe forskel" },
+    { emoji: "👀", text: "Se hvad der skal gøres — og gør det", sub: "Ingen huskeliste. Bare gør det." },
+    { emoji: "🌙", text: `Tag aftenputningen med ${childName}`, sub: `${morName} har båret det meste af dagen — du klarer den her` },
   ];
 
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
-  const hook = hooks[dayOfYear % hooks.length];
+  const card = cards[dayOfYear % cards.length];
 
   return (
-    <div className="rounded-2xl px-4 py-3 section-fade-in" style={{
+    <div className="rounded-2xl px-4 py-3.5 section-fade-in" style={{
       background: "hsl(var(--cream))",
       border: "1px solid hsl(var(--stone-light))",
     }}>
-      <div className="flex items-center gap-3">
-        <span className="text-xl">{hook.emoji}</span>
+      <div className="flex items-start gap-3">
+        <span className="text-xl flex-shrink-0">{card.emoji}</span>
         <div>
-          <p className="text-[0.82rem] font-medium">{hook.text}</p>
-          <p className="text-[0.65rem] text-muted-foreground">{hook.sub}</p>
+          <p className="text-[0.82rem] font-medium">{card.text}</p>
+          <p className="text-[0.68rem] text-muted-foreground mt-0.5">{card.sub}</p>
         </div>
       </div>
     </div>
