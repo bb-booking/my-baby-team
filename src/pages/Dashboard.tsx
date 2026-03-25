@@ -11,7 +11,7 @@ import { WhatMattersNow, FrictionAlert } from "@/components/CommandCenter";
 import { MessageCircle, Heart, Gamepad2, Square } from "lucide-react";
 import { format } from "date-fns";
 import { da } from "date-fns/locale";
-import { getBabyInsight, getKnowledgeCards, getActiveLeap, getNextLeap } from "@/lib/phaseData";
+import { getBabyInsight } from "@/lib/phaseData";
 import { useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSleepNotifications } from "@/hooks/useSleepNotifications";
