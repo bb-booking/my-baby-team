@@ -156,11 +156,16 @@ function BornBarnPage({ ageWeeks, ageMonths }: { ageWeeks: number; ageMonths: nu
         <div className="space-y-2">
           {leaps.map((leap) => {
             const isExpanded = expandedLeap === leap.id;
-            const statusStyles = {
+            const statusStyles: Record<string, { bg: string; border: string; dot: string }> = {
               completed: {
                 bg: "hsl(var(--sage-light) / 0.5)",
                 border: "hsl(var(--sage) / 0.2)",
                 dot: "hsl(var(--sage))",
+              },
+              achieved: {
+                bg: "hsl(var(--moss) / 0.08)",
+                border: "hsl(var(--moss) / 0.3)",
+                dot: "hsl(var(--moss))",
               },
               active: {
                 bg: "hsl(var(--clay) / 0.08)",
@@ -201,9 +206,9 @@ function BornBarnPage({ ageWeeks, ageMonths }: { ageWeeks: number; ageMonths: nu
                       <p className="text-[0.65rem] mt-0.5" style={{ color: "hsl(var(--clay))" }}>Kan ske nu</p>
                     )}
                   </div>
-                  {leap.status === "completed" && (
+                  {(leap.status === "completed" || leap.status === "achieved") && (
                     <span className="text-[0.55rem] tracking-[0.1em] uppercase px-2 py-0.5 rounded-full" style={{ background: "hsl(var(--sage) / 0.15)", color: "hsl(var(--moss))" }}>
-                      ✓ Nået
+                      ✓ {leap.achievedEarly ? "Tidligt!" : "Nået"}
                     </span>
                   )}
                   {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
