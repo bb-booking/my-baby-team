@@ -259,12 +259,6 @@ function BabyInsightCard({ ageWeeks, ageMonths, childName }: { ageWeeks: number;
   );
 }
 
-function getGreeting(): string {
-  const h = new Date().getHours();
-  if (h < 10) return "GOD MORGEN ☀️";
-  if (h < 17) return "GOD DAG 🌿";
-  return "GOD AFTEN 🌙";
-}
 
 function getGreetingWord(): string {
   const h = new Date().getHours();
