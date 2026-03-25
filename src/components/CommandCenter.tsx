@@ -1,17 +1,17 @@
 import { useFamily } from "@/context/FamilyContext";
 import { useDiary } from "@/context/DiaryContext";
 import { Link } from "react-router-dom";
-import { Sun, Moon, ArrowRight, MessageCircle } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { getActiveLeap, getNextLeap } from "@/lib/phaseData";
 
 // ── A. WHAT MATTERS NOW — single primary message ──
 export function WhatMattersNow() {
-  const { profile, babyAgeWeeks, morName, farName, isOnLeave } = useFamily();
-  const { activeSleep, todayNursingCount, todaySleepMinutes, sleepLogs } = useDiary();
+  const { profile, babyAgeWeeks, morName, farName, isOnLeave, tasks } = useFamily();
+  const { activeSleep, todayNursingCount, todaySleepMinutes, sleepLogs, todayDiaperCount } = useDiary();
   const isMor = profile.role === "mor";
   const childName = profile.children?.[0]?.name || "baby";
   const partnerName = isMor ? farName : morName;
 
-  // Decision engine: determine the ONE most important thing right now
   const message = getWhatMattersMessage({
     isMor,
     childName,
@@ -23,6 +23,8 @@ export function WhatMattersNow() {
     lastSleepEnd: getLastSleepEnd(sleepLogs),
     isOnLeave: isOnLeave(profile.role),
     partnerOnLeave: isOnLeave(isMor ? "far" : "mor"),
+    diaperCount: todayDiaperCount,
+    tasks: tasks.map(t => ({ completed: t.completed, dueDate: t.dueDate, assignee: t.assignee, title: t.title })),
   });
 
   return (
@@ -65,52 +67,206 @@ interface MessageInput {
   lastSleepEnd: number | null;
   isOnLeave: boolean;
   partnerOnLeave: boolean;
+  diaperCount: number;
+  tasks: { completed: boolean; dueDate: string; assignee: string; title: string }[];
 }
 
-function getWhatMattersMessage(input: MessageInput): { title: string; body: string; link?: string; linkLabel?: string } {
-  const { isMor, childName, partnerName, babyAgeWeeks, activeSleep, nursingCount, lastSleepEnd, isOnLeave, partnerOnLeave } = input;
+interface WMMessage {
+  title: string;
+  body: string;
+  link: string;
+  linkLabel: string;
+}
+
+function getWhatMattersMessage(input: MessageInput): WMMessage {
+  const { isMor, childName, partnerName, babyAgeWeeks, activeSleep, nursingCount, lastSleepEnd, isOnLeave, partnerOnLeave, diaperCount, tasks } = input;
   const hour = new Date().getHours();
 
-  // Active sleep — don't disturb
-  if (activeSleep) {
-    return {
-      title: `${childName} sover 💤`,
-      body: isMor
-        ? "Brug tiden på dig selv. Hvil, spis, eller bare vær."
-        : `God tid til at hjælpe ${partnerName} — eller tag en pause selv.`,
-    };
-  }
-
-  // Wake window logic — if last sleep ended recently
-  if (lastSleepEnd) {
+  // ══════════════════════════════════════════════
+  // PRIORITY 1: Sleep sweetspot (within 30 min)
+  // ══════════════════════════════════════════════
+  if (!activeSleep && lastSleepEnd) {
     const minutesSinceWake = (Date.now() - lastSleepEnd) / 60000;
     const maxWakeWindow = babyAgeWeeks < 6 ? 60 : babyAgeWeeks < 12 ? 90 : babyAgeWeeks < 26 ? 120 : 150;
     const timeLeft = maxWakeWindow - minutesSinceWake;
 
-    if (timeLeft > 0 && timeLeft < 25) {
+    if (timeLeft > 0 && timeLeft < 30) {
+      const who = isMor && !isOnLeave && partnerOnLeave
+        ? `Måske ${partnerName} kan putte?`
+        : !isMor && isOnLeave
+        ? "Du kan tage denne."
+        : "";
       return {
         title: `${childName} er klar til en lur om ~${Math.round(timeLeft)} min 💤`,
-        body: `Det kan være et godt tidspunkt at dæmpe lys og finde ro.`,
+        body: `Det kan være et godt tidspunkt at dæmpe lys og finde ro. ${who}`.trim(),
         link: "/sovn",
         linkLabel: "Søvnoverblik",
       };
     }
   }
 
-  // Morning — who takes over
-  if (hour < 10) {
+  // Active sleep — suggest what to do
+  if (activeSleep) {
+    return {
+      title: `${childName} sover 💤`,
+      body: isMor
+        ? "Brug tiden på dig selv. Hvil, spis, eller bare vær."
+        : `God tid til at hjælpe ${partnerName} — eller tag en pause selv.`,
+      link: "/sovn",
+      linkLabel: "Se søvndata",
+    };
+  }
+
+  // ══════════════════════════════════════════════
+  // PRIORITY 2: Clinical flags (nursing/diaper)
+  // ══════════════════════════════════════════════
+  if (hour >= 14) {
+    // Low nursing count for age
+    const minNursing = babyAgeWeeks < 6 ? 6 : babyAgeWeeks < 16 ? 5 : 4;
+    if (nursingCount > 0 && nursingCount < minNursing && hour >= 16) {
+      return {
+        title: `${childName} har fået ${nursingCount} måltider i dag`,
+        body: `Anbefalingen er mindst ${minNursing} dagligt i denne alder. Måske tid til endnu et måltid?`,
+        link: "/dagbog",
+        linkLabel: "Se dagbogen",
+      };
+    }
+
+    // Low diaper count
+    if (diaperCount > 0 && diaperCount < 3 && hour >= 16 && babyAgeWeeks < 12) {
+      return {
+        title: `Kun ${diaperCount} bleskift logget i dag`,
+        body: `Forventer typisk 4-6+ våde bleer dagligt. Hold øje med at ${childName} er godt hydreret.`,
+        link: "/dagbog",
+        linkLabel: "Log bleskift",
+      };
+    }
+  }
+
+  // ══════════════════════════════════════════════
+  // PRIORITY 3: Tiger leap insights
+  // ══════════════════════════════════════════════
+  const activeLeap = getActiveLeap(babyAgeWeeks);
+  if (activeLeap) {
+    const leapTips = isMor
+      ? `Ekstra nærhed og tålmodighed hjælper ${childName} igennem.`
+      : `${childName} kan være ekstra klyngende. Hold fast — det er en fase.`;
+    return {
+      title: `${activeLeap.emoji} Tigerspring: ${activeLeap.title}`,
+      body: leapTips,
+      link: "/barn",
+      linkLabel: "Se tigerspring",
+    };
+  }
+
+  // ══════════════════════════════════════════════
+  // PRIORITY 4: Partner support (role-specific)
+  // ══════════════════════════════════════════════
+  if (hour >= 12 && hour < 20) {
+    if (isMor && isOnLeave && !partnerOnLeave && hour >= 15) {
+      return {
+        title: "Du har klaret dagen 💚",
+        body: `Når ${partnerName} kommer hjem, prøv at sige hvad du har mest brug for. Det er ikke at klage — det er at kommunikere.`,
+        link: "/sammen",
+        linkLabel: "Samarbejde",
+      };
+    }
+    if (!isMor && !isOnLeave && hour >= 14) {
+      return {
+        title: `${partnerName} har haft ${childName} hele dagen`,
+        body: `Prøv at tage over med det samme, du kommer hjem. Selv 30 minutters pause gør en kæmpe forskel.`,
+        link: "/sammen",
+        linkLabel: "Se opgaver",
+      };
+    }
     if (!isMor && isOnLeave) {
       return {
-        title: `Godmorgen ☀️`,
-        body: `Måske du kan tage morgenen med ${childName}, så ${partnerName} kan sove lidt ekstra?`,
+        title: `Bliv hands-on med ${childName} 🙌`,
+        body: `Brug din barselsdag proaktivt — tag bad, gåtur eller leg. Din binding styrkes hvert minut.`,
+        link: "/leg",
+        linkLabel: "Leg & aktiviteter",
       };
     }
-    if (isMor && partnerOnLeave) {
+  }
+
+  // ══════════════════════════════════════════════
+  // PRIORITY 5: Play & activity suggestions
+  // ══════════════════════════════════════════════
+  if (hour >= 9 && hour < 17 && lastSleepEnd) {
+    const minutesSinceWake = (Date.now() - lastSleepEnd) / 60000;
+    const maxWake = babyAgeWeeks < 6 ? 60 : babyAgeWeeks < 12 ? 90 : babyAgeWeeks < 26 ? 120 : 150;
+    const inWakeWindow = minutesSinceWake > 10 && minutesSinceWake < maxWake * 0.6;
+
+    if (inWakeWindow) {
+      const activity = getAgeActivity(babyAgeWeeks, childName);
       return {
-        title: `Godmorgen ☀️`,
-        body: `${partnerName} kan tage over i morgen — brug tiden på dig selv.`,
+        title: activity.title,
+        body: activity.body,
+        link: "/leg",
+        linkLabel: "Flere aktiviteter",
       };
     }
+  }
+
+  // ══════════════════════════════════════════════
+  // PRIORITY 6: Daily tasks
+  // ══════════════════════════════════════════════
+  const today = new Date().toISOString().slice(0, 10);
+  const todayTasks = tasks.filter(t => t.dueDate === today && !t.completed);
+  const myTasks = todayTasks.filter(t => t.assignee === (isMor ? "mor" : "far") || t.assignee === "fælles");
+
+  if (myTasks.length > 0) {
+    return {
+      title: `${myTasks.length} opgave${myTasks.length > 1 ? "r" : ""} i dag 📋`,
+      body: `Vigtigst: "${myTasks[0].title || "Se listen"}"`,
+      link: "/sammen",
+      linkLabel: "Se alle opgaver",
+    };
+  }
+
+  // ══════════════════════════════════════════════
+  // PRIORITY 7: Time-based encouragement (fallback)
+  // ══════════════════════════════════════════════
+  return getTimeBasedFallback(hour, isMor, childName, partnerName, babyAgeWeeks);
+}
+
+// ── Age-appropriate activity suggestions ──
+function getAgeActivity(ageWeeks: number, childName: string): { title: string; body: string } {
+  if (ageWeeks < 6) return {
+    title: `Tid til nærvær med ${childName} 🤲`,
+    body: "Hud-mod-hud, øjenkontakt og rolige lyde. Det er alt der skal til lige nu.",
+  };
+  if (ageWeeks < 12) return {
+    title: `Tummy time med ${childName} 💪`,
+    body: "3-5 minutter på maven styrker nakke og ryg. Læg dig ved siden af!",
+  };
+  if (ageWeeks < 20) return {
+    title: `Sanselegetid med ${childName} 🎵`,
+    body: "Prøv en rangle, synge en sang, eller vis kontrastbilleder. Alt er nyt og spændende!",
+  };
+  if (ageWeeks < 30) return {
+    title: `Udforsk sammen med ${childName} 🧩`,
+    body: "Stof-bøger, gribelegetøj, eller bare udforsk ting i køkkenet. Alt er en opdagelse!",
+  };
+  return {
+    title: `Leg med ${childName} 🎈`,
+    body: "Byg tårne, leg tittit-bansen, eller gå på opdagelse. Leg er læring!",
+  };
+}
+
+// ── Time-based fallback messages ──
+function getTimeBasedFallback(hour: number, isMor: boolean, childName: string, partnerName: string, ageWeeks: number): WMMessage {
+  if (hour < 7) {
+    return {
+      title: "Stille morgenstund 🌅",
+      body: isMor
+        ? `Mærk efter hvad du har brug for i dag. Du behøver ikke have en plan.`
+        : `Stille morgen med ${childName}? En gåtur i barnevognen giver ro for jer begge.`,
+      link: "/chat",
+      linkLabel: "Spørg Melo",
+    };
+  }
+  if (hour < 10) {
     return {
       title: `Godmorgen ☀️`,
       body: `God dag at dele morgenrutinen og finde jeres rytme sammen.`,
@@ -118,46 +274,39 @@ function getWhatMattersMessage(input: MessageInput): { title: string; body: stri
       linkLabel: "Se opgaver",
     };
   }
-
-  // Afternoon — check if parent on leave needs break
-  if (hour >= 12 && hour < 17) {
-    if (isMor && isOnLeave) {
+  if (hour < 17) {
+    const nextLeap = getNextLeap(ageWeeks);
+    if (nextLeap) {
+      const weeksUntil = nextLeap.weekStart - ageWeeks;
       return {
-        title: "Du fortjener en pause 🌿",
-        body: "Du har klaret hele formiddagen. Selv 15 minutter for dig selv gør en stor forskel.",
+        title: `Næste tigerspring om ${weeksUntil} ${weeksUntil === 1 ? "uge" : "uger"} ${nextLeap.emoji}`,
+        body: `"${nextLeap.title}" — ${nextLeap.description.slice(0, 80)}...`,
+        link: "/barn",
+        linkLabel: "Læs mere",
       };
     }
-    if (!isMor && !isOnLeave) {
-      return {
-        title: `${partnerName} har haft ${childName} hele dagen`,
-        body: "Måske du kan tage over når du kommer hjem — det betyder mere end du tror.",
-      };
-    }
-  }
-
-  // Evening — wind down
-  if (hour >= 17) {
     return {
-      title: `Aftenrutine — hold det enkelt`,
+      title: `God dag med ${childName} 🌿`,
+      body: "I finder jeres rytme. Én ting ad gangen.",
+      link: "/leg",
+      linkLabel: "Leg & aktiviteter",
+    };
+  }
+  if (hour < 21) {
+    return {
+      title: `Aftenrutine — hold det enkelt 🌙`,
       body: `Bad, ble, nattøj, ro. ${childName} mærker jeres stemning.`,
       link: "/sovn",
       linkLabel: "Søvnguide",
     };
   }
-
-  // Default based on age
-  if (babyAgeWeeks < 4) {
-    return {
-      title: `Ro og nærhed er alt ${childName} har brug for`,
-      body: "Hud-mod-hud, amning/flaske, og jeres rolige stemmer.",
-    };
-  }
-
   return {
-    title: `God dag med ${childName}`,
-    body: "I finder jeres rytme. Én ting ad gangen.",
-    link: "/leg",
-    linkLabel: "Leg & aktiviteter",
+    title: "God nat, I klarer det 💛",
+    body: isMor
+      ? "Hvil dig. I morgen er en ny dag."
+      : `Sørg for at ${partnerName} også får sovet. I er et team.`,
+    link: "/chat",
+    linkLabel: "Spørg Melo",
   };
 }
 
