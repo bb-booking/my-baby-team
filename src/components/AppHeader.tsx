@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ProfileSwitcher } from "./ProfileSwitcher";
-import meloLogo from "@/assets/melo-logo.png";
+import meloIcon from "@/assets/melo-icon.png";
 
 interface AppHeaderProps {
   onBurgerClick: () => void;
@@ -20,27 +20,19 @@ export function AppHeader({ onBurgerClick }: AppHeaderProps) {
         <ProfileSwitcher />
       </div>
 
-      {/* Center: Logo as home link */}
-      <Link to="/" className="flex items-center gap-2.5 select-none group absolute left-1/2 -translate-x-1/2" aria-label="Gå til forsiden">
+      {/* Center: Icon + MELO */}
+      <Link to="/" className="flex items-center gap-2 select-none group absolute left-1/2 -translate-x-1/2" aria-label="Gå til forsiden">
         <img
-          src={meloLogo}
-          alt="Melo"
-          className="w-9 h-9 rounded-full object-cover transition-transform duration-300 group-hover:scale-105 group-active:scale-95"
+          src={meloIcon}
+          alt=""
+          className="w-8 h-8 object-contain transition-transform duration-300 group-hover:scale-105 group-active:scale-95"
         />
-        <div className="flex flex-col">
-          <span
-            className="font-sans font-extrabold text-[1.15rem] tracking-[0.32em] uppercase leading-none"
-            style={{ color: "#3a5235" }}
-          >
-            MELO
-          </span>
-          <span
-            className="font-sans text-[0.42rem] tracking-[0.22em] uppercase font-medium leading-none mt-[3px]"
-            style={{ color: "#9a9080" }}
-          >
-            Parents
-          </span>
-        </div>
+        <span
+          className="font-sans font-bold text-[1.05rem] tracking-[0.28em] uppercase leading-none"
+          style={{ color: "hsl(var(--moss))" }}
+        >
+          MELO
+        </span>
       </Link>
 
       {/* Burger — mobile only */}
@@ -49,9 +41,9 @@ export function AppHeader({ onBurgerClick }: AppHeaderProps) {
         className="w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-[5px] md:hidden active:bg-foreground/5 transition-colors flex-shrink-0"
         aria-label="Menu"
       >
-        <span className="block w-5 h-[1.5px] rounded-sm" style={{ background: "#5a4e3c" }} />
-        <span className="block w-5 h-[1.5px] rounded-sm" style={{ background: "#5a4e3c" }} />
-        <span className="block w-5 h-[1.5px] rounded-sm" style={{ background: "#5a4e3c" }} />
+        <span className="block w-5 h-[1.5px] rounded-sm bg-bark" />
+        <span className="block w-5 h-[1.5px] rounded-sm bg-bark" />
+        <span className="block w-5 h-[1.5px] rounded-sm bg-bark" />
       </button>
     </header>
   );
