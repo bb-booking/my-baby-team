@@ -68,7 +68,7 @@ interface MessageInput {
   isOnLeave: boolean;
   partnerOnLeave: boolean;
   diaperCount: number;
-  tasks: { completed: boolean; dueDate: string; assignee: string }[];
+  tasks: { completed: boolean; dueDate: string; assignee: string; title: string }[];
 }
 
 interface WMMessage {
