@@ -19,12 +19,6 @@ const conversationStarters = [
   "Er der noget der stresser dig, som vi kan løse sammen?",
 ];
 
-const weeklyCheckIns = [
-  { q: "Føler du, at opgaverne er rimeligt fordelt?", emoji: "⚖️" },
-  { q: "Har du fået nok søvn i denne uge?", emoji: "😴" },
-  { q: "Har du haft tid til dig selv?", emoji: "🧘" },
-  { q: "Har I haft et godt øjeblik sammen?", emoji: "💛" },
-];
 
 export default function SammenPage() {
   const { profile, morName, farName, tasks } = useFamily();
