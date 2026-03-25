@@ -7,7 +7,7 @@ import { PartnerNudge } from "@/components/PartnerNudge";
 import { MilestoneTimeline } from "@/components/MilestoneTimeline";
 import { MorRecoveryCard, MorAutoSupport, MorFeedingCard, MorMicroSupport } from "@/components/MorDashboardCards";
 import { MorEmpathyCard } from "@/components/FarDashboardCards";
-import { WhatMattersNow, FrictionAlert } from "@/components/CommandCenter";
+import { WhatMattersNow } from "@/components/CommandCenter";
 import { MessageCircle, Heart, Gamepad2, Square } from "lucide-react";
 import { format } from "date-fns";
 import { da } from "date-fns/locale";
@@ -67,12 +67,11 @@ export default function Dashboard() {
           {/* Live sleep tracker — only when baby is sleeping */}
           <LiveSleepTracker childName={childName || "Baby"} />
 
-          {/* Friction alert — soft pattern detection */}
-          <FrictionAlert />
-
-          {/* Tasks & Quick Log — moved up for fast access */}
-          <TaskList />
+          {/* Quick Log — fast access right after status */}
           <QuickLog />
+
+          {/* Tasks */}
+          <TaskList />
 
           {/* ═══ ROLE-SPECIFIC CONTENT ═══ */}
           {isMor ? (
