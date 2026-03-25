@@ -7,6 +7,7 @@ import {
   Heart, Sparkles, Brain, HandHeart, RefreshCw
 } from "lucide-react";
 import { TaskList } from "@/components/TaskList";
+import NærværTips from "@/components/NærværTips";
 
 const conversationStarters = [
   "Hvad har du brug for mest fra mig lige nu?",
@@ -278,10 +279,10 @@ export default function SammenPage() {
         </div>
       )}
 
+      {/* Nærvær i hverdagen */}
+      <NærværTips />
 
 
-
-      {/* Conversation starters */}
       <div className="card-soft section-fade-in" style={{ animationDelay: "380ms" }}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
