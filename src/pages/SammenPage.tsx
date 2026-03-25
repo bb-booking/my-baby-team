@@ -4,7 +4,7 @@ import { useFamily } from "@/context/FamilyContext";
 import { useDiary } from "@/context/DiaryContext";
 import {
   Users, TrendingUp, MessageCircle, Moon, ArrowLeftRight,
-  Heart, Sparkles, CheckCircle2, Brain, HandHeart, RefreshCw
+  Heart, Sparkles, Brain, HandHeart, RefreshCw
 } from "lucide-react";
 import { TaskList } from "@/components/TaskList";
 
@@ -19,12 +19,6 @@ const conversationStarters = [
   "Er der noget der stresser dig, som vi kan løse sammen?",
 ];
 
-const weeklyCheckIns = [
-  { q: "Føler du, at opgaverne er rimeligt fordelt?", emoji: "⚖️" },
-  { q: "Har du fået nok søvn i denne uge?", emoji: "😴" },
-  { q: "Har du haft tid til dig selv?", emoji: "🧘" },
-  { q: "Har I haft et godt øjeblik sammen?", emoji: "💛" },
-];
 
 export default function SammenPage() {
   const { profile, morName, farName, tasks } = useFamily();
@@ -39,7 +33,7 @@ export default function SammenPage() {
   );
 
   // Weekly check-in state
-  const [checkInAnswers, setCheckInAnswers] = useState<Record<number, "yes" | "no" | null>>({});
+  
 
   // Generate next 7 days for shift planning
   const next7Days = Array.from({ length: 7 }, (_, i) => {
@@ -286,39 +280,6 @@ export default function SammenPage() {
 
 
 
-      {/* Weekly check-in */}
-      <div className="card-soft section-fade-in" style={{ animationDelay: "320ms" }}>
-        <div className="flex items-center gap-2 mb-3">
-          <CheckCircle2 className="w-4 h-4" style={{ color: "hsl(var(--sage))" }} />
-          <p className="text-[1rem] font-normal">Ugens check-in</p>
-        </div>
-        <p className="text-[0.72rem] text-muted-foreground mb-4">Svar ærligt — det er kun for jer.</p>
-        <div className="space-y-2.5">
-          {weeklyCheckIns.map((item, i) => (
-            <div key={i} className="flex items-center gap-3 rounded-xl px-3 py-2.5"
-              style={{ background: checkInAnswers[i] ? "hsl(var(--sage-light) / 0.3)" : "hsl(var(--stone-lighter) / 0.5)" }}>
-              <span className="text-lg">{item.emoji}</span>
-              <p className="flex-1 text-[0.78rem]">{item.q}</p>
-              <div className="flex gap-1">
-                {(["yes", "no"] as const).map(ans => (
-                  <button key={ans}
-                    onClick={() => setCheckInAnswers(prev => ({ ...prev, [i]: ans }))}
-                    className={`w-8 h-8 rounded-lg text-[0.7rem] font-medium transition-all active:scale-90 ${
-                      checkInAnswers[i] === ans
-                        ? ans === "yes"
-                          ? "bg-[hsl(var(--sage))] text-white"
-                          : "bg-[hsl(var(--clay))] text-white"
-                        : "bg-background border border-[hsl(var(--stone-lighter))] text-muted-foreground"
-                    }`}
-                  >
-                    {ans === "yes" ? "Ja" : "Nej"}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* Conversation starters */}
       <div className="card-soft section-fade-in" style={{ animationDelay: "380ms" }}>
