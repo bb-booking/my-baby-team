@@ -121,7 +121,7 @@ export function DesktopSidebar({ open, onClose }: DesktopSidebarProps) {
   return (
     <aside
       className={`
-        fixed top-16 z-50 h-[calc(100vh-4rem)] w-64 flex flex-col overflow-y-auto
+        fixed top-16 z-50 h-[calc(100vh-4rem)] w-64 flex flex-col
         transition-transform duration-300 ease-out
         md:sticky md:top-16 md:z-auto md:translate-x-0
         ${open ? "translate-x-0" : "-translate-x-full"}
@@ -174,7 +174,7 @@ export function DesktopSidebar({ open, onClose }: DesktopSidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="py-2 flex-1">
+      <nav className="py-2 flex-1 overflow-y-auto min-h-0">
         {sections.map((section) => (
           <div key={section.label}>
             <p className="text-[0.52rem] tracking-[0.22em] uppercase text-muted-foreground px-5 pt-4 pb-1">
