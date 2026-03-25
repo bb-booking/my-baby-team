@@ -1,7 +1,8 @@
 import { useFamily } from "@/context/FamilyContext";
 import { useDiary } from "@/context/DiaryContext";
 import { Link } from "react-router-dom";
-import { Sun, Moon, ArrowRight, MessageCircle } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { getActiveLeap, getNextLeap } from "@/lib/phaseData";
 
 // ── A. WHAT MATTERS NOW — single primary message ──
 export function WhatMattersNow() {
