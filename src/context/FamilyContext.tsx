@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 export type LifePhase = "pregnant" | "newborn" | "baby";
 export type ParentRole = "mor" | "far";
@@ -42,6 +43,13 @@ export interface DailyCheckIn {
   role: ParentRole;
 }
 
+export type AppLanguage = "da" | "en";
+
+export interface LanguagePrefs {
+  mor: AppLanguage;
+  far: AppLanguage;
+}
+
 export interface FamilyProfile {
   phase: LifePhase;
   role: ParentRole;
@@ -52,6 +60,7 @@ export interface FamilyProfile {
   onboarded: boolean;
   morHealth?: MorHealth;
   parentalLeave?: ParentalLeave;
+  languages?: LanguagePrefs;
 }
 
 const defaultProfile: FamilyProfile = {
@@ -63,6 +72,7 @@ const defaultProfile: FamilyProfile = {
   children: [],
   onboarded: false,
   parentalLeave: { mor: true, far: false },
+  languages: { mor: "da", far: "da" },
 };
 
 interface FamilyContextType {
