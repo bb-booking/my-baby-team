@@ -28,15 +28,14 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-4">
-      {/* Header — minimal */}
+      {/* Header — minimal, no duplication */}
       <div className="section-fade-in">
         <div className="flex items-center justify-between">
-          <p className="label-upper">{getGreeting()}</p>
+          <h1 className="text-[1.9rem] font-normal">
+            {getGreetingWord()}, {profile.parentName}
+          </h1>
           <span className="text-[0.58rem] tracking-[0.1em] uppercase text-muted-foreground">{dateStr}</span>
         </div>
-        <h1 className="text-[1.9rem] font-normal mt-2">
-          {getGreetingWord()}, {profile.parentName}
-        </h1>
         <p className="text-[0.62rem] tracking-[0.14em] uppercase text-muted-foreground mt-1">
           {displayPhase}
         </p>
@@ -61,20 +60,12 @@ export default function Dashboard() {
           {/* Live sleep tracker — only when baby is sleeping */}
           <LiveSleepTracker childName={childName || "Baby"} />
 
-          {/* Daily check-in — very light mood check */}
-          <DailyCheckIn />
-
           {/* Friction alert — soft pattern detection */}
           <FrictionAlert />
 
-          {/* B. Today's Flow — who does what */}
-          <TodaysFlow />
-
-          {/* Quick Log — unified logging */}
+          {/* Tasks & Quick Log — moved up for fast access */}
+          <TaskList />
           <QuickLog />
-
-          {/* C. Support Insight — soft balance signal */}
-          <SupportInsight />
 
           {/* ═══ ROLE-SPECIFIC CONTENT ═══ */}
           {isMor ? (
