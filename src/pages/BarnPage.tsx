@@ -88,7 +88,7 @@ function BornBarnPage({ ageWeeks, ageMonths }: { ageWeeks: number; ageMonths: nu
 
   const [completedLeaps, setCompletedLeaps] = useState<string[]>(() => {
     try {
-      const stored = localStorage.getItem("lille-completed-leaps");
+      const stored = localStorage.getItem("melo-achieved-leaps");
       return stored ? JSON.parse(stored) : [];
     } catch { return []; }
   });
@@ -99,7 +99,7 @@ function BornBarnPage({ ageWeeks, ageMonths }: { ageWeeks: number; ageMonths: nu
   const toggleLeapCompleted = (id: string) => {
     setCompletedLeaps((prev) => {
       const next = prev.includes(id) ? prev.filter((l) => l !== id) : [...prev, id];
-      localStorage.setItem("lille-completed-leaps", JSON.stringify(next));
+      localStorage.setItem("melo-achieved-leaps", JSON.stringify(next));
       return next;
     });
   };
