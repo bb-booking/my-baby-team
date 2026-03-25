@@ -1,5 +1,5 @@
 import { useLocation, Link } from "react-router-dom";
-import { useFamily } from "@/context/FamilyContext";
+import { useFamily, type ParentRole } from "@/context/FamilyContext";
 import {
   Home, Baby, Users, Settings, BookOpen, Calendar, CheckSquare,
   Lightbulb, Heart, Moon, ShoppingBag, Circle, Droplet,

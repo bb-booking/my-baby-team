@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { ProfileSwitcher } from "./ProfileSwitcher";
 import meloIcon from "@/assets/melo-icon.svg";
 
 interface AppHeaderProps {
@@ -15,17 +14,15 @@ export function AppHeader({ onBurgerClick }: AppHeaderProps) {
         boxShadow: "0 2px 20px hsl(30 20% 20% / 0.07)",
       }}
     >
-      {/* Profile switcher — left */}
-      <div className="flex-shrink-0">
-        <ProfileSwitcher />
-      </div>
+      {/* Spacer left */}
+      <div className="w-11 flex-shrink-0 md:hidden" />
 
       {/* Center: Logo SVG */}
       <Link to="/" className="absolute left-1/2 -translate-x-1/2 select-none group" aria-label="Gå til forsiden">
         <img
           src={meloIcon}
           alt="MELO"
-          className="h-40 w-auto object-contain transition-transform duration-300 group-hover:scale-105 group-active:scale-95"
+          className="h-20 w-auto object-contain transition-transform duration-300 group-hover:scale-105 group-active:scale-95"
         />
       </Link>
 
