@@ -4,7 +4,7 @@ import { useFamily } from "@/context/FamilyContext";
 import { useDiary } from "@/context/DiaryContext";
 import {
   Users, TrendingUp, MessageCircle, Moon, ArrowLeftRight,
-  Heart, Sparkles, CheckCircle2, Brain, HandHeart, RefreshCw
+  Heart, Sparkles, Brain, HandHeart, RefreshCw
 } from "lucide-react";
 import { TaskList } from "@/components/TaskList";
 
