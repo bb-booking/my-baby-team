@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ProfileSwitcher } from "./ProfileSwitcher";
-import meloIcon from "@/assets/melo-icon.png";
+import meloIcon from "@/assets/melo-icon.svg";
 
 interface AppHeaderProps {
   onBurgerClick: () => void;
