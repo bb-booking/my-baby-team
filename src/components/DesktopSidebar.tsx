@@ -113,7 +113,6 @@ export function DesktopSidebar({ open, onClose }: DesktopSidebarProps) {
     };
     setProfile(newProfile);
   };
-  const sections = getNavSections(profile.phase, profile.role);
 
   const phaseTagLabel = profile.phase === "pregnant"
     ? "GRAVID"
