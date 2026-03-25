@@ -5,7 +5,7 @@ import { Check, ChevronRight, ChevronLeft, AlertCircle, Lightbulb, Trophy, Star,
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 
-const STORAGE_KEY = "lille-completed-leaps";
+const STORAGE_KEY = "melo-achieved-leaps";
 const LEVEL_TITLES = ["", "Ny forælder", "Rutineret", "Erfaren", "Veteran", "Mester"];
 
 function getLevel(count: number) {
