@@ -7,6 +7,7 @@ import {
   Heart, Sparkles, Brain, HandHeart, RefreshCw
 } from "lucide-react";
 import { TaskList } from "@/components/TaskList";
+import NærværTips from "@/components/NærværTips";
 
 const conversationStarters = [
   "Hvad har du brug for mest fra mig lige nu?",
