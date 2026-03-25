@@ -79,8 +79,20 @@ interface WMMessage {
 }
 
 function getWhatMattersMessage(input: MessageInput): WMMessage {
-  const { isMor, childName, partnerName, babyAgeWeeks, activeSleep, nursingCount, lastSleepEnd, isOnLeave, partnerOnLeave, diaperCount, tasks } = input;
+  const { isMor, childName, partnerName, babyAgeWeeks, activeSleep, nursingCount, sleepMinutes, lastSleepEnd, isOnLeave, partnerOnLeave, diaperCount, tasks } = input;
   const hour = new Date().getHours();
+
+  // ══════════════════════════════════════════════
+  // PRIORITY 0: Rough nights — low total sleep logged
+  // ══════════════════════════════════════════════
+  if (sleepMinutes > 0 && sleepMinutes < 30 && hour >= 8 && hour < 14) {
+    return {
+      title: `Hold det simpelt i dag 💛`,
+      body: `I har haft hårde nætter. Det er okay at sænke ambitionerne — ${childName} har brug for jer, ikke perfektion.`,
+      link: "/sovn",
+      linkLabel: "Søvnoverblik",
+    };
+  }
 
   // ══════════════════════════════════════════════
   // PRIORITY 1: Sleep sweetspot (within 30 min)
@@ -575,41 +587,4 @@ export function DailyCheckIn() {
     </div>
   );
 }
-
-// ── FRICTION PREVENTION — detect patterns, show soft support ──
-export function FrictionAlert() {
-  const { tasks, morName, farName } = useFamily();
-  const { todaySleepMinutes } = useDiary();
-
-  // Check for warning signs
-  const today = new Date().toISOString().slice(0, 10);
-  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-
-  // Poor sleep pattern (less than 60 min logged over 2 days)
-  const lowSleep = todaySleepMinutes < 30;
-
-  // Same parent doing everything
-  const recentCompleted = tasks.filter(t => t.completed && t.dueDate >= yesterday);
-  const morDone = recentCompleted.filter(t => t.assignee === "mor").length;
-  const farDone = recentCompleted.filter(t => t.assignee === "far").length;
-  const imbalance = (morDone + farDone > 3) && (morDone === 0 || farDone === 0);
-
-  if (!lowSleep && !imbalance) return null;
-
-  const message = lowSleep
-    ? { emoji: "💤", text: "I har haft lidt hårde nætter. Hold det simpelt i dag — det er okay at sænke ambitionerne." }
-    : { emoji: "🤝", text: "Prøv at bytte en opgave i dag — variation hjælper jer begge." };
-
-  return (
-    <div className="rounded-2xl px-4 py-3 section-fade-in" style={{
-      background: "hsl(var(--clay) / 0.06)",
-      border: "1px solid hsl(var(--clay) / 0.12)",
-      animationDelay: "200ms",
-    }}>
-      <div className="flex items-start gap-3">
-        <span className="text-lg">{message.emoji}</span>
-        <p className="text-[0.78rem] text-foreground/70 leading-relaxed">{message.text}</p>
-      </div>
-    </div>
-  );
-}
+// FrictionAlert logic is now integrated into WhatMattersNow
