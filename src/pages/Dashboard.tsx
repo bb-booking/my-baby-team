@@ -14,11 +14,15 @@ import { da } from "date-fns/locale";
 import { getBabyInsight, getKnowledgeCards, getActiveLeap, getNextLeap } from "@/lib/phaseData";
 import { useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useSleepNotifications } from "@/hooks/useSleepNotifications";
 
 export default function Dashboard() {
   const { profile, phaseLabel, morName, farName, babyAgeWeeks, babyAgeMonths } = useFamily();
   const isMor = profile.role === "mor";
   const childName = profile.children?.[0]?.name;
+
+  // Activate sleep sweetspot notifications
+  useSleepNotifications();
 
   const displayPhase = childName
     ? `${phaseLabel} · ${childName}`
@@ -56,6 +60,9 @@ export default function Dashboard() {
 
           {/* A. What Matters Now — the ONE primary message */}
           <WhatMattersNow />
+
+          {/* Notification permission prompt */}
+          <NotificationPrompt childName={childName || "Baby"} />
 
           {/* Live sleep tracker — only when baby is sleeping */}
           <LiveSleepTracker childName={childName || "Baby"} />
@@ -111,6 +118,55 @@ export default function Dashboard() {
       )}
 
       <div className="h-20 md:h-0" />
+    </div>
+  );
+}
+
+// ── Notification Permission Prompt ──
+function NotificationPrompt({ childName }: { childName: string }) {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      setShow(true);
+    }
+  }, []);
+
+  if (!show) return null;
+
+  const handleEnable = async () => {
+    const result = await Notification.requestPermission();
+    setShow(false);
+    if (result === "granted") {
+      new Notification(`Notifikationer er slået til 🎉`, {
+        body: `Du får besked når ${childName}s søvnvindue er ved at lukke.`,
+        icon: "/favicon.ico",
+      });
+    }
+  };
+
+  return (
+    <div className="rounded-2xl px-4 py-3.5 section-fade-in" style={{
+      background: "hsl(var(--cream))",
+      border: "1px solid hsl(var(--stone-light))",
+    }}>
+      <div className="flex items-start gap-3">
+        <span className="text-lg">🔔</span>
+        <div className="flex-1">
+          <p className="text-[0.82rem] font-medium mb-0.5">Få besked om søvnvinduer</p>
+          <p className="text-[0.72rem] text-muted-foreground mb-2">
+            Vi giver dig et heads up 15 min før {childName} er klar til en lur.
+          </p>
+          <div className="flex gap-2">
+            <button onClick={handleEnable} className="text-[0.72rem] font-medium px-3 py-1.5 rounded-lg transition-all active:scale-95" style={{ background: "hsl(var(--moss))", color: "white" }}>
+              Slå til
+            </button>
+            <button onClick={() => setShow(false)} className="text-[0.72rem] text-muted-foreground px-3 py-1.5">
+              Ikke nu
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
