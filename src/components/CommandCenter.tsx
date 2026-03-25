@@ -6,13 +6,12 @@ import { getActiveLeap, getNextLeap } from "@/lib/phaseData";
 
 // ── A. WHAT MATTERS NOW — single primary message ──
 export function WhatMattersNow() {
-  const { profile, babyAgeWeeks, morName, farName, isOnLeave } = useFamily();
-  const { activeSleep, todayNursingCount, todaySleepMinutes, sleepLogs } = useDiary();
+  const { profile, babyAgeWeeks, morName, farName, isOnLeave, tasks } = useFamily();
+  const { activeSleep, todayNursingCount, todaySleepMinutes, sleepLogs, todayDiaperCount } = useDiary();
   const isMor = profile.role === "mor";
   const childName = profile.children?.[0]?.name || "baby";
   const partnerName = isMor ? farName : morName;
 
-  // Decision engine: determine the ONE most important thing right now
   const message = getWhatMattersMessage({
     isMor,
     childName,
@@ -24,6 +23,8 @@ export function WhatMattersNow() {
     lastSleepEnd: getLastSleepEnd(sleepLogs),
     isOnLeave: isOnLeave(profile.role),
     partnerOnLeave: isOnLeave(isMor ? "far" : "mor"),
+    diaperCount: todayDiaperCount,
+    tasks: tasks.map(t => ({ completed: t.completed, dueDate: t.dueDate, assignee: t.assignee, title: t.title })),
   });
 
   return (
