@@ -79,20 +79,8 @@ interface WMMessage {
 }
 
 function getWhatMattersMessage(input: MessageInput): WMMessage {
-  const { isMor, childName, partnerName, babyAgeWeeks, activeSleep, nursingCount, sleepMinutes, lastSleepEnd, isOnLeave, partnerOnLeave, diaperCount, tasks } = input;
+  const { isMor, childName, partnerName, babyAgeWeeks, activeSleep, nursingCount, lastSleepEnd, isOnLeave, partnerOnLeave, diaperCount, tasks } = input;
   const hour = new Date().getHours();
-
-  // ══════════════════════════════════════════════
-  // PRIORITY 0: Rough nights — low total sleep logged
-  // ══════════════════════════════════════════════
-  if (sleepMinutes > 0 && sleepMinutes < 30 && hour >= 8 && hour < 14) {
-    return {
-      title: `Hold det simpelt i dag 💛`,
-      body: `I har haft hårde nætter. Det er okay at sænke ambitionerne — ${childName} har brug for jer, ikke perfektion.`,
-      link: "/sovn",
-      linkLabel: "Søvnoverblik",
-    };
-  }
 
   // ══════════════════════════════════════════════
   // PRIORITY 1: Sleep sweetspot (within 30 min)
