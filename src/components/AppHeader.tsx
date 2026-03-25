@@ -20,19 +20,13 @@ export function AppHeader({ onBurgerClick }: AppHeaderProps) {
         <ProfileSwitcher />
       </div>
 
-      {/* Center: Icon + MELO */}
-      <Link to="/" className="flex items-center gap-2 select-none group absolute left-1/2 -translate-x-1/2" aria-label="Gå til forsiden">
+      {/* Center: Logo SVG */}
+      <Link to="/" className="absolute left-1/2 -translate-x-1/2 select-none group" aria-label="Gå til forsiden">
         <img
           src={meloIcon}
-          alt=""
-          className="w-8 h-8 object-contain transition-transform duration-300 group-hover:scale-105 group-active:scale-95"
+          alt="MELO"
+          className="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105 group-active:scale-95"
         />
-        <span
-          className="font-sans font-bold text-[1.05rem] tracking-[0.28em] uppercase leading-none"
-          style={{ color: "hsl(var(--moss))" }}
-        >
-          MELO
-        </span>
       </Link>
 
       {/* Burger — mobile only */}
