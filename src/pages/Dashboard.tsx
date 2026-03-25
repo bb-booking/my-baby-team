@@ -70,30 +70,16 @@ export default function Dashboard() {
           {/* ═══ ROLE-SPECIFIC CONTENT ═══ */}
           {isMor ? (
             <>
-              {/* Mom: Recovery support */}
               <MorRecoveryCard />
-
-              {/* Mom: Auto-support suggestions */}
               <MorAutoSupport />
-
-              {/* Mom: Feeding support */}
               <MorFeedingCard />
             </>
           ) : (
             <>
-              {/* Dad: Daily missions (no scores!) */}
-              <DadDailyMissions />
-
-              {/* Dad: Empathy card */}
+              {/* Dad: Empathy card — insight, not actions */}
               <MorEmpathyCard ageWeeks={babyAgeWeeks} morName={morName} />
-
-              {/* Dad: Insight — fun facts + caring nudges */}
-              <DadInsightCard />
             </>
           )}
-
-          {/* D. One Nudge — single actionable suggestion */}
-          <OneNudge />
 
           {/* Quick links */}
           <div className="grid grid-cols-2 gap-2.5 section-fade-in">
