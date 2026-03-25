@@ -14,11 +14,15 @@ import { da } from "date-fns/locale";
 import { getBabyInsight, getKnowledgeCards, getActiveLeap, getNextLeap } from "@/lib/phaseData";
 import { useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useSleepNotifications } from "@/hooks/useSleepNotifications";
 
 export default function Dashboard() {
   const { profile, phaseLabel, morName, farName, babyAgeWeeks, babyAgeMonths } = useFamily();
   const isMor = profile.role === "mor";
   const childName = profile.children?.[0]?.name;
+
+  // Activate sleep sweetspot notifications
+  useSleepNotifications();
 
   const displayPhase = childName
     ? `${phaseLabel} · ${childName}`
