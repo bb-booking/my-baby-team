@@ -59,9 +59,7 @@ export function MilestoneTimeline() {
                       ? (isMor ? "hsl(var(--clay) / 0.6)" : "hsl(var(--sage) / 0.6)")
                       : "hsl(var(--muted))",
                     color: m.unlocked ? "white" : "hsl(var(--muted-foreground))",
-                    ringColor: m.active
-                      ? (isMor ? "hsl(var(--clay-light))" : "hsl(var(--sage-light))")
-                      : undefined,
+                    ...(m.active ? { boxShadow: `0 0 0 4px ${isMor ? "hsl(var(--clay-light))" : "hsl(var(--sage-light))"}` } : {}),
                   }}
                 >
                   {m.unlocked ? (
