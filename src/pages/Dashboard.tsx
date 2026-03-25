@@ -61,6 +61,9 @@ export default function Dashboard() {
           {/* A. What Matters Now — the ONE primary message */}
           <WhatMattersNow />
 
+          {/* Notification permission prompt */}
+          <NotificationPrompt childName={childName || "Baby"} />
+
           {/* Live sleep tracker — only when baby is sleeping */}
           <LiveSleepTracker childName={childName || "Baby"} />
 
