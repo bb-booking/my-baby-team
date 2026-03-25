@@ -168,3 +168,36 @@
   0%, 100% { box-shadow: 0 0 0 0 rgba(58, 138, 90, 0.4); }
   50% { box-shadow: 0 0 0 6px rgba(58, 138, 90, 0); }
 }
+
+/* Level-up overlay pop animation */
+@keyframes levelupPop {
+  0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+  60% { opacity: 1; transform: scale(1.03) translateY(-4px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.levelup-pop {
+  animation: levelupPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Level-up emoji bounce */
+@keyframes emojiCelebrate {
+  0% { transform: scale(0.3) rotate(-15deg); opacity: 0; }
+  50% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+  70% { transform: scale(0.95) rotate(-2deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.levelup-emoji {
+  animation: emojiCelebrate 0.7s 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Next-leap teaser pulse */
+@keyframes nextLeapPulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+.next-leap-dot {
+  animation: nextLeapPulse 2.5s ease-in-out infinite;
+}
