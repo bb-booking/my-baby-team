@@ -6,8 +6,8 @@ import { TaskList } from "@/components/TaskList";
 import { PartnerNudge } from "@/components/PartnerNudge";
 import { MilestoneTimeline } from "@/components/MilestoneTimeline";
 import { MorRecoveryCard, MorAutoSupport, MorFeedingCard, MorMicroSupport } from "@/components/MorDashboardCards";
-import { MorEmpathyCard, DadDailyMissions, DadInsightCard } from "@/components/FarDashboardCards";
-import { WhatMattersNow, FrictionAlert, OneNudge } from "@/components/CommandCenter";
+import { MorEmpathyCard } from "@/components/FarDashboardCards";
+import { WhatMattersNow, FrictionAlert } from "@/components/CommandCenter";
 import { MessageCircle, Heart, Gamepad2, Square } from "lucide-react";
 import { format } from "date-fns";
 import { da } from "date-fns/locale";
@@ -70,30 +70,16 @@ export default function Dashboard() {
           {/* ═══ ROLE-SPECIFIC CONTENT ═══ */}
           {isMor ? (
             <>
-              {/* Mom: Recovery support */}
               <MorRecoveryCard />
-
-              {/* Mom: Auto-support suggestions */}
               <MorAutoSupport />
-
-              {/* Mom: Feeding support */}
               <MorFeedingCard />
             </>
           ) : (
             <>
-              {/* Dad: Daily missions (no scores!) */}
-              <DadDailyMissions />
-
-              {/* Dad: Empathy card */}
+              {/* Dad: Empathy card — insight, not actions */}
               <MorEmpathyCard ageWeeks={babyAgeWeeks} morName={morName} />
-
-              {/* Dad: Insight — fun facts + caring nudges */}
-              <DadInsightCard />
             </>
           )}
-
-          {/* D. One Nudge — single actionable suggestion */}
-          <OneNudge />
 
           {/* Quick links */}
           <div className="grid grid-cols-2 gap-2.5 section-fade-in">
