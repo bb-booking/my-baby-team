@@ -89,8 +89,8 @@ function getWhatMattersMessage(input: MessageInput): { title: string; body: stri
 
     if (timeLeft > 0 && timeLeft < 25) {
       return {
-        title: `Put ${childName} inden ${Math.round(timeLeft)} min`,
-        body: `Søvnvinduet lukker snart. Hold det roligt og dæmp lys.`,
+        title: `${childName} er klar til en lur om ~${Math.round(timeLeft)} min 💤`,
+        body: `Det kan være et godt tidspunkt at dæmpe lys og finde ro.`,
         link: "/sovn",
         linkLabel: "Søvnoverblik",
       };
@@ -101,19 +101,19 @@ function getWhatMattersMessage(input: MessageInput): { title: string; body: stri
   if (hour < 10) {
     if (!isMor && isOnLeave) {
       return {
-        title: `Godmorgen — tag morgenen med ${childName}`,
-        body: `${partnerName} har brug for lidt ekstra hvile. Du klarer det.`,
+        title: `Godmorgen ☀️`,
+        body: `Måske du kan tage morgenen med ${childName}, så ${partnerName} kan sove lidt ekstra?`,
       };
     }
     if (isMor && partnerOnLeave) {
       return {
-        title: `Godmorgen — ${partnerName} tager over`,
-        body: `Tag det roligt i morgen. Du har fortjent det.`,
+        title: `Godmorgen ☀️`,
+        body: `${partnerName} kan tage over i morgen — brug tiden på dig selv.`,
       };
     }
     return {
-      title: `Godmorgen — start dagen sammen`,
-      body: `Del morgenrutinen og find jeres rytme.`,
+      title: `Godmorgen ☀️`,
+      body: `God dag at dele morgenrutinen og finde jeres rytme sammen.`,
       link: "/sammen",
       linkLabel: "Se opgaver",
     };
@@ -123,14 +123,14 @@ function getWhatMattersMessage(input: MessageInput): { title: string; body: stri
   if (hour >= 12 && hour < 17) {
     if (isMor && isOnLeave) {
       return {
-        title: "Du har klaret det hele formiddagen",
-        body: "God tid for en pause. Selv 15 minutter gør en forskel.",
+        title: "Du fortjener en pause 🌿",
+        body: "Du har klaret hele formiddagen. Selv 15 minutter for dig selv gør en stor forskel.",
       };
     }
     if (!isMor && !isOnLeave) {
       return {
         title: `${partnerName} har haft ${childName} hele dagen`,
-        body: "Når du kommer hjem — tag over med det samme. Ingen telefon først.",
+        body: "Måske du kan tage over når du kommer hjem — det betyder mere end du tror.",
       };
     }
   }
