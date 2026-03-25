@@ -87,16 +87,13 @@ export default function Dashboard() {
               {/* Dad: Empathy card */}
               <MorEmpathyCard ageWeeks={babyAgeWeeks} morName={morName} />
 
-              {/* Dad: Relatable hook */}
-              <DadRelatableHook />
+              {/* Dad: Insight — fun facts + caring nudges */}
+              <DadInsightCard />
             </>
           )}
 
           {/* D. One Nudge — single actionable suggestion */}
           <OneNudge />
-
-          {/* Tasks */}
-          <TaskList />
 
           {/* Quick links */}
           <div className="grid grid-cols-2 gap-2.5 section-fade-in">
