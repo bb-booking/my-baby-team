@@ -96,7 +96,6 @@ Basér på forskning i forældresamarbejde, mental load og tilknytning. Tilpas t
         break;
 
       case "activity_suggestions": {
-        const { category } = await req.json().catch(() => ({}));
         const catMap: Record<string, string> = {
           "udenfor": "udendørs aktiviteter i naturen, frisk luft, ture, sanseoplevelser udenfor",
           "indenfor": "indendørs leg, regndagsaktiviteter, leg i hjemmet",
