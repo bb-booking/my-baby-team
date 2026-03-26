@@ -20,6 +20,7 @@ import ShopPage from "@/pages/ShopPage";
 import SovnPage from "@/pages/SovnPage";
 import ChatPage from "@/pages/ChatPage";
 import LegPage from "@/pages/LegPage";
+import IndstillingerPage from "@/pages/IndstillingerPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
                 <Route path="/shop" element={<ShopPage />} />
                 <Route path="/chat" element={<ChatPage />} />
                 <Route path="/leg" element={<LegPage />} />
+                <Route path="/indstillinger" element={<IndstillingerPage />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>

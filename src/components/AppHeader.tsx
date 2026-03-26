@@ -7,10 +7,8 @@ interface AppHeaderProps {
 
 export function AppHeader({ onBurgerClick }: AppHeaderProps) {
   return (
-    <header className="fixed top-0 left-0 right-0 h-16 z-50 flex items-center justify-between px-4"
+    <header className="fixed top-0 left-0 right-0 h-16 z-50 flex items-center justify-between px-4 bg-background border-b border-border"
       style={{
-        background: "hsl(37 30% 91%)",
-        borderBottom: "1px solid hsl(34 16% 82% / 0.5)",
         boxShadow: "0 2px 20px hsl(30 20% 20% / 0.07)",
       }}
     >
