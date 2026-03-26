@@ -210,7 +210,14 @@
     "yourBody": "Din krop",
     "bodyHealth": "Krop & helbred",
     "yourRole": "Din rolle",
-    "supportPrep": "Støtte & forberedelse"
+    "supportPrep": "Støtte & forberedelse",
+    "weekLabel": "UGE",
+    "babyGrowing": "Baby vokser dag for dag — alt er som det skal være.",
+    "thisWeek": "DENNE UGE",
+    "trimesterLabel": "{{num}}. trimester",
+    "trimShort1": "1. trim",
+    "trimShort2": "2. trim",
+    "trimShort3": "3. trim"
   },
   "barn": {
     "weeksLabel": "{{weeks}} UGER",
@@ -600,5 +607,30 @@
     "Du behøver ikke have styr på alt. Bare vær der.",
     "Små skridt tæller. Du er en fantastisk mor.",
     "Tag imod hjælp — det er styrke, ikke svaghed."
-  ]
+  ],
+  "dayLabels": ["Søn", "Man", "Tir", "Ons", "Tor", "Fre", "Lør"],
+  "weekProgress": {
+    "ofWeeks": "af {{total}} uger",
+    "babyIsNowLike": "Barnet er nu som",
+    "babySize": "Baby størrelse",
+    "trimesterBadge": "{{num}}. trimester"
+  },
+  "checkin": {
+    "howAreYou": "Hvordan har du det i dag?",
+    "good": "Godt",
+    "okay": "Okay",
+    "hard": "Svært",
+    "goodResponse": "Skønt! Nyd de gode øjeblikke 💛",
+    "okayResponse": "Helt fint. Én dag ad gangen.",
+    "hardResponse": "Tak fordi du mærker efter. Du gør det bedre end du tror."
+  },
+  "kalender": {
+    "nextLeap": "Næste tigerspring",
+    "levelUp": "LEVEL UP!",
+    "levelUpMsg": "Du har nået et nyt niveau! Fortsæt den fantastiske rejse 🌟",
+    "fantastic": "Fantastisk! 🎉",
+    "noCompletedTasks": "Ingen afsluttede opgaver endnu",
+    "noTasksDay": "Ingen opgaver denne dag ✨",
+    "addTo": "Tilføj til {{filter}}"
+  }
 }
