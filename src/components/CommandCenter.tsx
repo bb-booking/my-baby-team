@@ -3,11 +3,14 @@ import { useDiary } from "@/context/DiaryContext";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { getActiveLeap, getNextLeap } from "@/lib/phaseData";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
 // ── A. WHAT MATTERS NOW — single primary message ──
 export function WhatMattersNow() {
   const { profile, babyAgeWeeks, morName, farName, isOnLeave, tasks } = useFamily();
   const { activeSleep, todayNursingCount, todaySleepMinutes, sleepLogs, todayDiaperCount } = useDiary();
+  const { t } = useTranslation();
   const isMor = profile.role === "mor";
   const childName = profile.children?.[0]?.name || "baby";
   const partnerName = isMor ? farName : morName;
@@ -25,6 +28,7 @@ export function WhatMattersNow() {
     partnerOnLeave: isOnLeave(isMor ? "far" : "mor"),
     diaperCount: todayDiaperCount,
     tasks: tasks.map(t => ({ completed: t.completed, dueDate: t.dueDate, assignee: t.assignee, title: t.title })),
+    t,
   });
 
   return (
@@ -32,7 +36,7 @@ export function WhatMattersNow() {
       background: "linear-gradient(145deg, hsl(var(--moss)), hsl(var(--sage-dark)))",
     }}>
       <div className="px-5 py-5">
-        <p className="text-[0.55rem] tracking-[0.2em] uppercase text-white/50 mb-2">LIGE NU</p>
+        <p className="text-[0.55rem] tracking-[0.2em] uppercase text-white/50 mb-2">{t("commandCenter.rightNow")}</p>
         <p className="text-[1.15rem] font-medium text-white leading-snug mb-1">
           {message.title}
         </p>
@@ -69,6 +73,7 @@ interface MessageInput {
   partnerOnLeave: boolean;
   diaperCount: number;
   tasks: { completed: boolean; dueDate: string; assignee: string; title: string }[];
+  t: TFunction;
 }
 
 interface WMMessage {
@@ -79,12 +84,10 @@ interface WMMessage {
 }
 
 function getWhatMattersMessage(input: MessageInput): WMMessage {
-  const { isMor, childName, partnerName, babyAgeWeeks, activeSleep, nursingCount, lastSleepEnd, isOnLeave, partnerOnLeave, diaperCount, tasks } = input;
+  const { isMor, childName, partnerName, babyAgeWeeks, activeSleep, nursingCount, lastSleepEnd, isOnLeave, partnerOnLeave, diaperCount, tasks, t } = input;
   const hour = new Date().getHours();
 
-  // ══════════════════════════════════════════════
-  // PRIORITY 1: Sleep sweetspot (within 30 min)
-  // ══════════════════════════════════════════════
+  // PRIORITY 1: Sleep sweetspot
   if (!activeSleep && lastSleepEnd) {
     const minutesSinceWake = (Date.now() - lastSleepEnd) / 60000;
     const maxWakeWindow = babyAgeWeeks < 6 ? 60 : babyAgeWeeks < 12 ? 90 : babyAgeWeeks < 26 ? 120 : 150;
@@ -92,186 +95,169 @@ function getWhatMattersMessage(input: MessageInput): WMMessage {
 
     if (timeLeft > 0 && timeLeft < 30) {
       const who = isMor && !isOnLeave && partnerOnLeave
-        ? `Måske ${partnerName} kan putte?`
+        ? t("commandCenter.maybePut", { partnerName })
         : !isMor && isOnLeave
-        ? "Du kan tage denne."
+        ? t("commandCenter.youCanTake")
         : "";
       return {
-        title: `${childName} er klar til en lur om ~${Math.round(timeLeft)} min 💤`,
-        body: `Det kan være et godt tidspunkt at dæmpe lys og finde ro. ${who}`.trim(),
+        title: t("commandCenter.readyForNap", { childName, minutes: Math.round(timeLeft) }),
+        body: `${t("commandCenter.dimLights")} ${who}`.trim(),
         link: "/sovn",
-        linkLabel: "Søvnoverblik",
+        linkLabel: t("commandCenter.sleepOverview"),
       };
     }
   }
 
-  // Active sleep — suggest what to do
   if (activeSleep) {
     return {
-      title: `${childName} sover 💤`,
+      title: t("commandCenter.sleeping", { childName }),
       body: isMor
-        ? "Brug tiden på dig selv. Hvil, spis, eller bare vær."
-        : `God tid til at hjælpe ${partnerName} — eller tag en pause selv.`,
+        ? t("commandCenter.useMeTime")
+        : t("commandCenter.helpPartner", { partnerName }),
       link: "/sovn",
-      linkLabel: "Se søvndata",
+      linkLabel: t("commandCenter.seeSleepData"),
     };
   }
 
-  // ══════════════════════════════════════════════
-  // PRIORITY 2: Clinical flags (nursing/diaper)
-  // ══════════════════════════════════════════════
+  // PRIORITY 2: Clinical flags
   if (hour >= 14) {
-    // Low nursing count for age
     const minNursing = babyAgeWeeks < 6 ? 6 : babyAgeWeeks < 16 ? 5 : 4;
     if (nursingCount > 0 && nursingCount < minNursing && hour >= 16) {
       return {
-        title: `${childName} har fået ${nursingCount} måltider i dag`,
-        body: `Anbefalingen er mindst ${minNursing} dagligt i denne alder. Måske tid til endnu et måltid?`,
+        title: t("commandCenter.mealsToday", { childName, count: nursingCount }),
+        body: t("commandCenter.minMeals", { min: minNursing }),
         link: "/dagbog",
-        linkLabel: "Se dagbogen",
+        linkLabel: t("commandCenter.seeDiary"),
       };
     }
 
-    // Low diaper count
     if (diaperCount > 0 && diaperCount < 3 && hour >= 16 && babyAgeWeeks < 12) {
       return {
-        title: `Kun ${diaperCount} bleskift logget i dag`,
-        body: `Forventer typisk 4-6+ våde bleer dagligt. Hold øje med at ${childName} er godt hydreret.`,
+        title: t("commandCenter.fewDiapers", { count: diaperCount }),
+        body: t("commandCenter.expectDiapers", { childName }),
         link: "/dagbog",
-        linkLabel: "Log bleskift",
+        linkLabel: t("commandCenter.logDiaper"),
       };
     }
   }
 
-  // ══════════════════════════════════════════════
-  // PRIORITY 3: Tiger leap insights
-  // ══════════════════════════════════════════════
+  // PRIORITY 3: Tiger leap
   const activeLeap = getActiveLeap(babyAgeWeeks);
   if (activeLeap) {
     const leapTips = isMor
-      ? `Ekstra nærhed og tålmodighed hjælper ${childName} igennem.`
-      : `${childName} kan være ekstra klyngende. Hold fast — det er en fase.`;
+      ? t("commandCenter.leapTipMom", { childName })
+      : t("commandCenter.leapTipDad", { childName });
     return {
-      title: `${activeLeap.emoji} Tigerspring: ${activeLeap.title}`,
+      title: t("commandCenter.leapTitle", { emoji: activeLeap.emoji, title: activeLeap.title }),
       body: leapTips,
       link: "/barn",
-      linkLabel: "Se tigerspring",
+      linkLabel: t("commandCenter.seeLeaps"),
     };
   }
 
-  // ══════════════════════════════════════════════
-  // PRIORITY 4: Partner support (role-specific)
-  // ══════════════════════════════════════════════
+  // PRIORITY 4: Partner support
   if (hour >= 12 && hour < 20) {
     if (isMor && isOnLeave && !partnerOnLeave && hour >= 15) {
       return {
-        title: "Du har klaret dagen 💚",
-        body: `Når ${partnerName} kommer hjem, prøv at sige hvad du har mest brug for. Det er ikke at klage — det er at kommunikere.`,
+        title: t("commandCenter.youMadeIt"),
+        body: t("commandCenter.tellPartner", { partnerName }),
         link: "/sammen",
-        linkLabel: "Samarbejde",
+        linkLabel: t("together.title"),
       };
     }
     if (!isMor && !isOnLeave && hour >= 14) {
       return {
-        title: `${partnerName} har haft ${childName} hele dagen`,
-        body: `Prøv at tage over med det samme, du kommer hjem. Selv 30 minutters pause gør en kæmpe forskel.`,
+        title: t("commandCenter.partnerHadBaby", { partnerName, childName }),
+        body: t("commandCenter.takeOver"),
         link: "/sammen",
-        linkLabel: "Se opgaver",
+        linkLabel: t("commandCenter.seeTasks"),
       };
     }
     if (!isMor && isOnLeave) {
       return {
-        title: `Bliv hands-on med ${childName} 🙌`,
-        body: `Brug din barselsdag proaktivt — tag bad, gåtur eller leg. Din binding styrkes hvert minut.`,
+        title: t("commandCenter.handsOn", { childName }),
+        body: t("commandCenter.useLeaveDay"),
         link: "/leg",
-        linkLabel: "Leg & aktiviteter",
+        linkLabel: t("play.title"),
       };
     }
   }
 
-  // ══════════════════════════════════════════════
-  // PRIORITY 5: Play & activity suggestions
-  // ══════════════════════════════════════════════
+  // PRIORITY 5: Play & activity
   if (hour >= 9 && hour < 17 && lastSleepEnd) {
     const minutesSinceWake = (Date.now() - lastSleepEnd) / 60000;
     const maxWake = babyAgeWeeks < 6 ? 60 : babyAgeWeeks < 12 ? 90 : babyAgeWeeks < 26 ? 120 : 150;
     const inWakeWindow = minutesSinceWake > 10 && minutesSinceWake < maxWake * 0.6;
 
     if (inWakeWindow) {
-      const activity = getAgeActivity(babyAgeWeeks, childName);
+      const activity = getAgeActivity(babyAgeWeeks, childName, t);
       return {
         title: activity.title,
         body: activity.body,
         link: "/leg",
-        linkLabel: "Flere aktiviteter",
+        linkLabel: t("commandCenter.moreActivities"),
       };
     }
   }
 
-  // ══════════════════════════════════════════════
   // PRIORITY 6: Daily tasks
-  // ══════════════════════════════════════════════
   const today = new Date().toISOString().slice(0, 10);
   const todayTasks = tasks.filter(t => t.dueDate === today && !t.completed);
   const myTasks = todayTasks.filter(t => t.assignee === (isMor ? "mor" : "far") || t.assignee === "fælles");
 
   if (myTasks.length > 0) {
     return {
-      title: `${myTasks.length} opgave${myTasks.length > 1 ? "r" : ""} i dag 📋`,
-      body: `Du har ting på listen — tag dem i det tempo der passer.`,
+      title: t("commandCenter.tasksToday", { count: myTasks.length, plural: myTasks.length > 1 ? "s" : "" }),
+      body: t("commandCenter.tasksTodayDesc"),
       link: "/sammen",
-      linkLabel: "Se alle opgaver",
+      linkLabel: t("commandCenter.seeAllTasks"),
     };
   }
 
-  // ══════════════════════════════════════════════
-  // PRIORITY 7: Time-based encouragement (fallback)
-  // ══════════════════════════════════════════════
-  return getTimeBasedFallback(hour, isMor, childName, partnerName, babyAgeWeeks);
+  // PRIORITY 7: Time-based fallback
+  return getTimeBasedFallback(hour, isMor, childName, partnerName, babyAgeWeeks, t);
 }
 
-// ── Age-appropriate activity suggestions ──
-function getAgeActivity(ageWeeks: number, childName: string): { title: string; body: string } {
+function getAgeActivity(ageWeeks: number, childName: string, t: TFunction): { title: string; body: string } {
   if (ageWeeks < 6) return {
-    title: `Tid til nærvær med ${childName} 🤲`,
-    body: "Hud-mod-hud, øjenkontakt og rolige lyde. Det er alt der skal til lige nu.",
+    title: t("commandCenter.closenessTime", { childName }),
+    body: t("commandCenter.closenessDesc"),
   };
   if (ageWeeks < 12) return {
-    title: `Tummy time med ${childName} 💪`,
-    body: "3-5 minutter på maven styrker nakke og ryg. Læg dig ved siden af!",
+    title: t("commandCenter.tummyTime", { childName }),
+    body: t("commandCenter.tummyDesc"),
   };
   if (ageWeeks < 20) return {
-    title: `Sanselegetid med ${childName} 🎵`,
-    body: "Prøv en rangle, synge en sang, eller vis kontrastbilleder. Alt er nyt og spændende!",
+    title: t("commandCenter.sensoryPlay", { childName }),
+    body: t("commandCenter.sensoryDesc"),
   };
   if (ageWeeks < 30) return {
-    title: `Udforsk sammen med ${childName} 🧩`,
-    body: "Stof-bøger, gribelegetøj, eller bare udforsk ting i køkkenet. Alt er en opdagelse!",
+    title: t("commandCenter.exploreWith", { childName }),
+    body: t("commandCenter.exploreDesc"),
   };
   return {
-    title: `Leg med ${childName} 🎈`,
-    body: "Byg tårne, leg tittit-bansen, eller gå på opdagelse. Leg er læring!",
+    title: t("commandCenter.playWith", { childName }),
+    body: t("commandCenter.playDesc"),
   };
 }
 
-// ── Time-based fallback messages ──
-function getTimeBasedFallback(hour: number, isMor: boolean, childName: string, partnerName: string, ageWeeks: number): WMMessage {
+function getTimeBasedFallback(hour: number, isMor: boolean, childName: string, partnerName: string, ageWeeks: number, t: TFunction): WMMessage {
   if (hour < 7) {
     return {
-      title: "Stille morgenstund 🌅",
+      title: t("commandCenter.quietMorning"),
       body: isMor
-        ? `Mærk efter hvad du har brug for i dag. Du behøver ikke have en plan.`
-        : `Stille morgen med ${childName}? En gåtur i barnevognen giver ro for jer begge.`,
+        ? t("commandCenter.feelMorning")
+        : t("commandCenter.morningWalk", { childName }),
       link: "/chat",
-      linkLabel: "Spørg Melo",
+      linkLabel: t("commandCenter.askMelo"),
     };
   }
   if (hour < 10) {
     return {
-      title: `Godmorgen ☀️`,
-      body: `God dag at dele morgenrutinen og finde jeres rytme sammen.`,
+      title: t("commandCenter.goodMorning"),
+      body: t("commandCenter.shareRoutine"),
       link: "/sammen",
-      linkLabel: "Se opgaver",
+      linkLabel: t("commandCenter.seeTasks"),
     };
   }
   if (hour < 17) {
@@ -279,53 +265,57 @@ function getTimeBasedFallback(hour: number, isMor: boolean, childName: string, p
     if (nextLeap) {
       const weeksUntil = nextLeap.weekStart - ageWeeks;
       return {
-        title: `Næste tigerspring om ${weeksUntil} ${weeksUntil === 1 ? "uge" : "uger"} ${nextLeap.emoji}`,
+        title: t("commandCenter.nextLeap", {
+          weeks: weeksUntil,
+          weekWord: weeksUntil === 1 ? t("commandCenter.weekSingular") : t("commandCenter.weekPlural"),
+          emoji: nextLeap.emoji,
+        }),
         body: `"${nextLeap.title}" — ${nextLeap.description.slice(0, 80)}...`,
         link: "/barn",
-        linkLabel: "Læs mere",
+        linkLabel: t("commandCenter.readMore"),
       };
     }
     return {
-      title: `God dag med ${childName} 🌿`,
-      body: "I finder jeres rytme. Én ting ad gangen.",
+      title: t("commandCenter.goodDayWith", { childName }),
+      body: t("commandCenter.oneThingAtATime"),
       link: "/leg",
-      linkLabel: "Leg & aktiviteter",
+      linkLabel: t("play.title"),
     };
   }
   if (hour < 21) {
     return {
-      title: `Aftenrutine — hold det enkelt 🌙`,
-      body: `Bad, ble, nattøj, ro. ${childName} mærker jeres stemning.`,
+      title: t("commandCenter.eveningRoutine"),
+      body: t("commandCenter.eveningDesc", { childName }),
       link: "/sovn",
-      linkLabel: "Søvnguide",
+      linkLabel: t("commandCenter.sleepGuide"),
     };
   }
   return {
-    title: "God nat, I klarer det 💛",
+    title: t("commandCenter.goodNight"),
     body: isMor
-      ? "Hvil dig. I morgen er en ny dag."
-      : `Sørg for at ${partnerName} også får sovet. I er et team.`,
+      ? t("commandCenter.restMom")
+      : t("commandCenter.partnerSleep", { partnerName }),
     link: "/chat",
-    linkLabel: "Spørg Melo",
+    linkLabel: t("commandCenter.askMelo"),
   };
 }
 
-// ── B. TODAY'S FLOW — who does what ──
+// ── B. TODAY'S FLOW ──
 export function TodaysFlow() {
   const { profile, morName, farName, isOnLeave } = useFamily();
+  const { t } = useTranslation();
   const hour = new Date().getHours();
   const childName = profile.children?.[0]?.name || "baby";
 
   const morLeave = isOnLeave("mor");
   const farLeave = isOnLeave("far");
 
-  // Generate simple flow based on leave status
-  const slots = generateFlowSlots(morName, farName, morLeave, farLeave, childName);
+  const slots = generateFlowSlots(morName, farName, morLeave, farLeave, childName, t);
   const currentSlotIndex = slots.findIndex(s => hour >= s.startHour && hour < s.endHour);
 
   return (
     <div className="card-soft section-fade-in" style={{ animationDelay: "40ms" }}>
-      <p className="text-[0.55rem] tracking-[0.18em] uppercase text-muted-foreground mb-3">DAGENS FLOW</p>
+      <p className="text-[0.55rem] tracking-[0.18em] uppercase text-muted-foreground mb-3">{t("flow.todaysFlow")}</p>
 
       <div className="space-y-1">
         {slots.map((slot, i) => {
@@ -350,7 +340,7 @@ export function TodaysFlow() {
                 <span className="text-[0.55rem] tracking-[0.1em] uppercase px-2 py-0.5 rounded-full" style={{
                   background: "hsl(var(--moss))",
                   color: "white",
-                }}>NU</span>
+                }}>{t("flow.now")}</span>
               )}
             </div>
           );
@@ -360,54 +350,47 @@ export function TodaysFlow() {
   );
 }
 
-function generateFlowSlots(morName: string, farName: string, morLeave: boolean, farLeave: boolean, childName: string) {
-  // Both on leave — balanced
+function generateFlowSlots(morName: string, farName: string, morLeave: boolean, farLeave: boolean, childName: string, t: TFunction) {
   if (morLeave && farLeave) {
     return [
-      { startHour: 6, endHour: 10, icon: "🌅", label: "Morgen", who: farName },
-      { startHour: 10, endHour: 13, icon: "☀️", label: "Formiddag", who: morName },
-      { startHour: 13, endHour: 17, icon: "🌤️", label: "Eftermiddag", who: farName },
-      { startHour: 17, endHour: 20, icon: "🌆", label: "Aften", who: "Sammen" },
-      { startHour: 20, endHour: 6, icon: "🌙", label: "Nat", who: "Skiftes" },
+      { startHour: 6, endHour: 10, icon: "🌅", label: t("flow.morning"), who: farName },
+      { startHour: 10, endHour: 13, icon: "☀️", label: t("flow.forenoon"), who: morName },
+      { startHour: 13, endHour: 17, icon: "🌤️", label: t("flow.afternoon"), who: farName },
+      { startHour: 17, endHour: 20, icon: "🌆", label: t("flow.evening"), who: t("flow.together") },
+      { startHour: 20, endHour: 6, icon: "🌙", label: t("flow.night"), who: t("flow.takesTurns") },
     ];
   }
-
-  // Mom on leave, dad working
   if (morLeave && !farLeave) {
     return [
-      { startHour: 6, endHour: 8, icon: "🌅", label: "Morgen", who: farName },
-      { startHour: 8, endHour: 16, icon: "☀️", label: "Dag", who: morName },
-      { startHour: 16, endHour: 20, icon: "🌆", label: "Sen eftm. + aften", who: farName },
-      { startHour: 20, endHour: 6, icon: "🌙", label: "Nat", who: "Skiftes" },
+      { startHour: 6, endHour: 8, icon: "🌅", label: t("flow.morning"), who: farName },
+      { startHour: 8, endHour: 16, icon: "☀️", label: t("flow.day"), who: morName },
+      { startHour: 16, endHour: 20, icon: "🌆", label: t("flow.lateAfternoon"), who: farName },
+      { startHour: 20, endHour: 6, icon: "🌙", label: t("flow.night"), who: t("flow.takesTurns") },
     ];
   }
-
-  // Dad on leave, mom working
   if (!morLeave && farLeave) {
     return [
-      { startHour: 6, endHour: 8, icon: "🌅", label: "Morgen", who: morName },
-      { startHour: 8, endHour: 16, icon: "☀️", label: "Dag", who: farName },
-      { startHour: 16, endHour: 20, icon: "🌆", label: "Sen eftm. + aften", who: morName },
-      { startHour: 20, endHour: 6, icon: "🌙", label: "Nat", who: "Skiftes" },
+      { startHour: 6, endHour: 8, icon: "🌅", label: t("flow.morning"), who: morName },
+      { startHour: 8, endHour: 16, icon: "☀️", label: t("flow.day"), who: farName },
+      { startHour: 16, endHour: 20, icon: "🌆", label: t("flow.lateAfternoon"), who: morName },
+      { startHour: 20, endHour: 6, icon: "🌙", label: t("flow.night"), who: t("flow.takesTurns") },
     ];
   }
-
-  // Neither on leave — coordination
   return [
-    { startHour: 6, endHour: 8, icon: "🌅", label: "Morgen", who: "Skiftes" },
-    { startHour: 8, endHour: 16, icon: "☀️", label: "Dag", who: "Passer/institution" },
-    { startHour: 16, endHour: 20, icon: "🌆", label: "Aften", who: "Sammen" },
-    { startHour: 20, endHour: 6, icon: "🌙", label: "Nat", who: "Skiftes" },
+    { startHour: 6, endHour: 8, icon: "🌅", label: t("flow.morning"), who: t("flow.takesTurns") },
+    { startHour: 8, endHour: 16, icon: "☀️", label: t("flow.day"), who: t("flow.daycare") },
+    { startHour: 16, endHour: 20, icon: "🌆", label: t("flow.evening"), who: t("flow.together") },
+    { startHour: 20, endHour: 6, icon: "🌙", label: t("flow.night"), who: t("flow.takesTurns") },
   ];
 }
 
-// ── C. SUPPORT INSIGHT — soft, non-judging balance signal ──
+// ── C. SUPPORT INSIGHT ──
 export function SupportInsight() {
   const { tasks, morName, farName, profile } = useFamily();
   const { todayNursingCount, todayDiaperCount } = useDiary();
+  const { t } = useTranslation();
   const isMor = profile.role === "mor";
 
-  // Calculate soft balance signal from task completion patterns (last 7 days)
   const now = new Date();
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
   const recentTasks = tasks.filter(t => t.completed && t.dueDate >= weekAgo);
@@ -415,15 +398,13 @@ export function SupportInsight() {
   const farTasks = recentTasks.filter(t => t.assignee === "far").length;
   const total = morTasks + farTasks;
 
-  // Determine insight — NEVER show percentages or blame
   let insight: { emoji: string; text: string; action: string; actionLink?: string } | null = null;
 
   if (total < 3) {
-    // Not enough data
     insight = {
       emoji: "🌱",
-      text: "Brug opgavelisten til at synliggøre hvem der gør hvad — det hjælper jer begge.",
-      action: "Se opgaver",
+      text: t("support.useTaskList"),
+      action: t("support.seeTasks"),
       actionLink: "/sammen",
     };
   } else if (total > 0) {
@@ -431,21 +412,21 @@ export function SupportInsight() {
     if (ratio > 0.7) {
       insight = {
         emoji: "🤝",
-        text: "Det ser ud til at den ene af jer har haft lidt ekstra den seneste uge. Måske I kan bytte en rutine i dag?",
-        action: "Fordel opgaver",
+        text: t("support.momHasMore"),
+        action: t("support.distributeTasks"),
         actionLink: "/sammen",
       };
     } else if (ratio < 0.3) {
       insight = {
         emoji: "🤝",
-        text: "Det ser ud til at den ene af jer har taget lidt ekstra. Sørg for at begge får pauser.",
-        action: "Se fordeling",
+        text: t("support.dadHasMore"),
+        action: t("support.seeDistribution"),
         actionLink: "/sammen",
       };
     } else {
       insight = {
         emoji: "💚",
-        text: "I har fordelt tingene godt den seneste uge. Bliv ved med at snakke om det.",
+        text: t("support.balanced"),
         action: "",
       };
     }
@@ -474,15 +455,16 @@ export function SupportInsight() {
   );
 }
 
-// ── D. ONE NUDGE — single actionable suggestion ──
+// ── D. ONE NUDGE ──
 export function OneNudge() {
   const { profile, morName, farName, isOnLeave, babyAgeWeeks } = useFamily();
   const { todaySleepMinutes } = useDiary();
+  const { t } = useTranslation();
   const isMor = profile.role === "mor";
   const childName = profile.children?.[0]?.name || "baby";
   const partnerName = isMor ? farName : morName;
 
-  const nudge = getNudge(isMor, childName, partnerName, babyAgeWeeks, isOnLeave(profile.role), todaySleepMinutes);
+  const nudge = getNudge(isMor, childName, partnerName, t);
 
   return (
     <div className="rounded-2xl px-4 py-3.5 section-fade-in" style={{
@@ -503,41 +485,27 @@ export function OneNudge() {
   );
 }
 
-function getNudge(isMor: boolean, childName: string, partnerName: string, ageWeeks: number, onLeave: boolean, sleepMinutes: number) {
-  const hour = new Date().getHours();
+function getNudge(isMor: boolean, childName: string, partnerName: string, t: TFunction) {
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
 
   if (isMor) {
-    const morNudges = [
-      { emoji: "☕", text: "Tag 15 minutter for dig selv", detail: "Du behøver ikke en grund. Bare gør det." },
-      { emoji: "🚶‍♀️", text: "Gå en tur — alene", detail: "Frisk luft og stilhed gør underværker." },
-      { emoji: "💬", text: `Fortæl ${partnerName} hvad du har brug for`, detail: "At bede om hjælp er styrke, ikke svaghed." },
-      { emoji: "🛁", text: "Bad eller varm drik", detail: "Små ting der føles store lige nu." },
-      { emoji: "📝", text: "Skriv én ting du er taknemmelig for", detail: "Det ændrer perspektivet." },
-    ];
-    return morNudges[dayOfYear % morNudges.length];
+    const nudges = t("nudge.momNudges", { returnObjects: true, partnerName }) as any[];
+    return nudges[dayOfYear % nudges.length];
   }
 
-  const farNudges = [
-    { emoji: "🏃", text: `Tag ${childName} med på en kort gåtur`, detail: `${partnerName} får en pause — I får frisk luft.` },
-    { emoji: "💬", text: `Sig noget rart til ${partnerName}`, detail: "'Jeg ser alt det du gør' virker altid." },
-    { emoji: "🍳", text: "Lav aftensmad i dag", detail: "Praktisk hjælp > store ord." },
-    { emoji: "🌙", text: "Tag aftenrutinen i aften", detail: `Bad, ble, nattøj — du klarer det, ${childName} elsker det.` },
-    { emoji: "🫂", text: `Giv ${partnerName} en fuld pause`, detail: "Bare 30 minutter uden ansvar gør en kæmpe forskel." },
-    { emoji: "👀", text: "Se hvad der skal gøres — og gør det", detail: "Ingen huskeliste. Bare gør det." },
-  ];
-
-  return farNudges[dayOfYear % farNudges.length];
+  const nudges = t("nudge.dadNudges", { returnObjects: true, childName, partnerName }) as any[];
+  return nudges[dayOfYear % nudges.length];
 }
 
-// ── DAILY CHECK-IN — very light mood check ──
+// ── DAILY CHECK-IN ──
 export function DailyCheckIn() {
   const { addCheckIn, todayCheckIn, profile } = useFamily();
+  const { t } = useTranslation();
 
   const moods = [
-    { emoji: "😊", label: "Godt", response: "Skønt! Nyd de gode øjeblikke 💛" },
-    { emoji: "😐", label: "Okay", response: "Helt fint. Én dag ad gangen." },
-    { emoji: "😔", label: "Svært", response: "Tak fordi du mærker efter. Du gør det bedre end du tror." },
+    { emoji: "😊", label: t("checkin.good"), response: t("checkin.goodResponse") },
+    { emoji: "😐", label: t("checkin.okay"), response: t("checkin.okayResponse") },
+    { emoji: "😔", label: t("checkin.hard"), response: t("checkin.hardResponse") },
   ];
 
   if (todayCheckIn) {
@@ -558,7 +526,7 @@ export function DailyCheckIn() {
 
   return (
     <div className="card-soft section-fade-in" style={{ animationDelay: "160ms" }}>
-      <p className="text-[0.78rem] font-medium mb-2.5">Hvordan har du det i dag?</p>
+      <p className="text-[0.78rem] font-medium mb-2.5">{t("checkin.howAreYou")}</p>
       <div className="flex gap-2">
         {moods.map(m => (
           <button
@@ -575,4 +543,3 @@ export function DailyCheckIn() {
     </div>
   );
 }
-// FrictionAlert logic is now integrated into WhatMattersNow

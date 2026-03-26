@@ -3,34 +3,11 @@ import { useFamily, type TaskAssignee, type TaskRecurrence } from "@/context/Fam
 import { Check, Plus, X, ChevronDown, ChevronLeft, ChevronRight, User, Users, Pencil, Trash2, RefreshCw, CalendarDays, Calendar, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, addDays, subDays, isToday, isTomorrow, isYesterday, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay } from "date-fns";
-import { da } from "date-fns/locale";
+import { da, enUS } from "date-fns/locale";
 import confetti from "canvas-confetti";
+import { useTranslation } from "react-i18next";
 
 type ViewMode = "day" | "week";
-
-const assigneeOptions: { value: TaskAssignee; label: string; icon: React.ReactNode }[] = [
-  { value: "mor", label: "Mor", icon: <User className="w-3 h-3" /> },
-  { value: "far", label: "Far", icon: <User className="w-3 h-3" /> },
-  { value: "fælles", label: "Fælles", icon: <Users className="w-3 h-3" /> },
-];
-
-const recurrenceOptions: { value: TaskRecurrence; label: string }[] = [
-  { value: "never", label: "Aldrig" },
-  { value: "daily", label: "Dagligt" },
-  { value: "weekly", label: "Ugentligt" },
-  { value: "monthly", label: "Månedligt" },
-];
-
-function recurrenceLabel(r: TaskRecurrence) {
-  return recurrenceOptions.find(o => o.value === r)?.label || "";
-}
-
-function formatDateLabel(date: Date): string {
-  if (isToday(date)) return "I dag";
-  if (isTomorrow(date)) return "I morgen";
-  if (isYesterday(date)) return "I går";
-  return format(date, "EEEE d. MMM", { locale: da });
-}
 
 function toDateStr(date: Date): string {
   return format(date, "yyyy-MM-dd");
@@ -49,6 +26,7 @@ function AssigneeChip({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -58,7 +36,7 @@ function AssigneeChip({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const displayName = assignee === "mor" ? morName : assignee === "far" ? farName : "Fælles";
+  const displayName = assignee === "mor" ? morName : assignee === "far" ? farName : t("tasks.shared");
 
   return (
     <div className="relative" ref={ref}>
@@ -83,7 +61,11 @@ function AssigneeChip({
 
       {open && (
         <div className="absolute right-0 top-full mt-1 z-50 bg-background rounded-xl border border-[hsl(var(--stone-light))] shadow-lg overflow-hidden min-w-[120px]">
-          {assigneeOptions.map((opt) => (
+          {([
+            { value: "mor" as TaskAssignee, icon: <User className="w-3 h-3" /> },
+            { value: "far" as TaskAssignee, icon: <User className="w-3 h-3" /> },
+            { value: "fælles" as TaskAssignee, icon: <Users className="w-3 h-3" /> },
+          ]).map((opt) => (
             <button
               key={opt.value}
               onClick={(e) => {
@@ -97,7 +79,7 @@ function AssigneeChip({
               )}
             >
               {opt.icon}
-              <span>{opt.value === "mor" ? morName : opt.value === "far" ? farName : "Fælles"}</span>
+              <span>{opt.value === "mor" ? morName : opt.value === "far" ? farName : t("tasks.shared")}</span>
               {assignee === opt.value && <Check className="w-3 h-3 ml-auto text-[hsl(var(--moss))]" />}
             </button>
           ))}
@@ -121,6 +103,7 @@ function AddTaskInline({ onAdd, onCancel, morName, farName, defaultAssignee, com
   const [assignee, setAssignee] = useState<TaskAssignee>(defaultAssignee);
   const [recurrence, setRecurrence] = useState<TaskRecurrence>("never");
   const inputRef = useRef<HTMLInputElement>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -134,6 +117,19 @@ function AddTaskInline({ onAdd, onCancel, morName, farName, defaultAssignee, com
     }
   };
 
+  const recurrenceOptions: { value: TaskRecurrence; label: string }[] = [
+    { value: "never", label: t("tasks.never") },
+    { value: "daily", label: t("tasks.daily") },
+    { value: "weekly", label: t("tasks.weekly") },
+    { value: "monthly", label: t("tasks.monthly") },
+  ];
+
+  const assigneeOptions: { value: TaskAssignee; icon: React.ReactNode }[] = [
+    { value: "mor", icon: <User className="w-3 h-3" /> },
+    { value: "far", icon: <User className="w-3 h-3" /> },
+    { value: "fælles", icon: <Users className="w-3 h-3" /> },
+  ];
+
   return (
     <div className={cn(
       "rounded-2xl border border-[hsl(var(--sage))] bg-[hsl(var(--sage-light))]/30 p-3 space-y-2.5",
@@ -145,11 +141,10 @@ function AddTaskInline({ onAdd, onCancel, morName, farName, defaultAssignee, com
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-        placeholder="Hvad skal gøres?"
+        placeholder={t("tasks.whatToDo")}
         maxLength={100}
         className="w-full bg-background rounded-lg border border-[hsl(var(--stone-light))] px-3 py-2 text-[0.85rem] focus:outline-none focus:border-[hsl(var(--sage))] transition-colors"
       />
-      {/* Assignee row */}
       <div className="flex gap-1.5 flex-wrap">
         {assigneeOptions.map((opt) => (
           <button
@@ -163,11 +158,10 @@ function AddTaskInline({ onAdd, onCancel, morName, farName, defaultAssignee, com
             )}
           >
             {opt.icon}
-            {opt.value === "mor" ? morName : opt.value === "far" ? farName : "Fælles"}
+            {opt.value === "mor" ? morName : opt.value === "far" ? farName : t("tasks.shared")}
           </button>
         ))}
       </div>
-      {/* Recurrence row */}
       <div className="flex gap-1.5 flex-wrap">
         {recurrenceOptions.map((opt) => (
           <button
@@ -185,13 +179,12 @@ function AddTaskInline({ onAdd, onCancel, morName, farName, defaultAssignee, com
           </button>
         ))}
       </div>
-      {/* Actions */}
       <div className="flex items-center justify-end gap-1.5">
         <button
           onClick={onCancel}
           className="px-3 py-1.5 rounded-lg text-[0.7rem] text-muted-foreground hover:bg-[hsl(var(--stone-lighter))] transition-colors"
         >
-          Annullér
+          {t("tasks.cancel")}
         </button>
         <button
           onClick={handleAdd}
@@ -203,7 +196,7 @@ function AddTaskInline({ onAdd, onCancel, morName, farName, defaultAssignee, com
               : "bg-muted text-muted-foreground cursor-not-allowed"
           )}
         >
-          Tilføj
+          {t("tasks.add")}
         </button>
       </div>
     </div>
@@ -214,6 +207,9 @@ type FilterTab = "alle" | "mor" | "far" | "fælles" | "afsluttet";
 
 export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externalShowAdd?: boolean; onExternalShowAddChange?: (v: boolean) => void } = {}) {
   const { tasks, toggleTask, removeTask, reassignTask, addTask, editTaskTitle, moveTaskToDate, morName, farName, profile } = useFamily();
+  const { t, i18n } = useTranslation();
+  const dateFnsLocale = i18n.language === "en" ? enUS : da;
+
   const [internalShowAdd, setInternalShowAdd] = useState(false);
   const showAdd = externalShowAdd ?? internalShowAdd;
   const setShowAdd = (v: boolean) => { onExternalShowAddChange ? onExternalShowAddChange(v) : setInternalShowAdd(v); };
@@ -227,40 +223,54 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
 
   const selectedDateStr = toDateStr(selectedDate);
 
-  const getTasksForDate = (dateStr: string) => tasks.filter((t) => {
-    const taskDate = t.dueDate || t.createdAt.split("T")[0];
+  const recurrenceLabel = (r: TaskRecurrence) => {
+    const map: Record<TaskRecurrence, string> = {
+      never: t("tasks.never"),
+      daily: t("tasks.daily"),
+      weekly: t("tasks.weekly"),
+      monthly: t("tasks.monthly"),
+    };
+    return map[r] || "";
+  };
+
+  const formatDateLabel = (date: Date): string => {
+    if (isToday(date)) return t("tasks.today");
+    if (isTomorrow(date)) return t("tasks.tomorrow");
+    if (isYesterday(date)) return t("tasks.yesterday");
+    return format(date, "EEEE d. MMM", { locale: dateFnsLocale });
+  };
+
+  const getTasksForDate = (dateStr: string) => tasks.filter((task) => {
+    const taskDate = task.dueDate || task.createdAt.split("T")[0];
     if (taskDate === dateStr) return true;
-    if (t.recurrence && t.recurrence !== "never" && taskDate <= dateStr) return true;
+    if (task.recurrence && task.recurrence !== "never" && taskDate <= dateStr) return true;
     return false;
   });
 
-  // Tasks matching the selected date (including recurring tasks)
   const tasksForDate = getTasksForDate(selectedDateStr);
+  const completed = tasksForDate.filter((task) => task.completed);
 
-  const completed = tasksForDate.filter((t) => t.completed);
-
-  // Week days for week view
   const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
   const weekDays = eachDayOfInterval({ start: weekStart, end: endOfWeek(selectedDate, { weekStartsOn: 1 }) });
 
   const getTasksForFilter = (f: FilterTab) => {
     if (f === "afsluttet") return completed;
-    const base = f === "alle" ? tasksForDate : tasksForDate.filter(t => t.assignee === f);
+    const base = f === "alle" ? tasksForDate : tasksForDate.filter(task => task.assignee === f);
     return [...base].sort((a, b) => Number(a.completed) - Number(b.completed));
   };
 
   const filteredTasks = getTasksForFilter(filter);
 
   const tabs: { key: FilterTab; label: string; count: number }[] = [
-    { key: "alle", label: "Alle", count: tasksForDate.length },
-    { key: "mor", label: morName || "Mor", count: tasksForDate.filter(t => t.assignee === "mor").length },
-    { key: "far", label: farName || "Far", count: tasksForDate.filter(t => t.assignee === "far").length },
-    { key: "fælles", label: "Fælles", count: tasksForDate.filter(t => t.assignee === "fælles").length },
-    { key: "afsluttet", label: "Afsluttet", count: completed.length },
+    { key: "alle", label: t("tasks.all"), count: tasksForDate.length },
+    { key: "mor", label: morName || t("tasks.mom"), count: tasksForDate.filter(task => task.assignee === "mor").length },
+    { key: "far", label: farName || t("tasks.dad"), count: tasksForDate.filter(task => task.assignee === "far").length },
+    { key: "fælles", label: t("tasks.shared"), count: tasksForDate.filter(task => task.assignee === "fælles").length },
+    { key: "afsluttet", label: t("tasks.completed"), count: completed.length },
   ];
 
   const handleToggle = (id: string) => {
-    const task = tasks.find(t => t.id === id);
+    const task = tasks.find(task => task.id === id);
     if (task && !task.completed) {
       confetti({
         particleCount: 40,
@@ -301,7 +311,7 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
   };
 
   const handleMoveTask = (taskId: string, dayOffset: number) => {
-    const task = tasks.find(t => t.id === taskId);
+    const task = tasks.find(task => task.id === taskId);
     if (!task) return;
     const currentDate = task.dueDate ? new Date(task.dueDate) : new Date();
     const newDate = addDays(currentDate, dayOffset);
@@ -310,9 +320,9 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
   };
 
   const moveOptions = [
-    { label: "I morgen", offset: 1 },
-    { label: "Om 2 dage", offset: 2 },
-    { label: "Næste uge", offset: 7 },
+    { label: t("tasks.tomorrow"), offset: 1 },
+    { label: t("tasks.in2days"), offset: 2 },
+    { label: t("tasks.nextWeek"), offset: 7 },
   ];
 
   const renderTask = (task: typeof tasks[0]) => {
@@ -366,7 +376,7 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
               <button
                 onClick={() => setMovingTaskId(isMoving ? null : task.id)}
                 className="opacity-0 group-hover:opacity-60 transition-opacity p-1 hover:opacity-100"
-                title="Flyt til anden dag"
+                title={t("tasks.moveToDay")}
               >
                 <ArrowRight className="w-3 h-3" />
               </button>
@@ -410,7 +420,7 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
               onClick={() => setMovingTaskId(null)}
               className="px-2 py-1 rounded-full text-[0.62rem] text-muted-foreground hover:bg-[hsl(var(--stone-lighter))]"
             >
-              Annullér
+              {t("tasks.cancel")}
             </button>
           </div>
         )}
@@ -433,7 +443,7 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
             isSelected ? "bg-foreground text-background" : today ? "bg-[hsl(var(--sage-light))]" : "hover:bg-[hsl(var(--stone-lighter))]"
           )}
         >
-          <p className="text-[0.5rem] tracking-[0.1em] uppercase">{format(day, "EEE", { locale: da })}</p>
+          <p className="text-[0.5rem] tracking-[0.1em] uppercase">{format(day, "EEE", { locale: dateFnsLocale })}</p>
           <p className={cn("text-[0.75rem] font-medium", today && !isSelected && "text-[hsl(var(--moss))]")}>{format(day, "d")}</p>
         </button>
         <div className="space-y-1">
@@ -456,7 +466,7 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
             </button>
           ))}
           {dayTasks.length > 4 && (
-            <p className="text-[0.55rem] text-muted-foreground text-center">+{dayTasks.length - 4} mere</p>
+            <p className="text-[0.55rem] text-muted-foreground text-center">+{dayTasks.length - 4}</p>
           )}
           {dayTasks.length === 0 && (
             <p className="text-[0.55rem] text-muted-foreground text-center py-2">—</p>
@@ -468,7 +478,6 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
 
   return (
     <div className="space-y-3 relative">
-      {/* Date navigation + view toggle */}
       <div className="flex items-center justify-between">
         <button
           onClick={() => setSelectedDate(prev => viewMode === "week" ? subDays(prev, 7) : subDays(prev, 1))}
@@ -485,7 +494,7 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
             )}
           >
             {viewMode === "week"
-              ? `Uge ${format(weekStart, "w", { locale: da })}`
+              ? `${t("tasks.weekView")} ${format(weekStart, "w", { locale: dateFnsLocale })}`
               : formatDateLabel(selectedDate)
             }
           </button>
@@ -497,7 +506,7 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
               "p-2 rounded-xl transition-colors active:scale-95",
               "hover:bg-[hsl(var(--stone-lighter))]"
             )}
-            title={viewMode === "day" ? "Ugevisning" : "Dagvisning"}
+            title={viewMode === "day" ? t("tasks.weekView") : t("tasks.dayView")}
           >
             {viewMode === "day" ? <CalendarDays className="w-4 h-4" /> : <Calendar className="w-4 h-4" />}
           </button>
@@ -510,7 +519,6 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
         </div>
       </div>
 
-      {/* Top-level add task form */}
       {showAdd && (
         <AddTaskInline
           onAdd={handleAdd}
@@ -522,7 +530,6 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
       )}
 
       {viewMode === "week" ? (
-        /* Week view */
         <div className="card-soft">
           <div className="flex gap-1">
             {weekDays.map(day => renderWeekDayColumn(day))}
@@ -530,12 +537,11 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
           <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[hsl(var(--stone-lighter))] text-[0.58rem] text-muted-foreground">
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm" style={{ background: "hsl(var(--clay-light))" }} /> {morName}</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm" style={{ background: "hsl(var(--sage-light))" }} /> {farName}</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm" style={{ background: "hsl(var(--sand-light))" }} /> Fælles</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm" style={{ background: "hsl(var(--sand-light))" }} /> {t("tasks.shared")}</span>
           </div>
         </div>
       ) : (
         <>
-          {/* Filter tabs */}
           <div className="flex gap-1 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
             {tabs.map((tab) => (
               <button
@@ -559,15 +565,14 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
             ))}
           </div>
 
-          {/* Task list */}
           <div className="card-soft">
             {filteredTasks.length > 0 ? (
               <div className="space-y-1">
-                {filteredTasks.map(t => renderTask(t))}
+                {filteredTasks.map(task => renderTask(task))}
               </div>
             ) : (
               <p className="text-center text-[0.8rem] text-muted-foreground py-6">
-                {filter === "afsluttet" ? "Ingen afsluttede opgaver endnu" : "Ingen opgaver denne dag ✨"}
+                {filter === "afsluttet" ? t("tasks.noCompletedTasks") : t("tasks.noTasksDay")}
               </p>
             )}
             {filter !== "alle" && filter !== "afsluttet" && !inlineAddFilter && (
@@ -576,7 +581,7 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
                 className="flex items-center gap-1.5 w-full px-3 py-2 text-[0.72rem] text-muted-foreground hover:text-foreground transition-colors rounded-xl hover:bg-[hsl(var(--cream))]"
               >
                 <Plus className="w-3 h-3" />
-                Tilføj til {tabs.find(t => t.key === filter)?.label}
+                {t("tasks.addTo", { filter: tabs.find(tab => tab.key === filter)?.label })}
               </button>
             )}
             {inlineAddFilter && (

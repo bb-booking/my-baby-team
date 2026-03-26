@@ -8,42 +8,28 @@ import {
 } from "lucide-react";
 import { TaskList } from "@/components/TaskList";
 import NærværTips from "@/components/NærværTips";
-
-const conversationStarters = [
-  "Hvad har du brug for mest fra mig lige nu?",
-  "Hvad var den bedste del af din dag med baby?",
-  "Er der noget du gerne ville gøre, men ikke har fået tid til?",
-  "Hvordan har du det — helt ærligt?",
-  "Hvad kan vi gøre anderledes i morgen?",
-  "Hvornår følte du dig sidst afslappet?",
-  "Hvad er du mest taknemmelig for ved os som team?",
-  "Er der noget der stresser dig, som vi kan løse sammen?",
-];
-
+import { useTranslation } from "react-i18next";
 
 export default function SammenPage() {
   const { profile, morName, farName, tasks } = useFamily();
   const { nightShifts, setNightShift, getTonightShift } = useDiary();
+  const { t } = useTranslation();
 
   const tonight = getTonightShift();
   const todayStr = new Date().toISOString().slice(0, 10);
 
-  // Conversation starter rotation
+  const conversationStarters = t("conversation.starters", { returnObjects: true }) as string[];
+
   const [starterIdx, setStarterIdx] = useState(() =>
     Math.floor(Date.now() / (1000 * 60 * 60 * 24)) % conversationStarters.length
   );
 
-  // Weekly check-in state
-  
-
-  // Generate next 7 days for shift planning
   const next7Days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() + i);
     return d.toISOString().slice(0, 10);
   });
 
-  // Task balance
   const morPending = tasks.filter(t => !t.completed && t.assignee === "mor").length;
   const farPending = tasks.filter(t => !t.completed && t.assignee === "far").length;
   const morDone = tasks.filter(t => t.completed && t.assignee === "mor").length;
@@ -51,16 +37,14 @@ export default function SammenPage() {
   const totalDone = morDone + farDone || 1;
   const totalPending = morPending + farPending || 1;
 
-  // Night shift balance this week
   const morShifts = nightShifts.filter(s => next7Days.includes(s.date) && s.assignee === "mor").length;
   const farShifts = nightShifts.filter(s => next7Days.includes(s.date) && s.assignee === "far").length;
 
-  const dayLabels = ["Søn", "Man", "Tir", "Ons", "Tor", "Fre", "Lør"];
+  const dayLabels = t("dayLabels", { returnObjects: true }) as string[];
 
-  // "I did it" moment
-  const completedToday = tasks.filter(t => {
-    if (!t.completed) return false;
-    const created = new Date(t.createdAt);
+  const completedToday = tasks.filter(task => {
+    if (!task.completed) return false;
+    const created = new Date(task.createdAt);
     const now = new Date();
     return created.toDateString() === now.toDateString();
   }).length;
@@ -71,28 +55,27 @@ export default function SammenPage() {
     <div className="space-y-5">
       <div className="section-fade-in flex items-start justify-between">
         <div>
-          <h1 className="text-[1.9rem] font-normal">Samarbejde</h1>
-          <p className="label-upper mt-1">JERES FÆLLES OVERBLIK</p>
+          <h1 className="text-[1.9rem] font-normal">{t("together.title")}</h1>
+          <p className="label-upper mt-1">{t("together.yourOverview")}</p>
         </div>
         <button
           onClick={() => setShowAddTask(!showAddTask)}
           className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[0.72rem] font-medium transition-all active:scale-95 bg-[hsl(var(--moss))] text-white hover:opacity-90 mt-1"
         >
           <Plus className="w-3.5 h-3.5" />
-          Tilføj opgave
+          {t("together.addTask")}
         </button>
       </div>
 
-      {/* Task list — top priority */}
       <div className="section-fade-in" style={{ animationDelay: "60ms" }}>
         <TaskList externalShowAdd={showAddTask} onExternalShowAddChange={setShowAddTask} />
       </div>
 
-      {/* Parent cards with live stats */}
+      {/* Parent cards */}
       <div className="flex gap-2.5 section-fade-in" style={{ animationDelay: "80ms" }}>
         {[
-          { name: morName, role: "Mor" as const, bg: "clay", pending: morPending, done: morDone, shifts: morShifts },
-          { name: farName, role: "Far" as const, bg: "sage", pending: farPending, done: farDone, shifts: farShifts },
+          { name: morName, role: t("tasks.mom") as string, bg: "clay", pending: morPending, done: morDone, shifts: morShifts },
+          { name: farName, role: t("tasks.dad") as string, bg: "sage", pending: farPending, done: farDone, shifts: farShifts },
         ].map(p => (
           <div key={p.role} className="flex-1 rounded-2xl p-4"
             style={{
@@ -111,17 +94,17 @@ export default function SammenPage() {
             </div>
             <div className="space-y-1.5">
               <div className="flex justify-between text-[0.65rem]">
-                <span className="text-muted-foreground">Opgaver at gøre</span>
+                <span className="text-muted-foreground">{t("together.tasksToDo")}</span>
                 <span className="font-medium tabular-nums">{p.pending}</span>
               </div>
               <div className="flex justify-between text-[0.65rem]">
-                <span className="text-muted-foreground">Fuldført</span>
+                <span className="text-muted-foreground">{t("together.completed")}</span>
                 <span className="font-medium tabular-nums">{p.done}</span>
               </div>
               {profile.phase !== "pregnant" && (
                 <div className="flex justify-between text-[0.65rem]">
-                  <span className="text-muted-foreground">Puttevagter (uge)</span>
-                  <span className="font-medium tabular-nums">{p.shifts} denne uge</span>
+                  <span className="text-muted-foreground">{t("together.nightShiftsWeek")}</span>
+                  <span className="font-medium tabular-nums">{p.shifts} {t("together.thisWeek")}</span>
                 </div>
               )}
             </div>
@@ -140,25 +123,24 @@ export default function SammenPage() {
             <Sparkles className="w-5 h-5" style={{ color: "hsl(var(--moss))" }} />
           </div>
           <div>
-            <p className="text-[0.88rem] font-medium">I har klaret {completedToday} opgaver i dag! 🎉</p>
-            <p className="text-[0.72rem] text-muted-foreground">Godt teamwork — keep going.</p>
+            <p className="text-[0.88rem] font-medium">{t("together.tasksToday", { count: completedToday })}</p>
+            <p className="text-[0.72rem] text-muted-foreground">{t("together.goodTeamwork")}</p>
           </div>
         </div>
       )}
 
-      {/* Mental load insight — non-judgmental */}
+      {/* Mental load */}
       <div className="card-soft section-fade-in" style={{ animationDelay: "140ms" }}>
         <div className="flex items-center gap-2 mb-3">
           <Brain className="w-4 h-4" style={{ color: "hsl(var(--clay))" }} />
-          <p className="text-[1rem] font-normal">Mental load</p>
+          <p className="text-[1rem] font-normal">{t("together.mentalLoad")}</p>
         </div>
         <p className="text-[0.75rem] text-muted-foreground leading-relaxed mb-4">
-          Det handler ikke om at tælle — men om at forstå, hvem der bærer hvad. Synlighed skaber balance.
+          {t("together.mentalLoadDesc")}
         </p>
 
-        {/* Pending balance */}
         <div className="mb-3">
-          <p className="text-[0.6rem] tracking-[0.14em] uppercase text-muted-foreground mb-1.5">Ventende opgaver</p>
+          <p className="text-[0.6rem] tracking-[0.14em] uppercase text-muted-foreground mb-1.5">{t("together.pendingTasks")}</p>
           <div className="flex items-center gap-2">
             <span className="text-[0.6rem] tracking-[0.1em] uppercase w-10" style={{ color: "hsl(var(--bark))" }}>{morName?.split(" ")[0]}</span>
             <div className="flex-1 flex h-2.5 rounded-full overflow-hidden" style={{ background: "hsl(var(--stone-lighter))" }}>
@@ -173,9 +155,8 @@ export default function SammenPage() {
           </div>
         </div>
 
-        {/* Completed balance */}
         <div>
-          <p className="text-[0.6rem] tracking-[0.14em] uppercase text-muted-foreground mb-1.5">Fuldførte</p>
+          <p className="text-[0.6rem] tracking-[0.14em] uppercase text-muted-foreground mb-1.5">{t("together.completedTasks")}</p>
           <div className="flex items-center gap-2">
             <span className="text-[0.6rem] tracking-[0.1em] uppercase w-10" style={{ color: "hsl(var(--bark))" }}>{morName?.split(" ")[0]}</span>
             <div className="flex-1 flex h-2.5 rounded-full overflow-hidden" style={{ background: "hsl(var(--stone-lighter))" }}>
@@ -190,38 +171,32 @@ export default function SammenPage() {
           </div>
         </div>
 
-        {/* Suggestion — never blaming */}
         {Math.abs(morPending - farPending) > 3 && (
           <div className="mt-4 rounded-xl p-3 flex items-start gap-2.5" style={{ background: "hsl(var(--sand-light))" }}>
             <HandHeart className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "hsl(var(--clay))" }} />
             <p className="text-[0.75rem] text-muted-foreground leading-relaxed">
-              {morPending > farPending
-                ? `${morName} har mange opgaver på listen. Måske I kan gennemgå den sammen og omfordele?`
-                : `${farName} har mange opgaver på listen. Måske I kan gennemgå den sammen og omfordele?`
-              }
+              {t("together.imbalanceHint", { name: morPending > farPending ? morName : farName })}
             </p>
           </div>
         )}
       </div>
 
-      {/* Night shift planner */}
+      {/* Night shifts */}
       {profile.phase !== "pregnant" && (
         <div className="card-soft section-fade-in" style={{ animationDelay: "180ms" }}>
           <div className="flex items-center gap-2 mb-2">
             <Moon className="w-4 h-4" style={{ color: "hsl(var(--sage-dark))" }} />
-            <p className="text-[1rem] font-normal">Puttevagter</p>
+            <p className="text-[1rem] font-normal">{t("together.nightShifts")}</p>
           </div>
           <p className="text-[0.72rem] text-muted-foreground mb-4 leading-relaxed">
-            Putning handler om at lægge {profile.children?.[0]?.name || "baby"} i seng — nærhed, ro og en fast rutine. 
-            Begge forældre kan putte — det kræver ikke amning, men tilstedeværelse. 🌙
+            {t("together.nightShiftsDesc", { childName: profile.children?.[0]?.name || "baby" })}
           </p>
 
-          {/* Tonight highlight */}
           <div className="rounded-2xl p-3 mb-4 flex items-center justify-between"
             style={{ background: tonight ? "hsl(var(--sage-light) / 0.4)" : "hsl(var(--stone-lighter))" }}>
             <div>
-              <p className="text-[0.65rem] tracking-[0.14em] uppercase text-muted-foreground">I aften</p>
-              <p className="text-[0.95rem] font-medium">{tonight ? (tonight.assignee === "mor" ? morName : farName) : "Ikke planlagt"}</p>
+              <p className="text-[0.65rem] tracking-[0.14em] uppercase text-muted-foreground">{t("together.tonight")}</p>
+              <p className="text-[0.95rem] font-medium">{tonight ? (tonight.assignee === "mor" ? morName : farName) : t("together.notPlanned")}</p>
             </div>
             {tonight ? (
               <button
@@ -229,7 +204,7 @@ export default function SammenPage() {
                 className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[0.68rem] font-medium border transition-all active:scale-95"
                 style={{ borderColor: "hsl(var(--sage))", color: "hsl(var(--moss))" }}
               >
-                <ArrowLeftRight className="w-3 h-3" /> Byt
+                <ArrowLeftRight className="w-3 h-3" /> {t("together.swap")}
               </button>
             ) : (
               <button
@@ -237,12 +212,11 @@ export default function SammenPage() {
                 className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[0.68rem] font-medium transition-all active:scale-95"
                 style={{ background: "hsl(var(--moss))", color: "white" }}
               >
-                Planlæg
+                {t("together.plan")}
               </button>
             )}
           </div>
 
-          {/* Week grid */}
           <div className="grid grid-cols-7 gap-1">
             {next7Days.map((dateStr, i) => {
               const d = new Date(dateStr);
@@ -274,20 +248,18 @@ export default function SammenPage() {
           <div className="flex items-center gap-4 mt-3 text-[0.6rem] text-muted-foreground">
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded" style={{ background: "hsl(var(--clay-light))" }} /> {morName}</span>
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded" style={{ background: "hsl(var(--sage-light))" }} /> {farName}</span>
-            <span className="ml-auto text-[0.55rem]">{morShifts}M · {farShifts}F denne uge</span>
+            <span className="ml-auto text-[0.55rem]">{morShifts}M · {farShifts}F {t("together.thisWeek")}</span>
           </div>
         </div>
       )}
 
-      {/* Nærvær i hverdagen */}
       <NærværTips />
-
 
       <div className="card-soft section-fade-in" style={{ animationDelay: "380ms" }}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <MessageCircle className="w-4 h-4" style={{ color: "hsl(var(--clay))" }} />
-            <p className="text-[1rem] font-normal">Tal om det</p>
+            <p className="text-[1rem] font-normal">{t("together.talkAboutIt")}</p>
           </div>
           <button
             onClick={() => setStarterIdx((starterIdx + 1) % conversationStarters.length)}
@@ -302,7 +274,7 @@ export default function SammenPage() {
           </p>
         </div>
         <p className="text-[0.62rem] text-muted-foreground/60 mt-2 text-center">
-          Samtalestart — for at styrke jeres bånd 💛
+          {t("together.conversationStarter")}
         </p>
       </div>
 

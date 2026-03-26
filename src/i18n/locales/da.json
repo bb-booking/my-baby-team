@@ -331,7 +331,14 @@
     "todayLog": "I DAG",
     "napLog": "Lur",
     "nightLog": "Nattesøvn",
-    "min": "min"
+    "min": "min",
+    "tip0_1": "Nyfødte sover i korte intervaller og har endnu ikke en fast døgnrytme. Det er helt normalt — følg babyens signaler.",
+    "tip1_2": "Begyndende mønster dannes. Hold øje med træthedsignaler: gnilder øjne, gaber, ser væk.",
+    "tip2_3": "Etablér en blid godnatrutine: dæmpet lys, rolig musik, hud-mod-hud.",
+    "tip3_4": "Den fjerde lur dropper typisk nu. Baby begynder at skelne dag fra nat tydeligere.",
+    "tip4_6": "Mange babyer er klar til at lære at falde i søvn selv. Konsekvens i rutinen hjælper.",
+    "tip6_9": "To-lurs-rytme er typisk nu. Sørg for at den sidste lur ikke er for sent på eftermiddagen.",
+    "tip9_12": "Separationsangst kan påvirke søvnen. Ekstra tryghed og nærvær ved sengetid hjælper."
   },
   "together": {
     "title": "Samarbejde",
