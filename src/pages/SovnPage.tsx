@@ -208,6 +208,9 @@ export default function SovnPage() {
         </div>
       )}
 
+      {/* AI Sleep Guidance */}
+      {!activeSleep && <AISleepGuidance />}
+
       {/* Quick actions */}
       <div className="grid grid-cols-2 gap-2.5 section-fade-in" style={{ animationDelay: "160ms" }}>
         {/* Start/stop */}
