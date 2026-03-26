@@ -1,8 +1,10 @@
 import { useFamily, type ParentRole } from "@/context/FamilyContext";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export function ProfileSwitcher() {
   const { profile, setProfile, morName, farName } = useFamily();
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   const switchRole = (role: ParentRole) => {
@@ -51,7 +53,7 @@ export function ProfileSwitcher() {
             }}
           >
             <p className="text-[0.52rem] tracking-[0.2em] uppercase text-muted-foreground px-3 pt-2 pb-1">
-              SKIFT BRUGER
+              {t("sidebarSections.switchUser")}
             </p>
 
             {/* Current user */}
@@ -67,7 +69,7 @@ export function ProfileSwitcher() {
               <div className="flex-1">
                 <p className="text-[0.82rem] font-medium">{profile.parentName}</p>
                 <p className="text-[0.58rem] text-muted-foreground uppercase tracking-wider">
-                  {profile.role === "mor" ? "Mor" : "Far"} · aktiv
+                  {profile.role === "mor" ? t("settings.mom") : t("settings.dad")} · {t("shop.active").toLowerCase()}
                 </p>
               </div>
               <span className="w-2 h-2 rounded-full" style={{ background: "hsl(var(--sage))" }} />
@@ -80,9 +82,9 @@ export function ProfileSwitcher() {
             >
               <span className="text-lg">{otherEmoji}</span>
               <div className="flex-1">
-                <p className="text-[0.82rem] font-medium">{otherName || (otherRole === "mor" ? "Mor" : "Far")}</p>
+                <p className="text-[0.82rem] font-medium">{otherName || (otherRole === "mor" ? t("settings.mom") : t("settings.dad"))}</p>
                 <p className="text-[0.58rem] text-muted-foreground uppercase tracking-wider">
-                  {otherRole === "mor" ? "Mor" : "Far"}
+                  {otherRole === "mor" ? t("settings.mom") : t("settings.dad")}
                 </p>
               </div>
             </button>
