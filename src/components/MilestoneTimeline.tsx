@@ -19,16 +19,18 @@ function saveAchievedLeaps(leaps: string[]) {
 }
 
 // ── Level-up encouragement messages ──
-const levelUpMessages: Record<number, { title: string; body: string }> = {
-  1: { title: "Første spring klaret!", body: "I har navigeret de første sanseindtryk sammen. Det kræver mod." },
-  2: { title: "Mønstre unlocked!", body: "Baby ser verden i mønstre nu — og I er det smukkeste mønster." },
-  3: { title: "Spring 3 — bløde overgange!", body: "Bevægelser flyder. I har fundet en rytme sammen." },
-  4: { title: "Begivenheder forstået!", body: "Baby forstår årsag og virkning. I er årsagen til al den tryghed." },
-  5: { title: "Sammenhænge knækket!", body: "Baby ved I kan gå — og stoler på at I kommer tilbage. ❤️" },
-  6: { title: "Kategorier på plads!", body: "Verden sorteres. Baby er en lille forsker med jer som laboratorium." },
-  7: { title: "Rækkefølge mestret!", body: "Baby forstår sekvenser. I har bygget et fundament af tillid." },
-  8: { title: "Alle spring gennemført!", body: "I har klaret alle 8 tigerspring. I er legendariske forældre. 🏆" },
-};
+function getLevelUpMessages(name: string): Record<number, { title: string; body: string }> {
+  return {
+    1: { title: "Første spring klaret!", body: "I har navigeret de første sanseindtryk sammen. Det kræver mod." },
+    2: { title: "Mønstre unlocked!", body: `${name} ser verden i mønstre nu — og I er det smukkeste mønster.` },
+    3: { title: "Spring 3 — bløde overgange!", body: "Bevægelser flyder. I har fundet en rytme sammen." },
+    4: { title: "Begivenheder forstået!", body: `${name} forstår årsag og virkning. I er årsagen til al den tryghed.` },
+    5: { title: "Sammenhænge knækket!", body: `${name} ved I kan gå — og stoler på at I kommer tilbage. ❤️` },
+    6: { title: "Kategorier på plads!", body: `Verden sorteres. ${name} er en lille forsker med jer som laboratorium.` },
+    7: { title: "Rækkefølge mestret!", body: `${name} forstår sekvenser. I har bygget et fundament af tillid.` },
+    8: { title: "Alle spring gennemført!", body: "I har klaret alle 8 tigerspring. I er legendariske forældre. 🏆" },
+  };
+}
 
 function fireLevelUpConfetti() {
   const defaults = { gravity: 0.6, scalar: 1.2, ticks: 150 };
@@ -51,7 +53,7 @@ function LevelUpOverlay({
   childName: string;
   onDismiss: () => void;
 }) {
-  const msg = levelUpMessages[level] || { title: `Spring ${level} opnået!`, body: "I klarer det fantastisk." };
+  const msg = getLevelUpMessages(childName)[level] || { title: `Spring ${level} opnået!`, body: "I klarer det fantastisk." };
 
   useEffect(() => {
     fireLevelUpConfetti();

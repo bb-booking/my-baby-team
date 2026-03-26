@@ -8,17 +8,19 @@ interface Msg {
   content: string;
 }
 
-const quickPrompts = [
-  "Hvor meget skal min baby sove?",
-  "Min baby vil ikke tage brystet – hvad gør jeg?",
-  "Hvordan ved jeg om min baby får nok mælk?",
-  "Min baby græder meget – hvad kan vi prøve?",
-  "Hvornår kan vi begynde med grød og mad?",
-  "Hvordan ser en normal ble ud?",
-  "Hvordan støtter jeg min partner bedst lige nu?",
-  "Hvad kan vi lege med vores baby?",
-  "Jeg føler mig overvældet – er det normalt?",
-];
+function getQuickPrompts(childName: string) {
+  return [
+    `Hvor meget skal ${childName} sove?`,
+    `${childName} vil ikke tage brystet – hvad gør jeg?`,
+    `Hvordan ved jeg om ${childName} får nok mælk?`,
+    `${childName} græder meget – hvad kan vi prøve?`,
+    "Hvornår kan vi begynde med grød og mad?",
+    "Hvordan ser en normal ble ud?",
+    "Hvordan støtter jeg min partner bedst lige nu?",
+    `Hvad kan vi lege med ${childName}?`,
+    "Jeg føler mig overvældet – er det normalt?",
+  ];
+}
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/baby-chat`;
 
@@ -145,7 +147,7 @@ export default function ChatPage() {
     });
   }, [messages, isLoading, context]);
 
-  const relevantPrompts = quickPrompts.slice(0, 4);
+  const relevantPrompts = getQuickPrompts(childName).slice(0, 4);
 
   return (
     <div className="flex flex-col h-[calc(100vh-12rem)] md:h-[calc(100vh-5rem)]">
