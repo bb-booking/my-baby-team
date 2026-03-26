@@ -14,7 +14,216 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      check_ins: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          mood: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          mood: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          mood?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      diaper_logs: {
+        Row: {
+          id: string
+          stool_color: string | null
+          stool_consistency: string | null
+          timestamp: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          stool_color?: string | null
+          stool_consistency?: string | null
+          timestamp?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          stool_color?: string | null
+          stool_consistency?: string | null
+          timestamp?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      night_shifts: {
+        Row: {
+          assignee: string
+          date: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          assignee: string
+          date: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          assignee?: string
+          date?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      nursing_logs: {
+        Row: {
+          id: string
+          side: string
+          timestamp: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          side: string
+          timestamp?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          side?: string
+          timestamp?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          children: Json
+          created_at: string
+          due_or_birth_date: string
+          id: string
+          languages: Json | null
+          mor_health: Json | null
+          onboarded: boolean
+          parent_name: string
+          parental_leave: Json | null
+          partner_name: string
+          phase: string
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          children?: Json
+          created_at?: string
+          due_or_birth_date?: string
+          id?: string
+          languages?: Json | null
+          mor_health?: Json | null
+          onboarded?: boolean
+          parent_name?: string
+          parental_leave?: Json | null
+          partner_name?: string
+          phase?: string
+          role?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          children?: Json
+          created_at?: string
+          due_or_birth_date?: string
+          id?: string
+          languages?: Json | null
+          mor_health?: Json | null
+          onboarded?: boolean
+          parent_name?: string
+          parental_leave?: Json | null
+          partner_name?: string
+          phase?: string
+          role?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sleep_logs: {
+        Row: {
+          end_time: string | null
+          id: string
+          source: string
+          start_time: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          end_time?: string | null
+          id?: string
+          source?: string
+          start_time: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          end_time?: string | null
+          id?: string
+          source?: string
+          start_time?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          assignee: string
+          category: string
+          completed: boolean
+          created_at: string
+          due_date: string
+          id: string
+          recurrence: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          assignee?: string
+          category?: string
+          completed?: boolean
+          created_at?: string
+          due_date?: string
+          id?: string
+          recurrence?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          assignee?: string
+          category?: string
+          completed?: boolean
+          created_at?: string
+          due_date?: string
+          id?: string
+          recurrence?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
