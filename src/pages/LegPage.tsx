@@ -1,6 +1,7 @@
 import { useFamily } from "@/context/FamilyContext";
 import { getActiveLeap } from "@/lib/phaseData";
 import { Sparkles, Clock, Star } from "lucide-react";
+import { AIActivitySuggestions } from "@/components/AIActivitySuggestions";
 
 interface Activity {
   title: string;
