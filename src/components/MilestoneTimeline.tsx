@@ -53,7 +53,7 @@ function LevelUpOverlay({
   childName: string;
   onDismiss: () => void;
 }) {
-  const msg = levelUpMessages[level] || { title: `Spring ${level} opnået!`, body: "I klarer det fantastisk." };
+  const msg = getLevelUpMessages(childName)[level] || { title: `Spring ${level} opnået!`, body: "I klarer det fantastisk." };
 
   useEffect(() => {
     fireLevelUpConfetti();
