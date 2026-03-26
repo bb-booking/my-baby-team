@@ -83,7 +83,21 @@
     "dadTipNewborn": "{{childName}} feeds often in the first days. Have water, snacks and a pillow ready — it makes a huge difference.",
     "sleepingNow": "💤 Sleeping now",
     "napsOne": "{{count}} nap",
-    "napsMany": "{{count}} naps"
+    "napsMany": "{{count}} naps",
+    "stoolHintDay0": "Meconium — black/dark green, sticky. Completely normal.",
+    "stoolHintDay2": "Transitional stool — greenish, softer. Sign of good milk intake.",
+    "stoolHintDay4": "Color shifting toward yellow — milk is flowing well.",
+    "stoolHintDay7": "Mustard yellow, seedy — completely normal for breastfed babies.",
+    "colorBlack": "Black",
+    "colorDarkGreen": "Dark green",
+    "colorGreen": "Green",
+    "colorYellowGreen": "Yellow-green",
+    "colorYellow": "Yellow",
+    "consHard": "Hard",
+    "consSoft": "Soft",
+    "consLiquid": "Liquid",
+    "consGranular": "Seedy",
+    "consMucus": "Mucusy"
   },
   "tasks": {
     "title": "Tasks",

@@ -83,7 +83,21 @@
     "dadTipNewborn": "{{childName}} spiser ofte de første dage. Sørg for at have vand, snacks og pude klar — det gør en kæmpe forskel.",
     "sleepingNow": "💤 Sover nu",
     "napsOne": "{{count}} lur",
-    "napsMany": "{{count}} lure"
+    "napsMany": "{{count}} lure",
+    "stoolHintDay0": "Mekonium — sort/mørkegrøn, klæbrig. Helt normalt.",
+    "stoolHintDay2": "Overgangsafføring — grønlig, blødere. Tegn på god mælkeindtag.",
+    "stoolHintDay4": "Farven skifter mod gul — mælken er ved at komme godt i gang.",
+    "stoolHintDay7": "Sennepsgul, grynet — helt normalt for ammede babyer.",
+    "colorBlack": "Sort",
+    "colorDarkGreen": "Mørkegrøn",
+    "colorGreen": "Grøn",
+    "colorYellowGreen": "Gulgrøn",
+    "colorYellow": "Gul",
+    "consHard": "Hård",
+    "consSoft": "Blød",
+    "consLiquid": "Flydende",
+    "consGranular": "Grynet",
+    "consMucus": "Slimet"
   },
   "tasks": {
     "title": "Opgaver",
