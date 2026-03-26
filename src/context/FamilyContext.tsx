@@ -5,8 +5,7 @@ import {
   syncCheckIns, fetchCheckIns, useDebouncedSync,
 } from "@/hooks/useSupabaseSync";
 
-// Re-export for convenience — keep the same import paths working
-export { upsertProfile } from "@/hooks/useSupabaseSync";
+// Re-export removed — upsertProfile used internally only
 
 export type LifePhase = "pregnant" | "newborn" | "baby";
 export type ParentRole = "mor" | "far";

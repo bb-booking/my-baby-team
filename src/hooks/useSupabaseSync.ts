@@ -5,7 +5,7 @@ import type { FamilyProfile } from "@/context/FamilyContext";
 import type { NursingLog, DiaperLog, SleepLog, NightShift } from "@/context/DiaryContext";
 
 // Generic upsert helper — exported
-async function upsertProfile(userId: string, profile: FamilyProfile) {
+export async function upsertProfile(userId: string, profile: FamilyProfile) {
   const { error } = await supabase.from("profiles").upsert({
     user_id: userId,
     phase: profile.phase,
