@@ -147,7 +147,7 @@ export default function ChatPage() {
     });
   }, [messages, isLoading, context]);
 
-  const relevantPrompts = quickPrompts.slice(0, 4);
+  const relevantPrompts = getQuickPrompts(childName).slice(0, 4);
 
   return (
     <div className="flex flex-col h-[calc(100vh-12rem)] md:h-[calc(100vh-5rem)]">
