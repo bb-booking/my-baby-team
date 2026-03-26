@@ -4,6 +4,7 @@ import { useDiary } from "@/context/DiaryContext";
 import { format, differenceInMinutes, startOfDay, addHours, isToday, subDays } from "date-fns";
 import { da } from "date-fns/locale";
 import { Moon, Sun, Clock, Wifi, Plus, Trash2, ChevronRight } from "lucide-react";
+import { AISleepGuidance } from "@/components/AISleepGuidance";
 
 // ── Sleep recommendations by age (months) ──
 const sleepRecommendations: Record<string, { totalHours: number; naps: number; napDuration: string; wakeWindow: string; bedtime: string; tip: string }> = {
