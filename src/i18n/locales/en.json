@@ -83,7 +83,21 @@
     "dadTipNewborn": "{{childName}} feeds often in the first days. Have water, snacks and a pillow ready — it makes a huge difference.",
     "sleepingNow": "💤 Sleeping now",
     "napsOne": "{{count}} nap",
-    "napsMany": "{{count}} naps"
+    "napsMany": "{{count}} naps",
+    "stoolHintDay0": "Meconium — black/dark green, sticky. Completely normal.",
+    "stoolHintDay2": "Transitional stool — greenish, softer. Sign of good milk intake.",
+    "stoolHintDay4": "Color shifting toward yellow — milk is flowing well.",
+    "stoolHintDay7": "Mustard yellow, seedy — completely normal for breastfed babies.",
+    "colorBlack": "Black",
+    "colorDarkGreen": "Dark green",
+    "colorGreen": "Green",
+    "colorYellowGreen": "Yellow-green",
+    "colorYellow": "Yellow",
+    "consHard": "Hard",
+    "consSoft": "Soft",
+    "consLiquid": "Liquid",
+    "consGranular": "Seedy",
+    "consMucus": "Mucusy"
   },
   "tasks": {
     "title": "Tasks",
@@ -592,6 +606,25 @@
     "ritual": "Ritual",
     "date": "Date",
     "connection": "Connection"
+  },
+  "nearnessTips": {
+    "kiss": "10-second kiss", "kissDesc": "A long kiss releases oxytocin and breaks the autopilot.",
+    "eyeContact": "Eye contact at handover", "eyeContactDesc": "When you switch 'shifts' — stop, look each other in the eyes, and say thanks.",
+    "message": "Send a message midday", "messageDesc": "Not about logistics. Just 'I'm thinking of you'.",
+    "touch": "Touch each other in passing", "touchDesc": "A hand on the back. Physical contact keeps the connection alive.",
+    "sofaDebrief": "Sofa debrief after bedtime", "sofaDebriefDesc": "Sit down for 10 min. No screens. Just 'How are you?'",
+    "morningCoffee": "Morning coffee together", "morningCoffeeDesc": "Get up 5 min before baby — it's your moment.",
+    "eveningRoutine": "Shared evening routine", "eveningRoutineDesc": "Pick one thing you do together every evening. Routine creates connection.",
+    "highLow": "High & low point", "highLowDesc": "Share the best and hardest moment of your day.",
+    "sofaDate": "Sofa date after 8 PM", "sofaDateDesc": "Light candles, share a snack. Just be intentional.",
+    "walkTalk": "Walk & talk with the stroller", "walkTalkDesc": "A walk together is a date in disguise.",
+    "takeaway": "Order takeaway and eat late", "takeawayDesc": "When baby sleeps: order something nice. Just the two of you.",
+    "needYou": "Say 'I need you'", "needYouDesc": "Showing need is strength — and it invites closeness.",
+    "acknowledge": "Acknowledge the invisible work", "acknowledgeDesc": "Say specifically what you see.",
+    "freeTime": "Give free time without being asked", "freeTimeDesc": "Say 'Take an hour for yourself — I've got this.'",
+    "10sec": "10 sec", "3sec": "3 sec", "30sec": "30 sec", "2sec": "2 sec",
+    "10min": "10 min", "5min": "5 min", "15min": "15 min", "1min": "1 min",
+    "30plus": "30+ min", "20plus": "20+ min", "45min": "45 min"
   },
   "conversation": {
     "starters": [

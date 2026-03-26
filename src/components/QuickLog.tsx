@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useDiary, type StoolColor, type StoolConsistency } from "@/context/DiaryContext";
 import { useFamily } from "@/context/FamilyContext";
+import { useTranslation } from "react-i18next";
 import confetti from "canvas-confetti";
 
 // ── Recommended counts by baby age (from Tjek Baby PDF) ──
@@ -12,11 +13,11 @@ function getRecommended(ageDays: number) {
   return { nursing: 8, wetDiapers: 6, dirtyDiapers: 4 };
 }
 
-function getExpectedStool(ageDays: number): { colors: StoolColor[]; consistencies: StoolConsistency[]; hint: string } {
-  if (ageDays < 2) return { colors: ["sort", "mørkegrøn"], consistencies: ["slimet"], hint: "Mekonium — sort/mørkegrøn, klæbrig. Helt normalt." };
-  if (ageDays < 4) return { colors: ["mørkegrøn", "grøn"], consistencies: ["blød", "slimet"], hint: "Overgangsafføring — grønlig, blødere. Tegn på god mælkeindtag." };
-  if (ageDays < 7) return { colors: ["grøn", "gulgrøn"], consistencies: ["blød", "grynet"], hint: "Farven skifter mod gul — mælken er ved at komme godt i gang." };
-  return { colors: ["gulgrøn", "gul"], consistencies: ["blød", "grynet", "flydende"], hint: "Sennepsgul, grynet — helt normalt for ammede babyer." };
+function getExpectedStool(ageDays: number, t: (k: string) => string): { colors: StoolColor[]; consistencies: StoolConsistency[]; hint: string } {
+  if (ageDays < 2) return { colors: ["sort", "mørkegrøn"], consistencies: ["slimet"], hint: t("quickLog.stoolHintDay0") };
+  if (ageDays < 4) return { colors: ["mørkegrøn", "grøn"], consistencies: ["blød", "slimet"], hint: t("quickLog.stoolHintDay2") };
+  if (ageDays < 7) return { colors: ["grøn", "gulgrøn"], consistencies: ["blød", "grynet"], hint: t("quickLog.stoolHintDay4") };
+  return { colors: ["gulgrøn", "gul"], consistencies: ["blød", "grynet", "flydende"], hint: t("quickLog.stoolHintDay7") };
 }
 
 function fireConfetti() {
@@ -28,31 +29,36 @@ function fireConfetti() {
   });
 }
 
-const STOOL_COLORS: { value: StoolColor; label: string; swatch: string }[] = [
-  { value: "sort", label: "Sort", swatch: "#1a1a1a" },
-  { value: "mørkegrøn", label: "Mørkegrøn", swatch: "#2d5a27" },
-  { value: "grøn", label: "Grøn", swatch: "#4a8c3f" },
-  { value: "gulgrøn", label: "Gulgrøn", swatch: "#a8b84c" },
-  { value: "gul", label: "Gul", swatch: "#d4a843" },
-];
+function useStoolLabels(t: (k: string) => string) {
+  const STOOL_COLORS: { value: StoolColor; label: string; swatch: string }[] = [
+    { value: "sort", label: t("quickLog.colorBlack"), swatch: "#1a1a1a" },
+    { value: "mørkegrøn", label: t("quickLog.colorDarkGreen"), swatch: "#2d5a27" },
+    { value: "grøn", label: t("quickLog.colorGreen"), swatch: "#4a8c3f" },
+    { value: "gulgrøn", label: t("quickLog.colorYellowGreen"), swatch: "#a8b84c" },
+    { value: "gul", label: t("quickLog.colorYellow"), swatch: "#d4a843" },
+  ];
 
-const STOOL_CONSISTENCIES: { value: StoolConsistency; label: string; icon: string }[] = [
-  { value: "hård", label: "Hård", icon: "●" },
-  { value: "blød", label: "Blød", icon: "◉" },
-  { value: "flydende", label: "Flydende", icon: "≋" },
-  { value: "grynet", label: "Grynet", icon: "⁘" },
-  { value: "slimet", label: "Slimet", icon: "◎" },
-];
+  const STOOL_CONSISTENCIES: { value: StoolConsistency; label: string; icon: string }[] = [
+    { value: "hård", label: t("quickLog.consHard"), icon: "●" },
+    { value: "blød", label: t("quickLog.consSoft"), icon: "◉" },
+    { value: "flydende", label: t("quickLog.consLiquid"), icon: "≋" },
+    { value: "grynet", label: t("quickLog.consGranular"), icon: "⁘" },
+    { value: "slimet", label: t("quickLog.consMucus"), icon: "◎" },
+  ];
+
+  return { STOOL_COLORS, STOOL_CONSISTENCIES };
+}
 
 export function QuickLog() {
   const { nursingLogs, addNursing, diaperLogs, addDiaper, todayNursingCount, todayDiaperCount, activeSleep, addSleep, endSleep, todaySleepMinutes } = useDiary();
   const { babyAgeWeeks, babyAgeMonths, profile } = useFamily();
+  const { t } = useTranslation();
   const childName = profile.children?.[0]?.name || "Baby";
   const feedingMethod = profile.morHealth?.feedingMethod;
-  const feedingLabel = feedingMethod === "flaske" ? "Flaske" : feedingMethod === "begge" ? "Amning/Flaske" : "Amning";
-  const feedingEmoji = feedingMethod === "flaske" ? "🍼" : feedingMethod === "begge" ? "🍼" : "🤱";
+  const feedingLabel = feedingMethod === "flaske" ? t("quickLog.bottle") : feedingMethod === "begge" ? t("quickLog.nursingBottle") : t("quickLog.nursing");
   const ageDays = babyAgeWeeks * 7;
   const rec = getRecommended(ageDays);
+  const { STOOL_COLORS, STOOL_CONSISTENCIES } = useStoolLabels(t);
 
   const [showNursingPicker, setShowNursingPicker] = useState(false);
   const [showDiaperPicker, setShowDiaperPicker] = useState(false);
@@ -65,11 +71,11 @@ export function QuickLog() {
   const todayWet = diaperLogs.filter(l => new Date(l.timestamp).toDateString() === today && (l.type === "wet" || l.type === "both")).length;
   const todayDirty = diaperLogs.filter(l => new Date(l.timestamp).toDateString() === today && (l.type === "dirty" || l.type === "both")).length;
 
-  const expected = getExpectedStool(ageDays);
+  const expected = getExpectedStool(ageDays, t);
   const lastNursing = nursingLogs.find(l => new Date(l.timestamp).toDateString() === today);
   const suggestedSide: "left" | "right" = lastNursing ? (lastNursing.side === "left" ? "right" : "left") : "left";
   const lastSideHint = lastNursing
-    ? `Sidst: ${lastNursing.side === "left" ? "venstre" : "højre"} → prøv ${suggestedSide === "left" ? "venstre" : "højre"}`
+    ? t("quickLog.lastSide", { side: lastNursing.side === "left" ? t("quickLog.sideLeft") : t("quickLog.sideRight"), suggested: suggestedSide === "left" ? t("quickLog.sideLeft") : t("quickLog.sideRight") })
     : null;
 
   const flash = (msg: string) => { setLastAction(msg); setTimeout(() => setLastAction(null), 3000); };
@@ -77,33 +83,32 @@ export function QuickLog() {
   const handleNursing = useCallback((side: "left" | "right") => {
     addNursing(side);
     fireConfetti();
-    const label = feedingMethod === "flaske" ? "Flaske" : feedingMethod === "begge" ? "Måltid" : "Amning";
-    flash(`${label}${feedingMethod !== "flaske" ? ` (${side === "left" ? "venstre" : "højre"})` : ""} registreret ✨`);
+    flash(t("quickLog.mealLogged"));
     setShowNursingPicker(false);
-  }, [addNursing]);
+  }, [addNursing, t]);
 
   const handleWet = useCallback(() => {
     addDiaper("wet");
     fireConfetti();
-    flash("Tisseble registreret ✨");
+    flash(t("quickLog.wetDiaperLogged"));
     setShowDiaperPicker(false);
     setDiaperStep("type");
-  }, [addDiaper]);
+  }, [addDiaper, t]);
 
   const handleDirtyConfirm = useCallback(() => {
     addDiaper("dirty", selectedColor || undefined, selectedConsistency || undefined);
     fireConfetti();
-    flash("Afføringsble registreret ✨");
+    flash(t("quickLog.dirtyDiaperLogged"));
     setShowDiaperPicker(false);
     setDiaperStep("type");
     setSelectedColor(null);
     setSelectedConsistency(null);
-  }, [addDiaper, selectedColor, selectedConsistency]);
+  }, [addDiaper, selectedColor, selectedConsistency, t]);
 
   const handleSleep = useCallback(() => {
-    if (activeSleep) { endSleep(activeSleep.id); flash("Søvn afsluttet ✨"); }
-    else { addSleep("nap", new Date().toISOString()); flash("Lur startet 💤"); }
-  }, [activeSleep, addSleep, endSleep]);
+    if (activeSleep) { endSleep(activeSleep.id); flash(t("quickLog.sleepEnded")); }
+    else { addSleep("nap", new Date().toISOString()); flash(t("quickLog.napStarted")); }
+  }, [activeSleep, addSleep, endSleep, t]);
 
   const nursingPct = Math.min((todayNursingCount / rec.nursing) * 100, 100);
   const nursingDone = todayNursingCount >= rec.nursing;
@@ -111,7 +116,7 @@ export function QuickLog() {
 
   return (
     <div className="space-y-3 section-fade-in">
-      <p className="text-[1rem] font-semibold">Hurtig log</p>
+      <p className="text-[1rem] font-semibold">{t("quickLog.title")}</p>
 
       {lastAction && (
         <div className="rounded-2xl px-4 py-2.5 text-[0.82rem] font-medium animate-fade-in"
@@ -146,7 +151,7 @@ export function QuickLog() {
           className="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl border transition-all active:scale-95 hover:-translate-y-0.5 hover:shadow-md relative"
           style={{ borderColor: showDiaperPicker ? "hsl(var(--clay))" : "hsl(var(--stone-light))", background: showDiaperPicker ? "hsl(var(--cream))" : "hsl(var(--warm-white))" }}>
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M9 11h14v3c0 5-3 9-7 9s-7-4-7-9V11z" fill="hsl(var(--cream))" stroke="hsl(var(--stone))" strokeWidth="1.2"/><path d="M11 11c2-2 3.5-3 5-3s3 1 5 3" stroke="hsl(var(--stone))" strokeWidth="1.2" strokeLinecap="round"/><circle cx="14" cy="17" r="1.2" fill="hsl(var(--sage))"/><circle cx="18" cy="16.5" r="1.2" fill="hsl(var(--sage))"/></svg>
-          <span className="text-[0.62rem] tracking-[0.06em] uppercase text-muted-foreground">Ble</span>
+          <span className="text-[0.62rem] tracking-[0.06em] uppercase text-muted-foreground">{t("quickLog.diaper")}</span>
           <span className="absolute -top-1 -right-1 text-[0.6rem] font-bold w-5 h-5 rounded-full flex items-center justify-center"
             style={{ background: "hsl(var(--clay-light))", color: "hsl(var(--bark))" }}>
             {todayDiaperCount}
@@ -158,7 +163,7 @@ export function QuickLog() {
           className="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl border transition-all active:scale-95 hover:-translate-y-0.5 hover:shadow-md relative"
           style={{ borderColor: activeSleep ? "hsl(var(--sage))" : "hsl(var(--stone-light))", background: activeSleep ? "hsl(var(--sage-light))" : "hsl(var(--warm-white))" }}>
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M22 8c-5.5 0-10 4.5-10 10s4.5 10 10 10" stroke="hsl(var(--sage))" strokeWidth="1.2" strokeLinecap="round"/><path d="M18 6c-6 1-10 6-10 12s5 10 10 10" fill="hsl(var(--sage-light))" stroke="hsl(var(--sage))" strokeWidth="1.2"/><circle cx="14" cy="14" r="1" fill="hsl(var(--sage))"/><circle cx="11" cy="18" r="0.8" fill="hsl(var(--sage))"/><circle cx="16" cy="20" r="0.6" fill="hsl(var(--sage))"/></svg>
-          <span className="text-[0.62rem] tracking-[0.06em] uppercase text-muted-foreground">{activeSleep ? "Stop søvn" : "Søvn"}</span>
+          <span className="text-[0.62rem] tracking-[0.06em] uppercase text-muted-foreground">{activeSleep ? t("quickLog.stopSleep") : t("quickLog.sleep")}</span>
           {activeSleep && (
             <span className="absolute -top-1 -right-1"><span className="relative flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-50" style={{ background: "hsl(var(--sage))" }} />
@@ -176,7 +181,7 @@ export function QuickLog() {
               <button onClick={() => { handleNursing("left"); }}
                 className="flex-1 py-3 rounded-2xl text-[0.82rem] font-medium border transition-all active:scale-[0.97]"
                 style={{ background: "hsl(var(--cream))", borderColor: "hsl(var(--clay))", color: "hsl(var(--bark))" }}>
-                🍼 Flaske
+                🍼 {t("quickLog.bottle")}
               </button>
             </div>
           )}
@@ -189,7 +194,7 @@ export function QuickLog() {
                 borderColor: "hsl(var(--sage))",
                 color: suggestedSide === "left" ? "white" : "hsl(var(--sage-dark))",
               }}>
-              ← Venstre {suggestedSide === "left" && "✦"}
+              ← {t("quickLog.left")} {suggestedSide === "left" && "✦"}
             </button>
             <button onClick={() => handleNursing("right")}
               className="flex-1 py-3 rounded-2xl text-[0.82rem] font-medium border transition-all active:scale-[0.97]"
@@ -198,7 +203,7 @@ export function QuickLog() {
                 borderColor: "hsl(var(--sage))",
                 color: suggestedSide === "right" ? "white" : "hsl(var(--sage-dark))",
               }}>
-              Højre → {suggestedSide === "right" && "✦"}
+              {t("quickLog.right")} → {suggestedSide === "right" && "✦"}
             </button>
           </div>
         </div>
@@ -207,17 +212,17 @@ export function QuickLog() {
       {/* ── Diaper picker ── */}
       {showDiaperPicker && diaperStep === "type" && (
         <div className="card-soft animate-fade-in space-y-3">
-          <p className="text-[0.72rem] text-muted-foreground">Hvad indeholder bleen?</p>
+          <p className="text-[0.72rem] text-muted-foreground">{t("quickLog.whatInDiaper")}</p>
           <div className="flex gap-2">
             <button onClick={handleWet}
               className="flex-1 py-3 rounded-2xl text-[0.82rem] font-medium border transition-all active:scale-[0.97]"
               style={{ background: "hsl(var(--cream))", borderColor: "hsl(var(--stone))", color: "hsl(var(--bark))" }}>
-              💧 Kun tis
+              {t("quickLog.wetOnly")}
             </button>
             <button onClick={() => setDiaperStep("details")}
               className="flex-1 py-3 rounded-2xl text-[0.82rem] font-medium border transition-all active:scale-[0.97]"
               style={{ background: "hsl(var(--clay-light))", borderColor: "hsl(var(--clay))", color: "hsl(var(--bark))" }}>
-              💩 Afføring
+              {t("quickLog.stool")}
             </button>
           </div>
         </div>
@@ -225,16 +230,14 @@ export function QuickLog() {
 
       {showDiaperPicker && diaperStep === "details" && (
         <div className="card-soft animate-fade-in space-y-4">
-          {/* Expected hint */}
           <div className="rounded-xl px-3 py-2 text-[0.7rem] leading-snug"
             style={{ background: "hsl(var(--cream))", border: "1px solid hsl(var(--clay) / 0.15)" }}>
-            <span className="font-medium">📋 Forventet i dag {ageDays}: </span>
+            <span className="font-medium">{t("quickLog.expectedToday")}</span>
             <span className="text-muted-foreground">{expected.hint}</span>
           </div>
 
-          {/* Color picker */}
           <div>
-            <p className="text-[0.68rem] font-medium mb-2 text-muted-foreground uppercase tracking-wider">Farve</p>
+            <p className="text-[0.68rem] font-medium mb-2 text-muted-foreground uppercase tracking-wider">{t("quickLog.color")}</p>
             <div className="flex gap-2">
               {STOOL_COLORS.map(c => (
                 <button key={c.value} onClick={() => setSelectedColor(c.value)}
@@ -246,15 +249,14 @@ export function QuickLog() {
                   }}>
                   <span className="w-5 h-5 rounded-full border border-black/10" style={{ background: c.swatch }} />
                   <span className="text-[0.55rem]">{c.label}</span>
-                  {expected.colors.includes(c.value) && <span className="text-[0.5rem]" style={{ color: "hsl(var(--moss))" }}>✓ normal</span>}
+                  {expected.colors.includes(c.value) && <span className="text-[0.5rem]" style={{ color: "hsl(var(--moss))" }}>{t("quickLog.normal")}</span>}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Consistency picker */}
           <div>
-            <p className="text-[0.68rem] font-medium mb-2 text-muted-foreground uppercase tracking-wider">Konsistens</p>
+            <p className="text-[0.68rem] font-medium mb-2 text-muted-foreground uppercase tracking-wider">{t("quickLog.consistency")}</p>
             <div className="flex gap-2 flex-wrap">
               {STOOL_CONSISTENCIES.map(c => (
                 <button key={c.value} onClick={() => setSelectedConsistency(c.value)}
@@ -271,17 +273,16 @@ export function QuickLog() {
             </div>
           </div>
 
-          {/* Confirm */}
           <div className="flex gap-2">
             <button onClick={() => { setDiaperStep("type"); setSelectedColor(null); setSelectedConsistency(null); }}
               className="px-4 py-2.5 rounded-xl text-[0.78rem] border transition-all active:scale-95"
               style={{ borderColor: "hsl(var(--stone))", color: "hsl(var(--bark))" }}>
-              ← Tilbage
+              {t("quickLog.back")}
             </button>
             <button onClick={handleDirtyConfirm}
               className="flex-1 py-2.5 rounded-xl text-[0.78rem] font-medium transition-all active:scale-95"
               style={{ background: "hsl(var(--sage))", color: "white" }}>
-              Registrér afføring ✓
+              {t("quickLog.registerStool")}
             </button>
           </div>
         </div>
@@ -299,13 +300,13 @@ export function QuickLog() {
             <div className="h-full rounded-full transition-all duration-500" style={{ width: `${nursingPct}%`, background: nursingDone ? "hsl(var(--sage))" : "hsl(var(--clay))" }} />
           </div>
           {nursingDone
-            ? <p className="text-[0.55rem] mt-1" style={{ color: "hsl(var(--moss))" }}>✓ Nået</p>
-            : <p className="text-[0.55rem] text-muted-foreground mt-1">{rec.nursing - todayNursingCount} mere</p>}
+            ? <p className="text-[0.55rem] mt-1" style={{ color: "hsl(var(--moss))" }}>{t("quickLog.reached")}</p>
+            : <p className="text-[0.55rem] text-muted-foreground mt-1">{t("quickLog.more", { count: rec.nursing - todayNursingCount })}</p>}
         </div>
         {/* Diapers */}
         <div className="card-soft !p-3">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[0.55rem] tracking-[0.1em] uppercase text-muted-foreground">Bleer</span>
+            <span className="text-[0.55rem] tracking-[0.1em] uppercase text-muted-foreground">{t("quickLog.diapers")}</span>
           </div>
           <span className="text-[0.82rem] font-semibold" style={{ color: "hsl(var(--bark))" }}>{todayDiaperCount}/{rec.wetDiapers + rec.dirtyDiapers}</span>
           <div className="h-1.5 rounded-full overflow-hidden mt-1.5" style={{ background: "hsl(var(--stone-lighter))" }}>
@@ -320,11 +321,11 @@ export function QuickLog() {
       {!nursingDone && todayNursingCount > 0 && todayNursingCount < rec.nursing - 2 && (
         <div className="rounded-2xl px-4 py-3 text-[0.78rem] leading-relaxed animate-fade-in"
           style={{ background: "hsl(var(--cream))", border: "1px solid hsl(var(--clay) / 0.15)" }}>
-          <p className="font-medium text-[0.8rem] mb-1">💡 Far-tip</p>
+          <p className="font-medium text-[0.8rem] mb-1">{t("quickLog.dadTip")}</p>
           <p className="text-muted-foreground text-[0.72rem]">
             {ageDays < 3
-              ? `${childName} spiser ofte de første dage. Sørg for at have vand, snacks og pude klar — det gør en kæmpe forskel.`
-              : "Hent vand, en pude og lad telefonen ligge når der ammes. Din støtte gør det nemmere for jer begge."}
+              ? t("quickLog.dadTipNewborn", { childName })
+              : t("quickLog.partnerTip")}
           </p>
         </div>
       )}
@@ -336,6 +337,7 @@ export function QuickLog() {
 // ── Sleep overview card ──
 function SleepOverviewCard() {
   const { sleepLogs, todaySleepMinutes, activeSleep } = useDiary();
+  const { t } = useTranslation();
   const today = new Date().toDateString();
   const todayLogs = sleepLogs.filter(l => new Date(l.startTime).toDateString() === today && l.endTime);
   const napCount = todayLogs.filter(l => l.type === "nap").length;
@@ -350,7 +352,7 @@ function SleepOverviewCard() {
   return (
     <div className="card-soft !p-3">
       <div className="flex items-center justify-between mb-1.5">
-        <span className="text-[0.55rem] tracking-[0.1em] uppercase text-muted-foreground">Søvn</span>
+        <span className="text-[0.55rem] tracking-[0.1em] uppercase text-muted-foreground">{t("quickLog.sleepLabel")}</span>
       </div>
       <span className="text-[0.82rem] font-semibold" style={{ color: done ? "hsl(var(--moss))" : "hsl(var(--bark))" }}>
         {sleepStr}
@@ -359,7 +361,7 @@ function SleepOverviewCard() {
         <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: done ? "hsl(var(--sage))" : "hsl(var(--sage))" }} />
       </div>
       <p className="text-[0.55rem] text-muted-foreground mt-1">
-        {activeSleep ? "💤 Sover nu" : `${napCount} lur${napCount !== 1 ? "e" : ""}`}
+        {activeSleep ? t("quickLog.sleepingNow") : (napCount === 1 ? t("quickLog.napsOne", { count: napCount }) : t("quickLog.napsMany", { count: napCount }))}
       </p>
     </div>
   );
