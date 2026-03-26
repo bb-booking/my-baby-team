@@ -210,7 +210,14 @@
     "yourBody": "Your body",
     "bodyHealth": "Body & health",
     "yourRole": "Your role",
-    "supportPrep": "Support & preparation"
+    "supportPrep": "Support & preparation",
+    "weekLabel": "WEEK",
+    "babyGrowing": "Baby is growing day by day — everything is as it should be.",
+    "thisWeek": "THIS WEEK",
+    "trimesterLabel": "Trimester {{num}}",
+    "trimShort1": "1st trim",
+    "trimShort2": "2nd trim",
+    "trimShort3": "3rd trim"
   },
   "barn": {
     "weeksLabel": "{{weeks}} WEEKS",
@@ -600,5 +607,30 @@
     "You don't need to have it all together. Just be there.",
     "Small steps count. You're an amazing mom.",
     "Accepting help is strength, not weakness."
-  ]
+  ],
+  "dayLabels": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  "weekProgress": {
+    "ofWeeks": "of {{total}} weeks",
+    "babyIsNowLike": "Baby is now like a",
+    "babySize": "Baby size",
+    "trimesterBadge": "Trimester {{num}}"
+  },
+  "checkin": {
+    "howAreYou": "How are you feeling today?",
+    "good": "Good",
+    "okay": "Okay",
+    "hard": "Tough",
+    "goodResponse": "Great! Enjoy the good moments 💛",
+    "okayResponse": "That's fine. One day at a time.",
+    "hardResponse": "Thank you for checking in. You're doing better than you think."
+  },
+  "kalender": {
+    "nextLeap": "Next leap",
+    "levelUp": "LEVEL UP!",
+    "levelUpMsg": "You've reached a new level! Keep up the amazing journey 🌟",
+    "fantastic": "Amazing! 🎉",
+    "noCompletedTasks": "No completed tasks yet",
+    "noTasksDay": "No tasks for this day ✨",
+    "addTo": "Add to {{filter}}"
+  }
 }
