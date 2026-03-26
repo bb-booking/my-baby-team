@@ -1,6 +1,7 @@
 import { useFamily } from "@/context/FamilyContext";
 import { getActiveLeap } from "@/lib/phaseData";
 import { Sparkles, Clock, Star } from "lucide-react";
+import { AIActivitySuggestions } from "@/components/AIActivitySuggestions";
 
 interface Activity {
   title: string;
@@ -143,6 +144,9 @@ export default function LegPage() {
           </div>
         ))}
       </div>
+
+      {/* AI-generated suggestions */}
+      <AIActivitySuggestions />
 
       <div className="h-20 md:h-0" />
     </div>
