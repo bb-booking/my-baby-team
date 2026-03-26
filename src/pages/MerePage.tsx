@@ -22,10 +22,10 @@ export default function MerePage() {
   };
 
   const menuItems = [
-    { icon: User, label: "Profil", desc: `${profile.parentName} — ${profile.role === "mor" ? "Mor" : "Far/Partner"}` },
-    { icon: Bell, label: "Notifikationer", desc: "Rolige påmindelser" },
-    { icon: Settings, label: "Indstillinger", desc: "Sprog, tema, data" },
-    { icon: HelpCircle, label: "Hjælp", desc: "FAQ og support" },
+    { icon: User, label: "Profil", desc: `${profile.parentName} — ${profile.role === "mor" ? "Mor" : "Far/Partner"}`, path: "" },
+    { icon: Bell, label: "Notifikationer", desc: "Rolige påmindelser", path: "" },
+    { icon: Settings, label: "Indstillinger", desc: "Sprog, tema, data", path: "/indstillinger" },
+    { icon: HelpCircle, label: "Hjælp", desc: "FAQ og support", path: "" },
   ];
 
   return (
@@ -144,7 +144,7 @@ export default function MerePage() {
 
       <div className="space-y-2">
         {menuItems.map((item, i) => (
-          <button key={item.label} className="card-soft w-full flex items-center gap-4 text-left transition-all active:scale-[0.98] section-fade-in" style={{ animationDelay: `${(i + 2) * 80}ms` }}>
+          <button key={item.label} onClick={() => item.path && navigate(item.path)} className="card-soft w-full flex items-center gap-4 text-left transition-all active:scale-[0.98] section-fade-in" style={{ animationDelay: `${(i + 2) * 80}ms` }}>
             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--sand-light))" }}>
               <item.icon className="w-5 h-5 text-foreground/60" />
             </div>
