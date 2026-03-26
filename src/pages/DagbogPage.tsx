@@ -3,10 +3,10 @@ import { useFamily } from "@/context/FamilyContext";
 import { useDiary, type StoolColor, type StoolConsistency } from "@/context/DiaryContext";
 import { Trash2, Clock, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
-import { da } from "date-fns/locale";
+import { da, enUS } from "date-fns/locale";
 import confetti from "canvas-confetti";
+import { useTranslation } from "react-i18next";
 
-// ── Recommended counts by baby age ──
 function getRecommended(ageDays: number) {
   if (ageDays < 2) return { nursing: 5, wetDiapers: 1, dirtyDiapers: 1 };
   if (ageDays < 3) return { nursing: 8, wetDiapers: 2, dirtyDiapers: 2 };
@@ -15,51 +15,36 @@ function getRecommended(ageDays: number) {
   return { nursing: 8, wetDiapers: 6, dirtyDiapers: 4 };
 }
 
-function getExpectedStool(ageDays: number): { colors: StoolColor[]; consistencies: StoolConsistency[]; hint: string } {
-  if (ageDays < 2) return { colors: ["sort", "mørkegrøn"], consistencies: ["slimet"], hint: "Mekonium — sort/mørkegrøn, klæbrig. Helt normalt." };
-  if (ageDays < 4) return { colors: ["mørkegrøn", "grøn"], consistencies: ["blød", "slimet"], hint: "Overgangsafføring — grønlig, blødere." };
-  if (ageDays < 7) return { colors: ["grøn", "gulgrøn"], consistencies: ["blød", "grynet"], hint: "Farven skifter mod gul." };
-  return { colors: ["gulgrøn", "gul"], consistencies: ["blød", "grynet", "flydende"], hint: "Sennepsgul, grynet — helt normalt." };
+function getExpectedStool(ageDays: number, t: any): { colors: StoolColor[]; consistencies: StoolConsistency[]; hint: string } {
+  if (ageDays < 2) return { colors: ["sort", "mørkegrøn"], consistencies: ["slimet"], hint: t("quickLog.stoolHintDay0") };
+  if (ageDays < 4) return { colors: ["mørkegrøn", "grøn"], consistencies: ["blød", "slimet"], hint: t("quickLog.stoolHintDay2") };
+  if (ageDays < 7) return { colors: ["grøn", "gulgrøn"], consistencies: ["blød", "grynet"], hint: t("quickLog.stoolHintDay4") };
+  return { colors: ["gulgrøn", "gul"], consistencies: ["blød", "grynet", "flydende"], hint: t("quickLog.stoolHintDay7") };
 }
 
 function fireConfetti() {
   confetti({ particleCount: 45, spread: 60, startVelocity: 20, gravity: 0.8, ticks: 120, origin: { y: 0.7 }, colors: ["#8fae7e", "#c4a77d", "#e8dfd0", "#a3c293", "#d4b896"], scalar: 0.8 });
 }
 
-const STOOL_COLORS: { value: StoolColor; label: string; swatch: string }[] = [
-  { value: "sort", label: "Sort", swatch: "#1a1a1a" },
-  { value: "mørkegrøn", label: "Mrkgrøn", swatch: "#2d5a27" },
-  { value: "grøn", label: "Grøn", swatch: "#4a8c3f" },
-  { value: "gulgrøn", label: "Gulgrøn", swatch: "#a8b84c" },
-  { value: "gul", label: "Gul", swatch: "#d4a843" },
-];
-
-const STOOL_CONSISTENCIES: { value: StoolConsistency; label: string; icon: string }[] = [
-  { value: "hård", label: "Hård", icon: "●" },
-  { value: "blød", label: "Blød", icon: "◉" },
-  { value: "flydende", label: "Flydende", icon: "≋" },
-  { value: "grynet", label: "Grynet", icon: "⁘" },
-  { value: "slimet", label: "Slimet", icon: "◎" },
-];
-
 type ViewTab = "idag" | "historik";
 
 export default function DagbogPage() {
-  const { profile, babyAgeWeeks } = useFamily();
+  const { profile } = useFamily();
+  const { t } = useTranslation();
   const [viewTab, setViewTab] = useState<ViewTab>("idag");
 
   if (profile.phase === "pregnant") {
     return (
       <div className="space-y-5">
         <div className="section-fade-in">
-          <h1 className="text-[1.9rem] font-normal">Dagbog</h1>
-          <p className="label-upper mt-1">TILGÆNGELIG NÅR BARNET ER FØDT</p>
+          <h1 className="text-[1.9rem] font-normal">{t("diary.title")}</h1>
+          <p className="label-upper mt-1">{t("diary.availableAfterBirth")}</p>
         </div>
         <div className="card-soft text-center py-12 section-fade-in" style={{ animationDelay: "80ms" }}>
           <span className="text-4xl mb-4 block">📖</span>
-          <p className="text-[1rem] font-normal mb-2">Dagbogen venter på jer</p>
+          <p className="text-[1rem] font-normal mb-2">{t("diary.diaryWaiting")}</p>
           <p className="text-[0.8rem] text-muted-foreground max-w-xs mx-auto leading-relaxed">
-            Når baby er født kan I logge amning, bleer, søvn og noter.
+            {t("diary.diaryWaitingDesc")}
           </p>
         </div>
         <div className="h-20 md:h-0" />
@@ -70,31 +55,29 @@ export default function DagbogPage() {
   return (
     <div className="space-y-4">
       <div className="section-fade-in">
-        <h1 className="text-[1.9rem] font-normal">Dagbog</h1>
-        <p className="label-upper mt-1">LOG OG OVERBLIK</p>
+        <h1 className="text-[1.9rem] font-normal">{t("diary.title")}</h1>
+        <p className="label-upper mt-1">{t("diary.logAndOverview")}</p>
       </div>
 
-      {/* Quick log buttons — same as dashboard */}
       <QuickLogButtons />
 
-      {/* Tab switch: Today / History */}
       <div className="flex gap-0 border-b section-fade-in" style={{ borderColor: "hsl(var(--stone-lighter))", animationDelay: "120ms" }}>
         {([
-          { key: "idag" as ViewTab, label: "I dag" },
-          { key: "historik" as ViewTab, label: "Historik" },
-        ]).map(t => (
+          { key: "idag" as ViewTab, label: t("diary.today") },
+          { key: "historik" as ViewTab, label: t("diary.history") },
+        ]).map(tab => (
           <button
-            key={t.key}
-            onClick={() => setViewTab(t.key)}
+            key={tab.key}
+            onClick={() => setViewTab(tab.key)}
             className={`px-5 py-2.5 text-[0.72rem] tracking-[0.13em] uppercase border-b-2 -mb-px transition-all ${
-              viewTab === t.key ? "font-medium" : "text-muted-foreground"
+              viewTab === tab.key ? "font-medium" : "text-muted-foreground"
             }`}
             style={{
-              borderBottomColor: viewTab === t.key ? "hsl(var(--moss))" : "transparent",
-              color: viewTab === t.key ? "hsl(var(--moss))" : undefined,
+              borderBottomColor: viewTab === tab.key ? "hsl(var(--moss))" : "transparent",
+              color: viewTab === tab.key ? "hsl(var(--moss))" : undefined,
             }}
           >
-            {t.label}
+            {tab.label}
           </button>
         ))}
       </div>
@@ -107,13 +90,14 @@ export default function DagbogPage() {
 }
 
 // ═══════════════════════════════════════════
-// QUICK LOG BUTTONS (reusable, same icons as dashboard)
+// QUICK LOG BUTTONS
 // ═══════════════════════════════════════════
 function QuickLogButtons() {
   const { nursingLogs, addNursing, diaperLogs, addDiaper, todayNursingCount, todayDiaperCount, activeSleep, addSleep, endSleep } = useDiary();
   const { babyAgeWeeks, profile } = useFamily();
+  const { t } = useTranslation();
   const feedingMethod = profile.morHealth?.feedingMethod;
-  const feedingLabel = feedingMethod === "flaske" ? "Flaske" : feedingMethod === "begge" ? "Amning/Flaske" : "Amning";
+  const feedingLabel = feedingMethod === "flaske" ? t("quickLog.bottle") : feedingMethod === "begge" ? t("quickLog.nursingBottle") : t("quickLog.nursing");
   const ageDays = babyAgeWeeks * 7;
   const rec = getRecommended(ageDays);
   const nursingDone = todayNursingCount >= rec.nursing;
@@ -126,47 +110,63 @@ function QuickLogButtons() {
   const [lastAction, setLastAction] = useState<string | null>(null);
 
   const today = new Date().toDateString();
-  const todayWet = diaperLogs.filter(l => new Date(l.timestamp).toDateString() === today && (l.type === "wet" || l.type === "both")).length;
-  const todayDirty = diaperLogs.filter(l => new Date(l.timestamp).toDateString() === today && (l.type === "dirty" || l.type === "both")).length;
-
-  const expected = getExpectedStool(ageDays);
+  const expected = getExpectedStool(ageDays, t);
   const lastNursing = nursingLogs.find(l => new Date(l.timestamp).toDateString() === today);
   const suggestedSide: "left" | "right" = lastNursing ? (lastNursing.side === "left" ? "right" : "left") : "left";
   const lastSideHint = lastNursing
-    ? `Sidst: ${lastNursing.side === "left" ? "venstre" : "højre"} → prøv ${suggestedSide === "left" ? "venstre" : "højre"}`
+    ? t("quickLog.lastSide", {
+        side: lastNursing.side === "left" ? t("quickLog.sideLeft") : t("quickLog.sideRight"),
+        suggested: suggestedSide === "left" ? t("quickLog.sideLeft") : t("quickLog.sideRight"),
+      })
     : null;
+
+  const STOOL_COLORS: { value: StoolColor; label: string; swatch: string }[] = [
+    { value: "sort", label: t("quickLog.colorBlack"), swatch: "#1a1a1a" },
+    { value: "mørkegrøn", label: t("quickLog.colorDarkGreen"), swatch: "#2d5a27" },
+    { value: "grøn", label: t("quickLog.colorGreen"), swatch: "#4a8c3f" },
+    { value: "gulgrøn", label: t("quickLog.colorYellowGreen"), swatch: "#a8b84c" },
+    { value: "gul", label: t("quickLog.colorYellow"), swatch: "#d4a843" },
+  ];
+
+  const STOOL_CONSISTENCIES: { value: StoolConsistency; label: string; icon: string }[] = [
+    { value: "hård", label: t("quickLog.consHard"), icon: "●" },
+    { value: "blød", label: t("quickLog.consSoft"), icon: "◉" },
+    { value: "flydende", label: t("quickLog.consLiquid"), icon: "≋" },
+    { value: "grynet", label: t("quickLog.consGranular"), icon: "⁘" },
+    { value: "slimet", label: t("quickLog.consMucus"), icon: "◎" },
+  ];
 
   const flash = (msg: string) => { setLastAction(msg); setTimeout(() => setLastAction(null), 3000); };
 
   const handleNursing = useCallback((side: "left" | "right") => {
     addNursing(side);
     fireConfetti();
-    flash("Måltid registreret ✨");
+    flash(t("quickLog.mealLogged"));
     setShowNursingPicker(false);
-  }, [addNursing]);
+  }, [addNursing, t]);
 
   const handleWet = useCallback(() => {
     addDiaper("wet");
     fireConfetti();
-    flash("Tisseble registreret ✨");
+    flash(t("quickLog.wetDiaperLogged"));
     setShowDiaperPicker(false);
     setDiaperStep("type");
-  }, [addDiaper]);
+  }, [addDiaper, t]);
 
   const handleDirtyConfirm = useCallback(() => {
     addDiaper("dirty", selectedColor || undefined, selectedConsistency || undefined);
     fireConfetti();
-    flash("Afføringsble registreret ✨");
+    flash(t("quickLog.dirtyDiaperLogged"));
     setShowDiaperPicker(false);
     setDiaperStep("type");
     setSelectedColor(null);
     setSelectedConsistency(null);
-  }, [addDiaper, selectedColor, selectedConsistency]);
+  }, [addDiaper, selectedColor, selectedConsistency, t]);
 
   const handleSleep = useCallback(() => {
-    if (activeSleep) { endSleep(activeSleep.id); flash("Søvn afsluttet ✨"); }
-    else { addSleep("nap", new Date().toISOString()); flash("Lur startet 💤"); }
-  }, [activeSleep, addSleep, endSleep]);
+    if (activeSleep) { endSleep(activeSleep.id); flash(t("quickLog.sleepEnded")); }
+    else { addSleep("nap", new Date().toISOString()); flash(t("quickLog.napStarted")); }
+  }, [activeSleep, addSleep, endSleep, t]);
 
   return (
     <div className="space-y-3 section-fade-in" style={{ animationDelay: "80ms" }}>
@@ -177,7 +177,6 @@ function QuickLogButtons() {
         </div>
       )}
 
-      {/* 3 quick-action buttons */}
       <div className="grid grid-cols-3 gap-2.5">
         {/* Nursing */}
         <button onClick={() => {
@@ -203,7 +202,7 @@ function QuickLogButtons() {
           className="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl border transition-all active:scale-95 hover:-translate-y-0.5 hover:shadow-md relative"
           style={{ borderColor: showDiaperPicker ? "hsl(var(--clay))" : "hsl(var(--stone-light))", background: showDiaperPicker ? "hsl(var(--cream))" : "hsl(var(--warm-white))" }}>
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M9 11h14v3c0 5-3 9-7 9s-7-4-7-9V11z" fill="hsl(var(--cream))" stroke="hsl(var(--stone))" strokeWidth="1.2"/><path d="M11 11c2-2 3.5-3 5-3s3 1 5 3" stroke="hsl(var(--stone))" strokeWidth="1.2" strokeLinecap="round"/><circle cx="14" cy="17" r="1.2" fill="hsl(var(--sage))"/><circle cx="18" cy="16.5" r="1.2" fill="hsl(var(--sage))"/></svg>
-          <span className="text-[0.62rem] tracking-[0.06em] uppercase text-muted-foreground">Ble</span>
+          <span className="text-[0.62rem] tracking-[0.06em] uppercase text-muted-foreground">{t("quickLog.diaper")}</span>
           <span className="absolute -top-1 -right-1 text-[0.6rem] font-bold w-5 h-5 rounded-full flex items-center justify-center"
             style={{ background: "hsl(var(--clay-light))", color: "hsl(var(--bark))" }}>
             {todayDiaperCount}
@@ -215,7 +214,7 @@ function QuickLogButtons() {
           className="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl border transition-all active:scale-95 hover:-translate-y-0.5 hover:shadow-md relative"
           style={{ borderColor: activeSleep ? "hsl(var(--sage))" : "hsl(var(--stone-light))", background: activeSleep ? "hsl(var(--sage-light))" : "hsl(var(--warm-white))" }}>
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M22 8c-5.5 0-10 4.5-10 10s4.5 10 10 10" stroke="hsl(var(--sage))" strokeWidth="1.2" strokeLinecap="round"/><path d="M18 6c-6 1-10 6-10 12s5 10 10 10" fill="hsl(var(--sage-light))" stroke="hsl(var(--sage))" strokeWidth="1.2"/><circle cx="14" cy="14" r="1" fill="hsl(var(--sage))"/><circle cx="11" cy="18" r="0.8" fill="hsl(var(--sage))"/><circle cx="16" cy="20" r="0.6" fill="hsl(var(--sage))"/></svg>
-          <span className="text-[0.62rem] tracking-[0.06em] uppercase text-muted-foreground">{activeSleep ? "Stop søvn" : "Søvn"}</span>
+          <span className="text-[0.62rem] tracking-[0.06em] uppercase text-muted-foreground">{activeSleep ? t("quickLog.stopSleep") : t("quickLog.sleep")}</span>
           {activeSleep && (
             <span className="absolute -top-1 -right-1"><span className="relative flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-50" style={{ background: "hsl(var(--sage))" }} />
@@ -232,7 +231,7 @@ function QuickLogButtons() {
             <button onClick={() => handleNursing("left")}
               className="w-full py-3 rounded-2xl text-[0.82rem] font-medium border transition-all active:scale-[0.97]"
               style={{ background: "hsl(var(--cream))", borderColor: "hsl(var(--clay))", color: "hsl(var(--bark))" }}>
-              🍼 Flaske
+              🍼 {t("quickLog.bottle")}
             </button>
           )}
           {lastSideHint && <p className="text-[0.72rem] text-muted-foreground">💡 {lastSideHint}</p>}
@@ -244,7 +243,7 @@ function QuickLogButtons() {
                 borderColor: "hsl(var(--sage))",
                 color: suggestedSide === "left" ? "white" : "hsl(var(--sage-dark))",
               }}>
-              ← Venstre {suggestedSide === "left" && "✦"}
+              ← {t("quickLog.left")} {suggestedSide === "left" && "✦"}
             </button>
             <button onClick={() => handleNursing("right")}
               className="flex-1 py-3 rounded-2xl text-[0.82rem] font-medium border transition-all active:scale-[0.97]"
@@ -253,7 +252,7 @@ function QuickLogButtons() {
                 borderColor: "hsl(var(--sage))",
                 color: suggestedSide === "right" ? "white" : "hsl(var(--sage-dark))",
               }}>
-              Højre → {suggestedSide === "right" && "✦"}
+              {t("quickLog.right")} → {suggestedSide === "right" && "✦"}
             </button>
           </div>
         </div>
@@ -262,17 +261,17 @@ function QuickLogButtons() {
       {/* Diaper picker */}
       {showDiaperPicker && diaperStep === "type" && (
         <div className="card-soft animate-fade-in space-y-3">
-          <p className="text-[0.72rem] text-muted-foreground">Hvad indeholder bleen?</p>
+          <p className="text-[0.72rem] text-muted-foreground">{t("quickLog.whatInDiaper")}</p>
           <div className="flex gap-2">
             <button onClick={handleWet}
               className="flex-1 py-3 rounded-2xl text-[0.82rem] font-medium border transition-all active:scale-[0.97]"
               style={{ background: "hsl(var(--cream))", borderColor: "hsl(var(--stone))", color: "hsl(var(--bark))" }}>
-              💧 Kun tis
+              {t("quickLog.wetOnly")}
             </button>
             <button onClick={() => setDiaperStep("details")}
               className="flex-1 py-3 rounded-2xl text-[0.82rem] font-medium border transition-all active:scale-[0.97]"
               style={{ background: "hsl(var(--clay-light))", borderColor: "hsl(var(--clay))", color: "hsl(var(--bark))" }}>
-              💩 Afføring
+              {t("quickLog.stool")}
             </button>
           </div>
         </div>
@@ -282,12 +281,12 @@ function QuickLogButtons() {
         <div className="card-soft animate-fade-in space-y-4">
           <div className="rounded-xl px-3 py-2 text-[0.7rem] leading-snug"
             style={{ background: "hsl(var(--cream))", border: "1px solid hsl(var(--clay) / 0.15)" }}>
-            <span className="font-medium">📋 Forventet: </span>
+            <span className="font-medium">{t("quickLog.expectedToday")}</span>
             <span className="text-muted-foreground">{expected.hint}</span>
           </div>
 
           <div>
-            <p className="text-[0.68rem] font-medium mb-2 text-muted-foreground uppercase tracking-wider">Farve</p>
+            <p className="text-[0.68rem] font-medium mb-2 text-muted-foreground uppercase tracking-wider">{t("quickLog.color")}</p>
             <div className="flex gap-2">
               {STOOL_COLORS.map(c => (
                 <button key={c.value} onClick={() => setSelectedColor(c.value)}
@@ -306,7 +305,7 @@ function QuickLogButtons() {
           </div>
 
           <div>
-            <p className="text-[0.68rem] font-medium mb-2 text-muted-foreground uppercase tracking-wider">Konsistens</p>
+            <p className="text-[0.68rem] font-medium mb-2 text-muted-foreground uppercase tracking-wider">{t("quickLog.consistency")}</p>
             <div className="flex gap-2 flex-wrap">
               {STOOL_CONSISTENCIES.map(c => (
                 <button key={c.value} onClick={() => setSelectedConsistency(c.value)}
@@ -327,12 +326,12 @@ function QuickLogButtons() {
             <button onClick={() => { setDiaperStep("type"); setSelectedColor(null); setSelectedConsistency(null); }}
               className="px-4 py-2.5 rounded-xl text-[0.78rem] border transition-all active:scale-95"
               style={{ borderColor: "hsl(var(--stone))", color: "hsl(var(--bark))" }}>
-              ← Tilbage
+              {t("quickLog.back")}
             </button>
             <button onClick={handleDirtyConfirm}
               className="flex-1 py-2.5 rounded-xl text-[0.78rem] font-medium transition-all active:scale-95"
               style={{ background: "hsl(var(--sage))", color: "white" }}>
-              Registrér ✓
+              {t("diary.register")}
             </button>
           </div>
         </div>
@@ -342,12 +341,12 @@ function QuickLogButtons() {
 }
 
 // ═══════════════════════════════════════════
-// TODAY VIEW — stats + recommendations + log
+// TODAY VIEW
 // ═══════════════════════════════════════════
 function TodayView() {
   const { nursingLogs, diaperLogs, sleepLogs, todayNursingCount, todayDiaperCount, todaySleepMinutes, activeSleep, removeNursingLog, removeDiaperLog, removeSleepLog } = useDiary();
   const { babyAgeWeeks, profile } = useFamily();
-  const isMor = profile.role === "mor";
+  const { t, i18n } = useTranslation();
   const childName = profile.children?.[0]?.name || "Baby";
   const ageDays = babyAgeWeeks * 7;
   const rec = getRecommended(ageDays);
@@ -368,21 +367,20 @@ function TodayView() {
   const todayNaps = sleepLogs.filter(l => new Date(l.startTime).toDateString() === today && l.endTime && l.type === "nap").length;
 
   const feedingMethod = profile.morHealth?.feedingMethod;
-  const feedingLabel = feedingMethod === "flaske" ? "FLASKE" : feedingMethod === "begge" ? "AMNING/FLASKE" : "AMNING";
+  const feedingLabelUpper = feedingMethod === "flaske" ? t("diary.feedingBottle") : feedingMethod === "begge" ? t("diary.feedingCombi") : t("diary.feedingNursing");
+  const feedingLabelShort = feedingMethod === "flaske" ? t("diary.feedingBottleShort") : feedingMethod === "begge" ? t("diary.feedingCombiShort") : t("diary.feedingNursingShort");
 
-  // Build recommendations
   const recommendations: { emoji: string; text: string }[] = [];
   if (!nursingDone && todayNursingCount > 0 && todayNursingCount < rec.nursing - 1) {
-    recommendations.push({ emoji: "🍼", text: `${childName} har fået ${todayNursingCount} måltider — anbefalet er mindst ${rec.nursing}.` });
+    recommendations.push({ emoji: "🍼", text: t("diary.mealsLow", { name: childName, count: todayNursingCount, rec: rec.nursing }) });
   }
   if (todayWet < rec.wetDiapers && todayDiaperCount > 0) {
-    recommendations.push({ emoji: "💧", text: `Kun ${todayWet} tissebleer — forventet er ${rec.wetDiapers}+. Hold øje med hydrering.` });
+    recommendations.push({ emoji: "💧", text: t("diary.wetLow", { count: todayWet, rec: rec.wetDiapers }) });
   }
   if (nursingDone && diaperDone) {
-    recommendations.push({ emoji: "💚", text: `${childName} har fået nok mad og bleskift i dag. I klarer det!` });
+    recommendations.push({ emoji: "💚", text: t("diary.allGood", { name: childName }) });
   }
 
-  // All today logs merged and sorted
   const todayNursingLogs = nursingLogs.filter(l => new Date(l.timestamp).toDateString() === today);
   const todayDiaperLogs = diaperLogs.filter(l => new Date(l.timestamp).toDateString() === today);
   const todaySleepLogs = sleepLogs.filter(l => new Date(l.startTime).toDateString() === today);
@@ -390,17 +388,17 @@ function TodayView() {
   const allLogs: { id: string; emoji: string; title: string; time: string; timestamp: number; type: "nursing" | "diaper" | "sleep" }[] = [
     ...todayNursingLogs.map(l => ({
       id: l.id, emoji: feedingMethod === "flaske" ? "🍼" : "🤱",
-      title: feedingMethod === "flaske" ? "Flaske" : `Amning — ${l.side === "left" ? "venstre" : "højre"}`,
+      title: feedingMethod === "flaske" ? t("diary.bottleLog") : `${t("diary.nursingLeft").split(" — ")[0]} — ${l.side === "left" ? t("quickLog.sideLeft") : t("quickLog.sideRight")}`,
       time: format(new Date(l.timestamp), "HH:mm"), timestamp: new Date(l.timestamp).getTime(), type: "nursing" as const,
     })),
     ...todayDiaperLogs.map(l => ({
       id: l.id, emoji: l.type === "wet" ? "💧" : l.type === "dirty" ? "💩" : "💧💩",
-      title: `${l.type === "wet" ? "Tisse" : l.type === "dirty" ? "Afføring" : "Tisse + afføring"}${l.stoolColor ? ` · ${l.stoolColor}` : ""}`,
+      title: `${l.type === "wet" ? t("diary.wetDiaper") : l.type === "dirty" ? t("diary.dirtyDiaper") : t("diary.wetAndDirty")}${l.stoolColor ? ` · ${l.stoolColor}` : ""}`,
       time: format(new Date(l.timestamp), "HH:mm"), timestamp: new Date(l.timestamp).getTime(), type: "diaper" as const,
     })),
     ...todaySleepLogs.map(l => ({
       id: l.id, emoji: l.type === "nap" ? "💤" : "🌙",
-      title: `${l.type === "nap" ? "Lur" : "Nattesøvn"}${l.endTime ? "" : " (i gang)"}`,
+      title: `${l.type === "nap" ? t("diary.napLabel") : t("diary.nightSleepLabel")}${l.endTime ? "" : ` (${t("diary.inProgress")})`}`,
       time: `${format(new Date(l.startTime), "HH:mm")}${l.endTime ? ` — ${format(new Date(l.endTime), "HH:mm")}` : ""}`,
       timestamp: new Date(l.startTime).getTime(), type: "sleep" as const,
     })),
@@ -414,11 +412,9 @@ function TodayView() {
 
   return (
     <div className="space-y-3">
-      {/* Stats cards */}
       <div className="grid grid-cols-3 gap-2 section-fade-in" style={{ animationDelay: "160ms" }}>
-        {/* Feeding */}
         <div className="card-soft !p-3">
-          <span className="text-[0.55rem] tracking-[0.1em] uppercase text-muted-foreground">{feedingLabel}</span>
+          <span className="text-[0.55rem] tracking-[0.1em] uppercase text-muted-foreground">{feedingLabelUpper}</span>
           <p className="text-[1.1rem] font-semibold mt-1" style={{ color: nursingDone ? "hsl(var(--moss))" : "hsl(var(--bark))" }}>
             {todayNursingCount}/{rec.nursing}
           </p>
@@ -426,13 +422,12 @@ function TodayView() {
             <div className="h-full rounded-full transition-all duration-500" style={{ width: `${nursingPct}%`, background: nursingDone ? "hsl(var(--sage))" : "hsl(var(--clay))" }} />
           </div>
           <p className="text-[0.55rem] mt-1" style={{ color: nursingDone ? "hsl(var(--moss))" : undefined }}>
-            {nursingDone ? "✓ Nået" : `${rec.nursing - todayNursingCount} mere`}
+            {nursingDone ? t("quickLog.reached") : t("quickLog.more", { count: rec.nursing - todayNursingCount })}
           </p>
         </div>
 
-        {/* Diapers */}
         <div className="card-soft !p-3">
-          <span className="text-[0.55rem] tracking-[0.1em] uppercase text-muted-foreground">BLEER</span>
+          <span className="text-[0.55rem] tracking-[0.1em] uppercase text-muted-foreground">{t("quickLog.diapers").toUpperCase()}</span>
           <p className="text-[1.1rem] font-semibold mt-1" style={{ color: diaperDone ? "hsl(var(--moss))" : "hsl(var(--bark))" }}>
             {todayDiaperCount}/{totalDiaperRec}
           </p>
@@ -442,9 +437,8 @@ function TodayView() {
           <p className="text-[0.55rem] text-muted-foreground mt-1">💧{todayWet} · 💩{todayDirty}</p>
         </div>
 
-        {/* Sleep */}
         <div className="card-soft !p-3">
-          <span className="text-[0.55rem] tracking-[0.1em] uppercase text-muted-foreground">SØVN</span>
+          <span className="text-[0.55rem] tracking-[0.1em] uppercase text-muted-foreground">{t("quickLog.sleepLabel").toUpperCase()}</span>
           <p className="text-[1.1rem] font-semibold mt-1" style={{ color: "hsl(var(--bark))" }}>
             {sleepStr}
           </p>
@@ -452,12 +446,11 @@ function TodayView() {
             <div className="h-full rounded-full transition-all duration-500" style={{ width: `${Math.min((todaySleepMinutes / (8 * 60)) * 100, 100)}%`, background: "hsl(var(--sage))" }} />
           </div>
           <p className="text-[0.55rem] text-muted-foreground mt-1">
-            {activeSleep ? "💤 Sover nu" : `${todayNaps} lur${todayNaps !== 1 ? "e" : ""}`}
+            {activeSleep ? t("quickLog.sleepingNow") : (todayNaps === 1 ? t("quickLog.napsOne", { count: todayNaps }) : t("quickLog.napsMany", { count: todayNaps }))}
           </p>
         </div>
       </div>
 
-      {/* Recommendations */}
       {recommendations.length > 0 && (
         <div className="space-y-2 section-fade-in" style={{ animationDelay: "200ms" }}>
           {recommendations.map((r, i) => (
@@ -471,10 +464,9 @@ function TodayView() {
         </div>
       )}
 
-      {/* Combined log */}
       {allLogs.length > 0 && (
         <div className="card-soft section-fade-in" style={{ animationDelay: "240ms" }}>
-          <p className="label-upper mb-3">DAGENS LOG</p>
+          <p className="label-upper mb-3">{t("diary.dailyLog")}</p>
           {allLogs.map((item) => (
             <div key={item.id} className="flex items-center gap-3 py-2.5 border-b border-foreground/5 last:border-0">
               <span className="text-lg flex-shrink-0">{item.emoji}</span>
@@ -494,15 +486,16 @@ function TodayView() {
 }
 
 // ═══════════════════════════════════════════
-// HISTORY VIEW — last 7 days summary
+// HISTORY VIEW
 // ═══════════════════════════════════════════
 function HistoryView() {
   const { nursingLogs, diaperLogs, sleepLogs } = useDiary();
   const { profile } = useFamily();
+  const { t, i18n } = useTranslation();
+  const dateFnsLocale = i18n.language === "en" ? enUS : da;
   const feedingMethod = profile.morHealth?.feedingMethod;
-  const feedingLabel = feedingMethod === "flaske" ? "Flaske" : feedingMethod === "begge" ? "Amn/Fl" : "Amning";
+  const feedingLabel = feedingMethod === "flaske" ? t("diary.feedingBottleShort") : feedingMethod === "begge" ? t("diary.feedingCombiShort") : t("diary.feedingNursingShort");
 
-  // Build last 7 days
   const days: { date: Date; label: string; nursing: number; diapers: number; sleepMin: number }[] = [];
   for (let i = 0; i < 7; i++) {
     const d = new Date();
@@ -515,7 +508,7 @@ function HistoryView() {
       .reduce((sum, l) => sum + (new Date(l.endTime!).getTime() - new Date(l.startTime).getTime()) / 60000, 0);
     days.push({
       date: d,
-      label: i === 0 ? "I dag" : i === 1 ? "I går" : format(d, "EEE d/M", { locale: da }),
+      label: i === 0 ? t("diary.today") : i === 1 ? t("tasks.yesterday") : format(d, "EEE d/M", { locale: dateFnsLocale }),
       nursing, diapers, sleepMin,
     });
   }
@@ -524,7 +517,7 @@ function HistoryView() {
     <div className="space-y-2 section-fade-in" style={{ animationDelay: "160ms" }}>
       <div className="flex items-center gap-2 mb-1">
         <TrendingUp className="w-4 h-4 text-muted-foreground" />
-        <p className="text-[0.7rem] text-muted-foreground uppercase tracking-wider">Sidste 7 dage</p>
+        <p className="text-[0.7rem] text-muted-foreground uppercase tracking-wider">{t("diary.last7days")}</p>
       </div>
 
       {days.map((day, i) => {
@@ -540,8 +533,8 @@ function HistoryView() {
             </div>
             <div className="flex-1 flex items-center gap-3 text-[0.72rem] text-muted-foreground">
               <span title={feedingLabel}>🤱 {day.nursing}</span>
-              <span title="Bleer">👶 {day.diapers}</span>
-              <span title="Søvn">💤 {sleepH > 0 ? `${sleepH}t${sleepM > 0 ? ` ${sleepM}m` : ""}` : `${sleepM}m`}</span>
+              <span title={t("quickLog.diapers")}>👶 {day.diapers}</span>
+              <span title={t("quickLog.sleepLabel")}>💤 {sleepH > 0 ? `${sleepH}t${sleepM > 0 ? ` ${sleepM}m` : ""}` : `${sleepM}m`}</span>
             </div>
           </div>
         );
