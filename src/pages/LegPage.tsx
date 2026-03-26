@@ -78,9 +78,6 @@ export default function LegPage() {
       {/* AI suggestions */}
       <div className="section-fade-in" style={{ animationDelay: "80ms" }}>
         <AIActivitySuggestions
-          childName={childName}
-          ageWeeks={babyAgeWeeks}
-          ageMonths={babyAgeMonths}
           category={activeCategory}
         />
       </div>
