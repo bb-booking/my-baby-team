@@ -31,7 +31,7 @@ export function WeekProgress() {
       <div className="flex items-center gap-3 bg-sand-light rounded-2xl px-5 py-3">
         <img src={babySizeImg} alt="Baby størrelse" className="w-10 h-10 object-contain" />
         <div className="text-left">
-          <p className="text-sm text-muted-foreground">Baby er nu som</p>
+          <p className="text-sm text-muted-foreground">Barnet er nu som</p>
           <p className="font-medium">{size.label} {size.emoji}</p>
         </div>
       </div>
