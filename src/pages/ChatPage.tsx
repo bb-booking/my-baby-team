@@ -2,13 +2,25 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useFamily } from "@/context/FamilyContext";
 import { Send, Sparkles, AlertTriangle } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { useTranslation } from "react-i18next";
 
 interface Msg {
   role: "user" | "assistant";
   content: string;
 }
 
-function getQuickPrompts(childName: string) {
+function getQuickPrompts(childName: string, en: boolean) {
+  if (en) return [
+    `How much should ${childName} sleep?`,
+    `${childName} won't latch — what should I do?`,
+    `How do I know if ${childName} is getting enough milk?`,
+    `${childName} cries a lot — what can we try?`,
+    "When can we start with solids?",
+    "What does a normal diaper look like?",
+    "How can I best support my partner right now?",
+    `What can we play with ${childName}?`,
+    "I feel overwhelmed — is this normal?",
+  ];
   return [
     `Hvor meget skal ${childName} sove?`,
     `${childName} vil ikke tage brystet – hvad gør jeg?`,
@@ -54,10 +66,10 @@ async function streamChat({
     });
     if (!resp.ok) {
       const data = await resp.json().catch(() => ({}));
-      onError(data.error || "Noget gik galt. Prøv igen.");
+      onError(data.error || "Something went wrong.");
       return;
     }
-    if (!resp.body) { onError("Ingen svar modtaget."); return; }
+    if (!resp.body) { onError("No response received."); return; }
 
     const reader = resp.body.getReader();
     const decoder = new TextDecoder();
@@ -87,13 +99,15 @@ async function streamChat({
     }
     onDone();
   } catch {
-    onError("Kunne ikke forbinde til AI. Tjek din forbindelse.");
+    onError("Connection error.");
   }
 }
 
 export default function ChatPage() {
   const { profile, babyAgeWeeks, babyAgeMonths } = useFamily();
+  const { t, i18n } = useTranslation();
   const childName = profile.children?.[0]?.name || "Baby";
+  const en = i18n.language === "en";
 
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -103,7 +117,7 @@ export default function ChatPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const context = { babyAgeWeeks, babyAgeMonths, childName, role: profile.role, phase: profile.phase };
+  const context = { babyAgeWeeks, babyAgeMonths, childName, role: profile.role, phase: profile.phase, language: i18n.language };
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -125,7 +139,6 @@ export default function ChatPage() {
       context,
       onDelta: (chunk) => {
         assistantSoFar += chunk;
-        // While streaming, show full content (including suggestions marker) — we'll clean up onDone
         const { text: visibleText } = parseSuggestions(assistantSoFar);
         setMessages(prev => {
           const last = prev[prev.length - 1];
@@ -147,13 +160,13 @@ export default function ChatPage() {
     });
   }, [messages, isLoading, context]);
 
-  const relevantPrompts = getQuickPrompts(childName).slice(0, 4);
+  const relevantPrompts = getQuickPrompts(childName, en).slice(0, 4);
 
   return (
     <div className="flex flex-col h-[calc(100vh-12rem)] md:h-[calc(100vh-5rem)]">
       <div className="section-fade-in px-1 pb-3">
-        <h1 className="text-[1.9rem] font-normal">Spørg Melo</h1>
-        <p className="label-upper mt-1">DIN TRYGGE RÅDGIVER</p>
+        <h1 className="text-[1.9rem] font-normal">{t("chat.title")}</h1>
+        <p className="label-upper mt-1">{t("chat.subtitle")}</p>
       </div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 px-1 pb-4">
@@ -164,13 +177,13 @@ export default function ChatPage() {
                 style={{ background: "linear-gradient(135deg, hsl(var(--sage-light)), hsl(var(--sage)))" }}>
                 <Sparkles className="w-7 h-7 text-white" />
               </div>
-              <p className="text-[0.92rem] font-medium mb-1">Spørg om søvn, udvikling, trivsel og hverdag</p>
+              <p className="text-[0.92rem] font-medium mb-1">{t("chat.askAbout")}</p>
               <p className="text-[0.7rem] text-muted-foreground max-w-xs mx-auto leading-relaxed">
-                Svarene er vejledende og erstatter ikke akut lægehjælp. Ved bekymring — ring altid 1813.
+                {t("chat.disclaimer")}
               </p>
             </div>
             <div className="space-y-2">
-              <p className="text-[0.6rem] tracking-[0.14em] uppercase text-muted-foreground">FORSLAG TIL DIG</p>
+              <p className="text-[0.6rem] tracking-[0.14em] uppercase text-muted-foreground">{t("chat.suggestionsForYou")}</p>
               <div className="flex flex-wrap gap-2">
                 {relevantPrompts.map((p, i) => (
                   <button key={i} onClick={() => send(p)}
@@ -203,7 +216,6 @@ export default function ChatPage() {
           </div>
         ))}
 
-        {/* Clickable suggestion chips */}
         {activeSuggestions.length > 0 && !isLoading && (
           <div className="flex flex-wrap gap-2 pt-1 pb-2">
             {activeSuggestions.map((s, i) => (
@@ -239,11 +251,10 @@ export default function ChatPage() {
         )}
       </div>
 
-      {/* Input */}
       <div className="px-1 pb-2 pt-2" style={{ borderTop: "1px solid hsl(var(--stone-lighter))" }}>
         <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="flex gap-2">
           <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)}
-            placeholder="Skriv dit spørgsmål her…" disabled={isLoading}
+            placeholder={t("chat.inputPlaceholder")} disabled={isLoading}
             className="flex-1 rounded-2xl border px-4 py-3 text-[0.85rem] focus:outline-none transition-colors disabled:opacity-50"
             style={{ borderColor: "hsl(var(--stone-light))", background: "hsl(var(--warm-white))" }} />
           <button type="submit" disabled={!input.trim() || isLoading}
