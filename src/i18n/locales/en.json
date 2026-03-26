@@ -331,7 +331,14 @@
     "todayLog": "TODAY",
     "napLog": "Nap",
     "nightLog": "Night sleep",
-    "min": "min"
+    "min": "min",
+    "tip0_1": "Newborns sleep in short intervals and don't have a set rhythm yet. Completely normal — follow baby's cues.",
+    "tip1_2": "Patterns are starting to form. Watch for sleep cues: rubbing eyes, yawning, looking away.",
+    "tip2_3": "Establish a gentle bedtime routine: dim lights, calm music, skin-to-skin.",
+    "tip3_4": "The fourth nap typically drops now. Baby is starting to distinguish day from night more clearly.",
+    "tip4_6": "Many babies are ready to learn to fall asleep on their own. Consistency in routine helps.",
+    "tip6_9": "Two-nap rhythm is typical now. Make sure the last nap isn't too late in the afternoon.",
+    "tip9_12": "Separation anxiety can affect sleep. Extra comfort and presence at bedtime helps."
   },
   "together": {
     "title": "Teamwork",
