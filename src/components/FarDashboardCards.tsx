@@ -4,81 +4,54 @@ import { Heart, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 
-// ── Mor Empathy Card — understand what she's going through ──
-export function MorEmpathyCard({ ageWeeks, morName }: { ageWeeks: number; morName: string }) {
-  const [expanded, setExpanded] = useState(false);
+// ── Vidste Du Card — rotating fun facts for far ──
+export function VidsteDuCard({ ageWeeks, morName }: { ageWeeks: number; morName: string }) {
+  const { profile } = useFamily();
+  const childName = profile.children?.[0]?.name || "Baby";
 
-  const content = ageWeeks < 2 ? {
-    emoji: "🫂",
-    headline: "Kroppen heler efter fødslen",
-    facts: [
-      "Livmoderen trækker sig sammen — det gør ondt, især under amning",
-      "Hormonerne crasher: østrogen falder 100× på 3 dage",
-      "Søvnmangel påvirker humør, hukommelse og tålmodighed",
-    ],
-    action: `Spørg ikke "kan jeg hjælpe?" — gør det bare. Tag opvasken, hent vand, lav mad.`,
-  } : ageWeeks < 6 ? {
-    emoji: "💛",
-    headline: "Baby blues rammer op til 80%",
-    facts: [
-      "Pludselig gråd, angst, irritabilitet — det er hormonelt og NORMALT",
-      "Amning er et fuldtidsjob: 8-12 gange i døgnet",
-      "Mental load: hun tænker på alt — mad, bleer, tøj, læge, næste amning",
-    ],
-    action: `Sig: "Du gør det fantastisk, og jeg ser alt det du gør." Mén det.`,
-  } : ageWeeks < 12 ? {
-    emoji: "🧠",
-    headline: "Mental load er usynligt arbejde",
-    facts: [
-      "Hun holder styr på: sovevinduer, amning, lægeaftaler, tøjstørrelser",
-      "At bede om hjælp ER også arbejde — tag initiativ selv",
-      "'Mor-guilt': hun føler sig forkert uanset hvad hun vælger",
-    ],
-    action: `Tag en hel aften alene med baby. Sig: "Tag ud, gør noget for dig selv."`,
-  } : {
-    emoji: "💪",
-    headline: "Hun finder sin nye rytme",
-    facts: [
-      "Kroppen er stadig under forandring — det tager 12+ mdr. at hele",
-      "Hun har brug for anerkendelse, ikke gode råd",
-      "Parforholdet er under pres — prioritér tid sammen",
-    ],
-    action: `Planlæg en date night. Bare 2 timer gør en kæmpe forskel.`,
-  };
+  const allFacts: { emoji: string; text: string; sub: string; category: string }[] = [
+    // Baby development — mind-blowing
+    { emoji: "🧒", category: "Udvikling", text: `${childName}s hjerne danner 1 million nye nerveforbindelser i sekundet`, sub: "Hver gang du taler, synger eller griner — bygger du hjerne." },
+    { emoji: "👃", category: "Sanser", text: `${childName} kan kende din lugt på 10 meters afstand`, sub: "Babyer foretrækker fars deodorant over Chanel No. 5." },
+    { emoji: "💪", category: "Styrke", text: `En nyfødt har griberefleks stærk nok til at hænge i en stang`, sub: "Teknisk set er din baby klar til CrossFit." },
+    { emoji: "🏃", category: "Fun fact", text: "Babyer har 300 knogler — voksne kun 206", sub: "Din baby er bogstaveligt mere fleksibel end nogen yogainstruktør." },
+    { emoji: "🫀", category: "Krop", text: `${childName}s hjerte slår 120-160 gange i minuttet`, sub: "Det er hurtigere end din puls efter en 5K." },
+    { emoji: "😴", category: "Søvn", text: `${childName} bruger 50% af søvnen på at drømme`, sub: "Voksne kun 20%. Hvad drømmer de mon om? Mælk, garanteret." },
+    { emoji: "👀", category: "Syn", text: `${childName} kan kun fokusere 20-25 cm væk`, sub: "Præcis afstanden til dit ansigt under bæring. Evolutionens design." },
+    { emoji: "🏋️", category: "Træning", text: `At bære ${childName} en hel dag ≈ at løfte 700+ kg samlet`, sub: "Du træner mere end du tror. Far-bod er en medalje." },
+    // Relatable sport/training analogies
+    { emoji: "⚽", category: "Sport", text: "Fedtemadder i nat = straffe i overtiden", sub: "Ingen træner forbereder dig på det her. Men du scorer alligevel." },
+    { emoji: "🏆", category: "Præstation", text: "At overleve uge 1 er sværere end en ironman", sub: "Ingen medalje — men du ved det. Og ${morName} ved det." },
+    { emoji: "🎯", category: "Fakta", text: "Fædre der er aktive fra dag 1 har stærkere bånd hele livet", sub: "Det du gør NU har betydning om 20 år. Ingen pres." },
+    { emoji: "📊", category: "Forskning", text: "Babyer der hører fars stemme dagligt udvikler sprog hurtigere", sub: "Snak om fodbold, aktier eller vejret — det er lige godt." },
+    // Fun relationship facts
+    { emoji: "💑", category: "Parforhold", text: "67% af par oplever lavere tilfredshed efter baby", sub: "Men de der TALER om det, kommer stærkere ud. Så tal." },
+    { emoji: "🧠", category: "Hjerne", text: "Fars hjerne ændrer sig fysisk af at være forælder", sub: "Grå substans vokser i empati-området. Du bliver bogstaveligt klogere." },
+    { emoji: "🌙", category: "Nattevagt", text: `4-6 timer brudt søvn ≈ 0,1 promille alkohol`, sub: "Kør forsigtigt. Og vær sød mod dig selv — og ${morName}." },
+    { emoji: "🤝", category: "Samarbejde", text: "Par der deler nattefodringer har 40% mindre stress", sub: "Det er ikke 50/50 hver nat — men over tid balancerer det." },
+  ];
+
+  // Pick 1 fact per day, rotating through all
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
+  const fact = allFacts[dayOfYear % allFacts.length];
 
   return (
-    <div className="rounded-2xl overflow-hidden section-fade-in" style={{
-      background: "linear-gradient(135deg, hsl(var(--clay) / 0.08), hsl(var(--clay) / 0.03))",
-      border: "1px solid hsl(var(--clay) / 0.15)",
+    <div className="rounded-2xl px-4 py-4 section-fade-in" style={{
+      background: "linear-gradient(135deg, hsl(var(--sage) / 0.08), hsl(var(--sage) / 0.03))",
+      border: "1px solid hsl(var(--sage) / 0.12)",
     }}>
-      <button onClick={() => setExpanded(!expanded)} className="w-full text-left px-4 py-3.5 transition-all active:scale-[0.995]">
-        <div className="flex items-center gap-3">
-          <span className="text-xl">{content.emoji}</span>
-          <div className="flex-1">
-            <p className="text-[0.58rem] tracking-[0.14em] uppercase text-muted-foreground">FORSTÅ HINANDEN</p>
-            <p className="text-[0.88rem] font-medium">{content.headline}</p>
-          </div>
-          <span className={`text-muted-foreground text-[0.7rem] transition-transform ${expanded ? "rotate-180" : ""}`}>▼</span>
+      <div className="flex items-center gap-2 mb-2.5">
+        <span className="text-sm">💡</span>
+        <p className="text-[0.55rem] tracking-[0.16em] uppercase text-muted-foreground">VIDSTE DU?</p>
+        <span className="ml-auto text-[0.55rem] tracking-wider uppercase text-muted-foreground/60">{fact.category}</span>
+      </div>
+      <div className="flex items-start gap-3">
+        <span className="text-xl flex-shrink-0">{fact.emoji}</span>
+        <div>
+          <p className="text-[0.88rem] font-medium leading-snug">{fact.text}</p>
+          <p className="text-[0.72rem] text-muted-foreground mt-1 leading-relaxed">{fact.sub}</p>
         </div>
-      </button>
-
-      {expanded && (
-        <div className="px-4 pb-4 animate-fade-in">
-          <ul className="space-y-2 mb-3">
-            {content.facts.map((fact, i) => (
-              <li key={i} className="flex items-start gap-2 text-[0.75rem] text-foreground/70 leading-relaxed">
-                <span className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ background: "hsl(var(--clay))" }} />
-                {fact}
-              </li>
-            ))}
-          </ul>
-          <div className="rounded-xl px-3 py-2.5" style={{ background: "hsl(var(--clay) / 0.1)" }}>
-            <p className="text-[0.75rem] font-medium" style={{ color: "hsl(var(--bark))" }}>
-              💡 {content.action}
-            </p>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

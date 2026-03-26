@@ -6,7 +6,7 @@ import { TaskList } from "@/components/TaskList";
 import { PartnerNudge } from "@/components/PartnerNudge";
 import { MilestoneTimeline } from "@/components/MilestoneTimeline";
 import { MorRecoveryCard, MorAutoSupport, MorFeedingCard, MorMicroSupport } from "@/components/MorDashboardCards";
-import { MorEmpathyCard } from "@/components/FarDashboardCards";
+import { VidsteDuCard } from "@/components/FarDashboardCards";
 import { WhatMattersNow } from "@/components/CommandCenter";
 import { MessageCircle, Heart, Gamepad2, Square } from "lucide-react";
 import { format } from "date-fns";
@@ -82,8 +82,8 @@ export default function Dashboard() {
             </>
           ) : (
             <>
-              {/* Dad: Empathy card — insight, not actions */}
-              <MorEmpathyCard ageWeeks={babyAgeWeeks} morName={morName} />
+              {/* Dad: Fun rotating facts */}
+              <VidsteDuCard ageWeeks={babyAgeWeeks} morName={morName} />
             </>
           )}
 
