@@ -22,7 +22,7 @@ export function AppHeader({ onBurgerClick }: AppHeaderProps) {
         <img
           src={meloIcon}
           alt="MELO"
-          className="h-[7.5rem] w-auto object-contain transition-transform duration-300 group-hover:scale-105 group-active:scale-95"
+          className="h-20 w-auto object-contain transition-transform duration-300 group-hover:scale-105 group-active:scale-95"
         />
       </Link>
 

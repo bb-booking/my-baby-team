@@ -1,11 +1,5 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
-import { useAuth } from "@/context/AuthContext";
-import {
-  upsertProfile, fetchProfile, syncTasks, fetchTasks,
-  syncCheckIns, fetchCheckIns, useDebouncedSync,
-} from "@/hooks/useSupabaseSync";
-
-// Re-export removed — upsertProfile used internally only
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 export type LifePhase = "pregnant" | "newborn" | "baby";
 export type ParentRole = "mor" | "far";
@@ -102,9 +96,11 @@ interface FamilyContextType {
   removeChild: (id: string) => void;
   morName: string;
   farName: string;
+  // Daily check-ins
   checkIns: DailyCheckIn[];
   addCheckIn: (mood: string) => void;
   todayCheckIn: DailyCheckIn | null;
+  // Parental leave helpers
   isOnLeave: (role: ParentRole) => boolean;
   partnerOnLeave: boolean;
   currentUserOnLeave: boolean;
@@ -122,8 +118,6 @@ function generateId() {
 }
 
 export function FamilyProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
-
   const [profile, setProfileState] = useState<FamilyProfile>(() => {
     try {
       const stored = localStorage.getItem("lille-family");
@@ -153,60 +147,17 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
     return [];
   });
 
-  const [dbLoaded, setDbLoaded] = useState(false);
-
-  // Load from database when user authenticates
   useEffect(() => {
-    if (!user) { setDbLoaded(false); return; }
-    let cancelled = false;
+    localStorage.setItem("lille-family", JSON.stringify(profile));
+  }, [profile]);
 
-    async function loadFromDb() {
-      const [dbProfile, dbTasks, dbCheckIns] = await Promise.all([
-        fetchProfile(user!.id),
-        fetchTasks(user!.id),
-        fetchCheckIns(user!.id),
-      ]);
+  useEffect(() => {
+    localStorage.setItem("lille-tasks", JSON.stringify(tasks));
+  }, [tasks]);
 
-      if (cancelled) return;
-
-      if (dbProfile) {
-        setProfileState(dbProfile);
-        localStorage.setItem("lille-family", JSON.stringify(dbProfile));
-      }
-      if (dbTasks && dbTasks.length > 0) {
-        setTasks(dbTasks);
-        localStorage.setItem("lille-tasks", JSON.stringify(dbTasks));
-      }
-      if (dbCheckIns && dbCheckIns.length > 0) {
-        setCheckIns(dbCheckIns);
-        localStorage.setItem("melo-checkins", JSON.stringify(dbCheckIns));
-      }
-      setDbLoaded(true);
-    }
-
-    loadFromDb();
-    return () => { cancelled = true; };
-  }, [user]);
-
-  // Save to localStorage (always)
-  useEffect(() => { localStorage.setItem("lille-family", JSON.stringify(profile)); }, [profile]);
-  useEffect(() => { localStorage.setItem("lille-tasks", JSON.stringify(tasks)); }, [tasks]);
-  useEffect(() => { localStorage.setItem("melo-checkins", JSON.stringify(checkIns)); }, [checkIns]);
-
-  // Sync to database (debounced)
-  const syncProfileCb = useCallback(async (userId: string, data: FamilyProfile) => {
-    await upsertProfile(userId, data);
-  }, []);
-  const syncTasksCb = useCallback(async (userId: string, data: FamilyTask[]) => {
-    await syncTasks(userId, data);
-  }, []);
-  const syncCheckInsCb = useCallback(async (userId: string, data: DailyCheckIn[]) => {
-    await syncCheckIns(userId, data);
-  }, []);
-
-  useDebouncedSync(profile, syncProfileCb);
-  useDebouncedSync(tasks, syncTasksCb);
-  useDebouncedSync(checkIns, syncCheckInsCb);
+  useEffect(() => {
+    localStorage.setItem("melo-checkins", JSON.stringify(checkIns));
+  }, [checkIns]);
 
   const setProfile = (p: FamilyProfile) => setProfileState(p);
   const resetProfile = () => {
@@ -244,16 +195,22 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
   }
 
   const effectivePhase: LifePhase =
-    profile.phase === "pregnant" ? "pregnant" : babyAgeMonths < 3 ? "newborn" : "baby";
+    profile.phase === "pregnant"
+      ? "pregnant"
+      : babyAgeMonths < 3
+      ? "newborn"
+      : "baby";
 
   const morName = profile.role === "mor" ? profile.parentName : profile.partnerName;
   const farName = profile.role === "far" ? profile.parentName : profile.partnerName;
 
+  // Parental leave helpers
   const leave = profile.parentalLeave || { mor: true, far: false };
   const isOnLeave = (role: ParentRole) => role === "mor" ? leave.mor : leave.far;
   const partnerOnLeave = profile.role === "mor" ? leave.far : leave.mor;
   const currentUserOnLeave = profile.role === "mor" ? leave.mor : leave.far;
 
+  // Check-in helpers
   const todayStr = new Date().toISOString().slice(0, 10);
   const todayCheckIn = checkIns.find(c => c.date === todayStr && c.role === profile.role) || null;
 
@@ -264,6 +221,7 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  // Task management
   const addTask = (title: string, assignee: TaskAssignee, recurrence: TaskRecurrence = "never", dueDate?: string) => {
     setTasks((prev) => [
       ...prev,
@@ -281,7 +239,9 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
   };
 
   const toggleTask = (id: string) => {
-    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t)));
+    setTasks((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
+    );
   };
 
   const removeTask = (id: string) => {
@@ -289,15 +249,21 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
   };
 
   const reassignTask = (id: string, newAssignee: TaskAssignee) => {
-    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, assignee: newAssignee } : t)));
+    setTasks((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, assignee: newAssignee } : t))
+    );
   };
 
   const editTaskTitle = (id: string, newTitle: string) => {
-    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, title: newTitle } : t)));
+    setTasks((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, title: newTitle } : t))
+    );
   };
 
   const moveTaskToDate = (id: string, newDate: string) => {
-    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, dueDate: newDate } : t)));
+    setTasks((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, dueDate: newDate } : t))
+    );
   };
 
   const addChild = (name: string, birthDate: string) => {
@@ -315,7 +281,7 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    if (profile.onboarded && tasks.length === 0 && dbLoaded) {
+    if (profile.onboarded && tasks.length === 0) {
       import("@/lib/phaseData").then(({ getTasksForPhase }) => {
         const week = effectivePhase === "pregnant" ? currentWeek : babyAgeWeeks;
         const phaseTasks = getTasksForPhase(effectivePhase, week);
@@ -332,18 +298,37 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
         );
       });
     }
-  }, [profile.onboarded, effectivePhase, dbLoaded]);
+  }, [profile.onboarded, effectivePhase]);
 
   return (
     <FamilyContext.Provider
       value={{
         profile: { ...profile, phase: effectivePhase },
-        setProfile, resetProfile,
-        currentWeek, totalWeeks, trimester, babyAgeWeeks, babyAgeMonths, phaseLabel,
-        tasks, addTask, toggleTask, removeTask, reassignTask, editTaskTitle, moveTaskToDate,
-        addChild, removeChild, morName, farName,
-        checkIns, addCheckIn, todayCheckIn,
-        isOnLeave, partnerOnLeave, currentUserOnLeave,
+        setProfile,
+        resetProfile,
+        currentWeek,
+        totalWeeks,
+        trimester,
+        babyAgeWeeks,
+        babyAgeMonths,
+        phaseLabel,
+        tasks,
+        addTask,
+        toggleTask,
+        removeTask,
+        reassignTask,
+        editTaskTitle,
+        moveTaskToDate,
+        addChild,
+        removeChild,
+        morName,
+        farName,
+        checkIns,
+        addCheckIn,
+        todayCheckIn,
+        isOnLeave,
+        partnerOnLeave,
+        currentUserOnLeave,
       }}
     >
       {children}

@@ -1,17 +1,12 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
-import { useAuth } from "@/context/AuthContext";
-import {
-  syncNursingLogs, fetchNursingLogs,
-  syncDiaperLogs, fetchDiaperLogs,
-  syncSleepLogs, fetchSleepLogs,
-  syncNightShifts, fetchNightShifts,
-  useDebouncedSync,
-} from "@/hooks/useSupabaseSync";
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+
+
+// ── Types ──
 
 export interface NursingLog {
   id: string;
   side: "left" | "right";
-  timestamp: string;
+  timestamp: string; // ISO
 }
 
 export type StoolColor = "sort" | "mørkegrøn" | "grøn" | "gulgrøn" | "gul";
@@ -28,31 +23,36 @@ export interface DiaperLog {
 export interface SleepLog {
   id: string;
   type: "nap" | "night";
-  startTime: string;
-  endTime?: string;
+  startTime: string; // ISO
+  endTime?: string; // ISO — undefined = ongoing
   source: "manual" | "auto";
 }
 
 export interface NightShift {
-  date: string;
+  date: string; // YYYY-MM-DD
   assignee: "mor" | "far";
 }
 
 interface DiaryContextType {
+  // Nursing
   nursingLogs: NursingLog[];
   addNursing: (side: "left" | "right") => void;
   removeNursingLog: (id: string) => void;
+  // Diapers
   diaperLogs: DiaperLog[];
   addDiaper: (type: "wet" | "dirty" | "both", color?: StoolColor, consistency?: StoolConsistency) => void;
   removeDiaperLog: (id: string) => void;
+  // Sleep
   sleepLogs: SleepLog[];
   addSleep: (type: "nap" | "night", start: string, end?: string) => void;
   endSleep: (id: string) => void;
   removeSleepLog: (id: string) => void;
   activeSleep: SleepLog | null;
+  // Night shifts
   nightShifts: NightShift[];
   setNightShift: (date: string, assignee: "mor" | "far") => void;
   getTonightShift: () => NightShift | null;
+  // Today stats
   todayNursingCount: number;
   todayDiaperCount: number;
   todaySleepMinutes: number;
@@ -63,7 +63,9 @@ const DiaryContext = createContext<DiaryContextType | null>(null);
 function genId() { return Math.random().toString(36).slice(2, 10); }
 
 function isToday(iso: string) {
-  return new Date(iso).toDateString() === new Date().toDateString();
+  const d = new Date(iso);
+  const now = new Date();
+  return d.toDateString() === now.toDateString();
 }
 
 function todayStr() {
@@ -71,8 +73,6 @@ function todayStr() {
 }
 
 export function DiaryProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
-
   const [nursingLogs, setNursingLogs] = useState<NursingLog[]>(() => {
     try { const s = localStorage.getItem("lille-nursing"); return s ? JSON.parse(s) : []; } catch { return []; }
   });
@@ -86,58 +86,10 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
     try { const s = localStorage.getItem("lille-shifts"); return s ? JSON.parse(s) : []; } catch { return []; }
   });
 
-  // Load from database
-  useEffect(() => {
-    if (!user) return;
-    let cancelled = false;
-
-    async function loadFromDb() {
-      const [dbNursing, dbDiapers, dbSleep, dbShifts] = await Promise.all([
-        fetchNursingLogs(user!.id),
-        fetchDiaperLogs(user!.id),
-        fetchSleepLogs(user!.id),
-        fetchNightShifts(user!.id),
-      ]);
-      if (cancelled) return;
-
-      if (dbNursing && dbNursing.length > 0) {
-        setNursingLogs(dbNursing);
-        localStorage.setItem("lille-nursing", JSON.stringify(dbNursing));
-      }
-      if (dbDiapers && dbDiapers.length > 0) {
-        setDiaperLogs(dbDiapers);
-        localStorage.setItem("lille-diapers", JSON.stringify(dbDiapers));
-      }
-      if (dbSleep && dbSleep.length > 0) {
-        setSleepLogs(dbSleep);
-        localStorage.setItem("lille-sleep", JSON.stringify(dbSleep));
-      }
-      if (dbShifts && dbShifts.length > 0) {
-        setNightShifts(dbShifts);
-        localStorage.setItem("lille-shifts", JSON.stringify(dbShifts));
-      }
-    }
-
-    loadFromDb();
-    return () => { cancelled = true; };
-  }, [user]);
-
-  // Save to localStorage
   useEffect(() => { localStorage.setItem("lille-nursing", JSON.stringify(nursingLogs)); }, [nursingLogs]);
   useEffect(() => { localStorage.setItem("lille-diapers", JSON.stringify(diaperLogs)); }, [diaperLogs]);
   useEffect(() => { localStorage.setItem("lille-sleep", JSON.stringify(sleepLogs)); }, [sleepLogs]);
   useEffect(() => { localStorage.setItem("lille-shifts", JSON.stringify(nightShifts)); }, [nightShifts]);
-
-  // Sync to database (debounced)
-  const syncNursingCb = useCallback(async (uid: string, data: NursingLog[]) => { await syncNursingLogs(uid, data); }, []);
-  const syncDiapersCb = useCallback(async (uid: string, data: DiaperLog[]) => { await syncDiaperLogs(uid, data); }, []);
-  const syncSleepCb = useCallback(async (uid: string, data: SleepLog[]) => { await syncSleepLogs(uid, data); }, []);
-  const syncShiftsCb = useCallback(async (uid: string, data: NightShift[]) => { await syncNightShifts(uid, data); }, []);
-
-  useDebouncedSync(nursingLogs, syncNursingCb);
-  useDebouncedSync(diaperLogs, syncDiapersCb);
-  useDebouncedSync(sleepLogs, syncSleepCb);
-  useDebouncedSync(nightShifts, syncShiftsCb);
 
   const addNursing = (side: "left" | "right") => {
     setNursingLogs(prev => [{ id: genId(), side, timestamp: new Date().toISOString() }, ...prev]);
