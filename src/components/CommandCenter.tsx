@@ -218,7 +218,7 @@ function getWhatMattersMessage(input: MessageInput): WMMessage {
   if (myTasks.length > 0) {
     return {
       title: `${myTasks.length} opgave${myTasks.length > 1 ? "r" : ""} i dag 📋`,
-      body: `Vigtigst: "${myTasks[0].title || "Se listen"}"`,
+      body: `Du har ting på listen — tag dem i det tempo der passer.`,
       link: "/sammen",
       linkLabel: "Se alle opgaver",
     };
