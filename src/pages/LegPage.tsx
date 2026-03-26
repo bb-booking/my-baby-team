@@ -145,6 +145,9 @@ export default function LegPage() {
         ))}
       </div>
 
+      {/* AI-generated suggestions */}
+      <AIActivitySuggestions />
+
       <div className="h-20 md:h-0" />
     </div>
   );
