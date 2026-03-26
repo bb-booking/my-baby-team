@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useFamily } from "@/context/FamilyContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, RefreshCw, Clock } from "lucide-react";
@@ -7,18 +7,22 @@ interface AIActivity {
   emoji: string;
   title: string;
   description: string;
-  developmentArea: string;
+  why: string;
   duration: string;
 }
 
-export function AIActivitySuggestions() {
+interface AIActivitySuggestionsProps {
+  category: string;
+}
+
+export function AIActivitySuggestions({ category }: AIActivitySuggestionsProps) {
   const { profile, babyAgeWeeks } = useFamily();
   const childName = profile.children?.[0]?.name || "Baby";
   const [activities, setActivities] = useState<AIActivity[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchActivities = async () => {
+  const fetchActivities = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -29,6 +33,7 @@ export function AIActivitySuggestions() {
           role: profile.role,
           phase: profile.phase,
           childName,
+          category,
         },
       });
       if (resp.error) throw resp.error;
@@ -37,86 +42,84 @@ export function AIActivitySuggestions() {
       else throw new Error("Ugyldigt svar");
     } catch (e: any) {
       console.error("Activity suggestions error:", e);
-      setError("Kunne ikke hente forslag");
+      setError("Kunne ikke hente forslag lige nu");
     } finally {
       setLoading(false);
     }
-  };
+  }, [babyAgeWeeks, category, profile.role, profile.phase, childName]);
 
   useEffect(() => {
     if (babyAgeWeeks > 0) fetchActivities();
-  }, [babyAgeWeeks]);
+  }, [fetchActivities]);
 
   if (loading) {
     return (
-      <div className="card-soft section-fade-in" style={{ animationDelay: "300ms" }}>
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--clay-light))" }}>
-            <Sparkles className="w-4 h-4 animate-pulse" style={{ color: "hsl(var(--clay))" }} />
+      <div className="space-y-3">
+        {[1, 2, 3].map(i => (
+          <div key={i} className="card-soft animate-pulse">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-muted" />
+              <div className="flex-1 space-y-2">
+                <div className="h-4 bg-muted rounded w-3/4" />
+                <div className="h-3 bg-muted rounded w-full" />
+                <div className="h-3 bg-muted rounded w-1/2" />
+              </div>
+            </div>
           </div>
-          <div>
-            <p className="text-[0.88rem] font-medium">Ekspertpanelet tænker...</p>
-            <p className="text-[0.68rem] text-muted-foreground">Finder aktiviteter til {childName} ({babyAgeWeeks} uger)</p>
-          </div>
-        </div>
+        ))}
       </div>
     );
   }
 
-  if (error || activities.length === 0) return null;
+  if (error) {
+    return (
+      <div className="card-soft text-center py-8">
+        <p className="text-[0.85rem] text-muted-foreground mb-3">{error}</p>
+        <button
+          onClick={fetchActivities}
+          className="text-[0.8rem] font-medium px-4 py-2 rounded-xl transition-colors"
+          style={{ background: "hsl(var(--sage-light))", color: "hsl(var(--moss))" }}
+        >
+          Prøv igen
+        </button>
+      </div>
+    );
+  }
 
-  const areaColor: Record<string, string> = {
-    motorik: "--sage",
-    sanser: "--clay",
-    sprog: "--moss",
-    social: "--clay",
-    kognitiv: "--sage",
-  };
+  if (activities.length === 0) return null;
 
   return (
-    <div className="space-y-3 section-fade-in" style={{ animationDelay: "300ms" }}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--clay-light))" }}>
-            <Sparkles className="w-4 h-4" style={{ color: "hsl(var(--clay))" }} />
-          </div>
-          <div>
-            <p className="text-[0.88rem] font-medium">AI-forslag fra eksperterne</p>
-            <p className="text-[0.56rem] tracking-[0.14em] uppercase text-muted-foreground">PERSONLIGE AKTIVITETER TIL {childName.toUpperCase()}</p>
-          </div>
-        </div>
-        <button onClick={fetchActivities} className="p-2 rounded-xl hover:bg-muted transition-colors" title="Nye forslag">
-          <RefreshCw className="w-3.5 h-3.5 text-muted-foreground" />
+    <div className="space-y-3">
+      <div className="flex items-center justify-end">
+        <button onClick={fetchActivities} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-muted transition-colors text-[0.72rem] text-muted-foreground" title="Nye forslag">
+          <RefreshCw className="w-3 h-3" />
+          Nye forslag
         </button>
       </div>
 
-      {activities.map((act, i) => {
-        const colorVar = areaColor[act.developmentArea?.toLowerCase()] || "--sage";
-        return (
-          <div key={i} className="card-soft">
-            <div className="flex items-start gap-3 mb-2">
-              <span className="text-2xl flex-shrink-0">{act.emoji}</span>
-              <div className="flex-1">
-                <p className="text-[0.92rem] font-medium">{act.title}</p>
-                <p className="text-[0.78rem] text-foreground/70 leading-relaxed mt-1">{act.description}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1 text-[0.62rem] text-muted-foreground">
-                <Clock className="w-3 h-3" /> {act.duration}
-              </span>
-              {act.developmentArea && (
-                <span
-                  className="text-[0.58rem] px-2 py-0.5 rounded-full"
-                  style={{ background: `hsl(var(${colorVar}-light))`, border: `1px solid hsl(var(${colorVar}) / 0.2)` }}
-                >
-                  {act.developmentArea}
-                </span>
-              )}
+      {activities.map((act, i) => (
+        <div key={i} className="card-soft section-fade-in" style={{ animationDelay: `${i * 60}ms` }}>
+          <div className="flex items-start gap-3 mb-2">
+            <span className="text-2xl flex-shrink-0">{act.emoji}</span>
+            <div className="flex-1">
+              <p className="text-[0.92rem] font-medium">{act.title}</p>
+              <p className="text-[0.78rem] text-foreground/70 leading-relaxed mt-1">{act.description}</p>
             </div>
           </div>
-        );
-      })}
+
+          {act.why && (
+            <div className="rounded-xl px-3 py-2 mb-2" style={{ background: "hsl(var(--sage-light))" }}>
+              <p className="text-[0.72rem] leading-relaxed">💡 {act.why}</p>
+            </div>
+          )}
+
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1 text-[0.62rem] text-muted-foreground">
+              <Clock className="w-3 h-3" /> {act.duration}
+            </span>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
