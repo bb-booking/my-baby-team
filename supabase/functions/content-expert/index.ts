@@ -95,22 +95,40 @@ Returnér JSON-array:
 Basér på forskning i forældresamarbejde, mental load og tilknytning. Tilpas til ${role === "mor" ? "mors" : "fars"} perspektiv.`;
         break;
 
-      case "activity_suggestions":
-        userPrompt = `Generér 3 alderstilpassede aktiviteter for ${name} (${babyAgeWeeks} uger) som ${role === "mor" ? "mor" : "far"} kan lave.
+      case "activity_suggestions": {
+        const { category } = await req.json().catch(() => ({}));
+        const catMap: Record<string, string> = {
+          "udenfor": "udendørs aktiviteter i naturen, frisk luft, ture, sanseoplevelser udenfor",
+          "indenfor": "indendørs leg, regndagsaktiviteter, leg i hjemmet",
+          "udviklende": "udviklende leg der styrker motorik, sanser, sprog og kognition",
+          "kreativitet": "kreativ udfoldelse med musik, sang, farver, lyde og bevægelse",
+          "naerhed": "rolige nærhedsaktiviteter som massage, hud-mod-hud, stille samvær, babyyoga",
+          "social": "leg med andre børn, søskende, bedsteforældre, legegrupper, social interaktion",
+        };
+        // Re-parse body to get category since we already consumed it
+        const catDesc = catMap[category] || "varierede aktiviteter";
+        userPrompt = `Generér 3-4 alderstilpassede aktiviteter for ${name} (${babyAgeWeeks} uger) som ${role === "mor" ? "mor" : "far"} kan lave.
+
+KATEGORI: ${catDesc}
 
 Returnér JSON-array:
 [
   {
     "emoji": "relevant emoji",
     "title": "Aktivitetsnavn",
-    "description": "Kort beskrivelse (max 2 sætninger)",
-    "developmentArea": "motorik/sanser/sprog/social/kognitiv",
+    "description": "Kort, konkret beskrivelse af hvad man gør (max 2 sætninger)",
+    "why": "Kort faglig begrundelse for hvorfor det er godt lige nu (1 sætning)",
     "duration": "ca. antal minutter"
   }
 ]
 
-Aktiviteterne SKAL matche barnets præcise udviklingsstadie.`;
+VIGTIGT:
+- Aktiviteterne SKAL matche barnets præcise udviklingsstadie (${babyAgeWeeks} uger / ${ageMonths} måneder)
+- Alle forslag SKAL passe til kategorien "${catDesc}"
+- Vær konkret og praktisk — trætte forældre skal nemt kunne følge dem
+- Undgå gentagelser og generiske forslag`;
         break;
+      }
 
       case "sleep_guidance":
         userPrompt = `Generér søvnvejledning for ${name} (${babyAgeWeeks} uger).
