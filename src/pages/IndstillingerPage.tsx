@@ -31,7 +31,7 @@ function useTheme() {
 
 export default function IndstillingerPage() {
   const { profile, setProfile } = useFamily();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
 
@@ -47,24 +47,24 @@ export default function IndstillingerPage() {
     <div className="space-y-5">
       <div className="section-fade-in">
         <button onClick={() => navigate("/mere")} className="flex items-center gap-1 text-muted-foreground text-[0.78rem] mb-2 active:scale-95 transition-transform">
-          <ChevronLeft className="w-4 h-4" /> Tilbage
+          <ChevronLeft className="w-4 h-4" /> {t("settingsPage.back")}
         </button>
-        <h1 className="text-[1.9rem] font-normal">Indstillinger</h1>
+        <h1 className="text-[1.9rem] font-normal">{t("settings.settingsMenu")}</h1>
       </div>
 
       {/* Language */}
       <div className="card-soft section-fade-in" style={{ animationDelay: "40ms" }}>
         <div className="flex items-center gap-2 mb-4">
           <Globe className="w-4 h-4" style={{ color: "hsl(var(--moss))" }} />
-          <p className="text-[1rem] font-semibold">Sprog</p>
+          <p className="text-[1rem] font-semibold">{t("settings.language")}</p>
         </div>
         <p className="text-[0.72rem] text-muted-foreground mb-3">
-          Vælg dit foretrukne sprog. Hver forælder kan have sit eget sprog.
+          {t("settingsPage.languagePerRole")}
         </p>
         <div className="flex gap-2">
           {([
-            { code: "da" as const, label: "🇩🇰 Dansk" },
-            { code: "en" as const, label: "🇬🇧 English" },
+            { code: "da" as const, label: `🇩🇰 ${t("settings.danish")}` },
+            { code: "en" as const, label: `🇬🇧 ${t("settings.english")}` },
           ]).map(lang => (
             <button
               key={lang.code}
@@ -90,27 +90,27 @@ export default function IndstillingerPage() {
           ) : (
             <Sun className="w-4 h-4" style={{ color: "hsl(var(--moss))" }} />
           )}
-          <p className="text-[1rem] font-semibold">Tema</p>
+          <p className="text-[1rem] font-semibold">{t("settingsPage.theme")}</p>
         </div>
         <p className="text-[0.72rem] text-muted-foreground mb-3">
-          Vælg mellem lyst og mørkt tema. Mørkt tema er rart om natten.
+          {t("settingsPage.themeDesc")}
         </p>
         <div className="flex gap-2">
           {([
-            { code: "light" as Theme, label: "☀️ Lyst", icon: Sun },
-            { code: "dark" as Theme, label: "🌙 Mørkt", icon: Moon },
-          ]).map(t => (
+            { code: "light" as Theme, label: t("settingsPage.light") },
+            { code: "dark" as Theme, label: t("settingsPage.dark") },
+          ]).map(th => (
             <button
-              key={t.code}
-              onClick={() => setTheme(t.code)}
+              key={th.code}
+              onClick={() => setTheme(th.code)}
               className={cn(
                 "flex-1 py-3 rounded-xl text-[0.85rem] border transition-all active:scale-[0.97]",
-                theme === t.code
+                theme === th.code
                   ? "bg-[hsl(var(--sage-light))] border-[hsl(var(--sage))] font-semibold"
                   : "border-[hsl(var(--stone-light))] text-muted-foreground"
               )}
             >
-              {t.label}
+              {th.label}
             </button>
           ))}
         </div>

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 
 export type LifePhase = "pregnant" | "newborn" | "baby";
 export type ParentRole = "mor" | "far";
@@ -150,6 +151,14 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem("lille-family", JSON.stringify(profile));
   }, [profile]);
+
+  // Sync i18n language with current role's preference
+  useEffect(() => {
+    const lang = profile.languages?.[profile.role] || "da";
+    if (i18n.language !== lang) {
+      i18n.changeLanguage(lang);
+    }
+  }, [profile.role, profile.languages]);
 
   useEffect(() => {
     localStorage.setItem("lille-tasks", JSON.stringify(tasks));
