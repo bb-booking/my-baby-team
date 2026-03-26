@@ -1,19 +1,17 @@
 import { useState } from "react";
 import { useFamily } from "@/context/FamilyContext";
+import { useTranslation } from "react-i18next";
 import { getActiveLeap } from "@/lib/phaseData";
 import { AIActivitySuggestions } from "@/components/AIActivitySuggestions";
 
-const categories = [
-  { id: "udenfor", emoji: "🌳", label: "Udenfor" },
-  { id: "indenfor", emoji: "🛋️", label: "Indenfor" },
-  { id: "udviklende", emoji: "💡", label: "Udviklende" },
-  { id: "kreativitet", emoji: "🎨", label: "Kreativitet" },
-  { id: "naerhed", emoji: "❤️", label: "Nærhed & ro" },
-  { id: "social", emoji: "🤝", label: "Med andre" },
-];
+const categoryIds = ["udenfor", "indenfor", "udviklende", "kreativitet", "naerhed", "social"] as const;
+const categoryEmojis: Record<string, string> = {
+  udenfor: "🌳", indenfor: "🛋️", udviklende: "💡", kreativitet: "🎨", naerhed: "❤️", social: "🤝",
+};
 
 export default function LegPage() {
   const { profile, babyAgeWeeks, babyAgeMonths } = useFamily();
+  const { t } = useTranslation();
   const childName = profile.children?.[0]?.name || "Baby";
   const [activeCategory, setActiveCategory] = useState("indenfor");
 
@@ -21,14 +19,14 @@ export default function LegPage() {
     return (
       <div className="space-y-5">
         <div className="section-fade-in">
-          <h1 className="text-[1.9rem] font-normal">Leg & aktiviteter</h1>
-          <p className="label-upper mt-1">TILGÆNGELIG NÅR BARNET ER FØDT</p>
+          <h1 className="text-[1.9rem] font-normal">{t("play.title")}</h1>
+          <p className="label-upper mt-1">{t("play.availableAfterBirth")}</p>
         </div>
         <div className="card-soft text-center py-12 section-fade-in" style={{ animationDelay: "80ms" }}>
           <span className="text-4xl mb-4 block">🎨</span>
-          <p className="text-[1rem] font-normal mb-2">Leg venter forude</p>
+          <p className="text-[1rem] font-normal mb-2">{t("play.playAhead")}</p>
           <p className="text-[0.8rem] text-muted-foreground max-w-xs mx-auto leading-relaxed">
-            Når baby er født, får I aldersbaserede forslag til leg, stimulation og kontakt.
+            {t("play.playAheadDesc")}
           </p>
         </div>
         <div className="h-20 md:h-0" />
@@ -37,55 +35,51 @@ export default function LegPage() {
   }
 
   const activeLeap = getActiveLeap(babyAgeWeeks);
-  const ageLabel = babyAgeMonths >= 1 ? `${babyAgeMonths} MÅNEDER` : `${babyAgeWeeks} UGER`;
 
   return (
     <div className="space-y-5">
       <div className="section-fade-in">
-        <h1 className="text-[1.9rem] font-normal">Leg & aktiviteter</h1>
-        <p className="label-upper mt-1">{childName.toUpperCase()} · {ageLabel}</p>
+        <h1 className="text-[1.9rem] font-normal">{t("play.title")}</h1>
+        <p className="label-upper mt-1">
+          {t("play.basedOnAge", { childName })}
+        </p>
       </div>
 
-      {/* Leap context */}
+      {/* Category pills */}
+      <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 section-fade-in" style={{ animationDelay: "40ms", scrollbarWidth: "none" }}>
+        {categoryIds.map(id => (
+          <button
+            key={id}
+            onClick={() => setActiveCategory(id)}
+            className={`flex-shrink-0 px-3 py-2 rounded-xl text-[0.75rem] border transition-all active:scale-[0.97] ${
+              activeCategory === id
+                ? "bg-[hsl(var(--sage-light))] border-[hsl(var(--sage))] font-semibold"
+                : "border-[hsl(var(--stone-light))] text-muted-foreground"
+            }`}
+          >
+            {categoryEmojis[id]} {t(`legCategories.${id}`)}
+          </button>
+        ))}
+      </div>
+
+      {/* Active leap banner */}
       {activeLeap && (
-        <div className="rounded-2xl p-4 section-fade-in" style={{
+        <div className="rounded-2xl px-4 py-3 section-fade-in" style={{
           animationDelay: "60ms",
-          background: "hsl(var(--cream))",
-          border: "1px solid hsl(var(--clay) / 0.2)",
+          background: "hsl(var(--clay) / 0.08)",
+          border: "1px solid hsl(var(--clay) / 0.15)",
         }}>
-          <p className="text-[0.6rem] tracking-[0.14em] uppercase text-muted-foreground mb-1">🐯 TIGERSPRING NU</p>
-          <p className="text-[0.85rem] font-medium mb-1">{activeLeap.emoji} {activeLeap.title}</p>
-          <p className="text-[0.75rem] text-foreground/70 leading-relaxed">
-            Aktiviteterne er tilpasset {childName}s aktuelle udviklingsfase.
-          </p>
+          <p className="text-[0.55rem] tracking-[0.14em] uppercase text-muted-foreground mb-1">{t("play.leapNow")}</p>
+          <p className="text-[0.82rem] font-medium">{activeLeap.emoji} {activeLeap.title}</p>
+          <p className="text-[0.72rem] text-muted-foreground mt-0.5">{t("play.goodRightNow")}</p>
         </div>
       )}
 
-      {/* Category pills */}
-      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide section-fade-in" style={{ animationDelay: "100ms" }}>
-        {categories.map(cat => {
-          const isActive = cat.id === activeCategory;
-          return (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-[0.78rem] font-medium whitespace-nowrap transition-all shrink-0"
-              style={{
-                background: isActive ? "hsl(var(--sage-light))" : "hsl(var(--cream))",
-                border: `1.5px solid ${isActive ? "hsl(var(--moss) / 0.4)" : "hsl(var(--stone-lighter))"}`,
-                color: isActive ? "hsl(var(--moss))" : "hsl(var(--foreground) / 0.7)",
-              }}
-            >
-              <span className="text-base">{cat.emoji}</span>
-              {cat.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* AI-generated activities for selected category */}
-      <div className="section-fade-in" style={{ animationDelay: "140ms" }}>
-        <AIActivitySuggestions key={activeCategory} category={activeCategory} />
+      {/* AI suggestions */}
+      <div className="section-fade-in" style={{ animationDelay: "80ms" }}>
+        <AIActivitySuggestions
+          category={activeCategory}
+        />
       </div>
 
       <div className="h-20 md:h-0" />

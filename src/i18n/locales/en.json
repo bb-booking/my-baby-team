@@ -553,5 +553,52 @@
     "monthsOld": "months old",
     "newborn": "Newborn",
     "weekOf": "Week {{week}} of 40"
-  }
+  },
+  "settingsPage": {
+    "back": "Back",
+    "theme": "Theme",
+    "themeDesc": "Choose between light and dark theme. Dark mode is great at night.",
+    "light": "☀️ Light",
+    "dark": "🌙 Dark",
+    "languagePerRole": "Choose your preferred language. Each parent can have their own language."
+  },
+  "sidebarSections": {
+    "overview": "OVERVIEW",
+    "ask": "ASK",
+    "name": "NAME",
+    "family": "FAMILY",
+    "diary": "DIARY",
+    "plan": "PLANNING",
+    "shop": "SHOP",
+    "forYou": "FOR YOU",
+    "settings": "SETTINGS",
+    "switchUser": "SWITCH USER",
+    "switchTo": "Switch to {{role}}",
+    "pregnant": "PREGNANT",
+    "onLeave": "ON LEAVE",
+    "familyLabel": "Family",
+    "nursing": "Nursing",
+    "diaper": "Diaper"
+  },
+  "legCategories": {
+    "udenfor": "Outdoors",
+    "indenfor": "Indoors",
+    "udviklende": "Developmental",
+    "kreativitet": "Creativity",
+    "naerhed": "Closeness & calm",
+    "social": "With others"
+  },
+  "farFacts": {
+    "header": "DID YOU KNOW?",
+    "allDone": "Amazing! You're making a huge difference for the whole family 💚",
+    "keepGoing": "You're doing great — keep going 🌿",
+    "todaysActions": "TODAY'S ACTIONS"
+  },
+  "morMicro": [
+    "You're doing great — even when it doesn't feel like it 💛",
+    "It's okay to be tired. This is a tough phase.",
+    "You don't need to have it all together. Just be there.",
+    "Small steps count. You're an amazing mom.",
+    "Accepting help is strength, not weakness."
+  ]
 }

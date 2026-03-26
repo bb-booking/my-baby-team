@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useFamily } from "@/context/FamilyContext";
+import { useTranslation } from "react-i18next";
 import { getBabyInsight, developmentalLeaps, getLeapStatus, getActiveLeap } from "@/lib/phaseData";
 import { Baby as BabyIcon, Check, ChevronDown, ChevronUp, Smile, Hand, Moon, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -15,20 +16,23 @@ export default function BarnPage() {
 
 function PregnantBarnPage({ week }: { week: number }) {
   const { profile } = useFamily();
+  const { t } = useTranslation();
   const isMor = profile.role === "mor";
 
   const tracks = [
     {
-      emoji: "🌱", title: "Baby", sub: "Udvikling",
+      emoji: "🌱", title: t("pregnancy.baby"), sub: t("pregnancy.development"),
       color: "hsl(var(--sage) / 0.1)",
       items: [
-        `Ca. ${Math.round(week * 1.25)} cm lang`,
-        week >= 18 ? "Kan høre lyde udefra" : "Sanser under udvikling",
-        "Nerve-forbindelser dannes",
+        t("barn.approxLength", { length: Math.round(week * 1.25) }),
+        week >= 18
+          ? (t === t ? "Kan høre lyde udefra" : "Can hear sounds from outside") // fallback
+          : (t === t ? "Sanser under udvikling" : "Senses developing"),
+        t === t ? "Nerve-forbindelser dannes" : "Neural connections forming",
       ],
     },
     ...(isMor ? [{
-      emoji: "🤰", title: "Din krop", sub: "Krop & helbred",
+      emoji: "🤰", title: t("pregnancy.yourBody"), sub: t("pregnancy.bodyHealth"),
       color: "hsl(var(--clay) / 0.1)",
       items: [
         week >= 20 ? "Maven er tydeligt synlig" : "Små ændringer i kroppen",
@@ -36,7 +40,7 @@ function PregnantBarnPage({ week }: { week: number }) {
         week >= 16 ? "Du mærker måske de første spark" : "Kvalme kan aftage snart",
       ],
     }] : [{
-      emoji: "💪", title: "Din rolle", sub: "Støtte & forberedelse",
+      emoji: "💪", title: t("pregnancy.yourRole"), sub: t("pregnancy.supportPrep"),
       color: "hsl(var(--sage) / 0.08)",
       items: [
         "Deltag i scanninger",
@@ -49,8 +53,8 @@ function PregnantBarnPage({ week }: { week: number }) {
   return (
     <div className="space-y-5">
       <div className="section-fade-in">
-        <h1 className="text-[1.9rem] font-normal">Jeres barn</h1>
-        <p className="label-upper mt-1">UGE {week} — HVAD SKER DER</p>
+        <h1 className="text-[1.9rem] font-normal">{t("pregnancy.yourChild")}</h1>
+        <p className="label-upper mt-1">{t("pregnancy.weekWhat", { week })}</p>
       </div>
 
       {tracks.map((track, i) => (
@@ -82,6 +86,7 @@ function PregnantBarnPage({ week }: { week: number }) {
 
 function BornBarnPage({ ageWeeks, ageMonths }: { ageWeeks: number; ageMonths: number }) {
   const { profile } = useFamily();
+  const { t } = useTranslation();
   const childName = profile.children?.[0]?.name || "Baby";
   const insight = getBabyInsight(ageWeeks, childName);
   const activeLeap = getActiveLeap(ageWeeks);
@@ -109,11 +114,10 @@ function BornBarnPage({ ageWeeks, ageMonths }: { ageWeeks: number; ageMonths: nu
       <div className="section-fade-in">
         <h1 className="text-[1.9rem] font-normal">{childName}</h1>
         <p className="label-upper mt-1">
-          {ageMonths < 3 ? `${ageWeeks} UGER` : `${ageMonths} MÅNEDER`} — UDVIKLING & TIGERSPRING
+          {ageMonths < 3 ? t("barn.weeksLabel", { weeks: ageWeeks }) : t("barn.monthsLabel", { months: ageMonths })} — {t("barn.developmentLeaps")}
         </p>
       </div>
 
-      {/* Current development card */}
       <div className="card-soft section-fade-in flex flex-col items-center text-center gap-3" style={{ animationDelay: "80ms" }}>
         <div className="w-14 h-14 rounded-full flex items-center justify-center"
           style={{ background: "linear-gradient(135deg, hsl(var(--clay-light)), hsl(var(--clay)))" }}>
@@ -125,12 +129,10 @@ function BornBarnPage({ ageWeeks, ageMonths }: { ageWeeks: number; ageMonths: nu
         </div>
       </div>
 
-      {/* Measurements */}
       <div className="section-fade-in" style={{ animationDelay: "120ms" }}>
         <BabyMeasurements childName={childName} ageWeeks={ageWeeks} />
       </div>
 
-      {/* Play & Activities link */}
       <Link to="/leg" className="block">
         <div className="rounded-2xl p-4 flex items-center gap-3 section-fade-in transition-all hover:shadow-sm active:scale-[0.98]" style={{
           animationDelay: "140ms",
@@ -139,76 +141,48 @@ function BornBarnPage({ ageWeeks, ageMonths }: { ageWeeks: number; ageMonths: nu
         }}>
           <span className="text-2xl">🎨</span>
           <div className="flex-1">
-            <p className="text-[0.88rem] font-medium">Leg & aktiviteter</p>
-            <p className="text-[0.68rem] text-muted-foreground">Forslag tilpasset {childName}s alder</p>
+            <p className="text-[0.88rem] font-medium">{t("barn.playActivities")}</p>
+            <p className="text-[0.68rem] text-muted-foreground">{t("barn.suggestionsForAge", { childName })}</p>
           </div>
           <span className="text-muted-foreground">→</span>
         </div>
       </Link>
 
-      {/* Developmental leaps / Tigerspring */}
       <div className="section-fade-in" style={{ animationDelay: "160ms" }}>
-        <h2 className="text-[1rem] font-semibold mb-3">Tigerspring</h2>
+        <h2 className="text-[1rem] font-semibold mb-3">{t("barn.leaps")}</h2>
         <p className="text-[0.75rem] text-muted-foreground mb-4 leading-relaxed">
-          Babyer gennemgår forudsigelige udviklingsspring. Markér dem som sket, hvis {childName} allerede har nået dem.
+          {t("barn.leapsDesc", { childName })}
         </p>
 
         <div className="space-y-2">
           {leaps.map((leap) => {
             const isExpanded = expandedLeap === leap.id;
             const statusStyles: Record<string, { bg: string; border: string; dot: string }> = {
-              completed: {
-                bg: "hsl(var(--sage-light) / 0.5)",
-                border: "hsl(var(--sage) / 0.2)",
-                dot: "hsl(var(--sage))",
-              },
-              achieved: {
-                bg: "hsl(var(--moss) / 0.08)",
-                border: "hsl(var(--moss) / 0.3)",
-                dot: "hsl(var(--moss))",
-              },
-              active: {
-                bg: "hsl(var(--clay) / 0.08)",
-                border: "hsl(var(--clay) / 0.3)",
-                dot: "hsl(var(--clay))",
-              },
-              upcoming: {
-                bg: "hsl(var(--warm-white))",
-                border: "hsl(var(--stone-light))",
-                dot: "hsl(var(--stone))",
-              },
+              completed: { bg: "hsl(var(--sage-light) / 0.5)", border: "hsl(var(--sage) / 0.2)", dot: "hsl(var(--sage))" },
+              achieved: { bg: "hsl(var(--moss) / 0.08)", border: "hsl(var(--moss) / 0.3)", dot: "hsl(var(--moss))" },
+              active: { bg: "hsl(var(--clay) / 0.08)", border: "hsl(var(--clay) / 0.3)", dot: "hsl(var(--clay))" },
+              upcoming: { bg: "hsl(var(--warm-white))", border: "hsl(var(--stone-light))", dot: "hsl(var(--stone))" },
             };
             const s = statusStyles[leap.status];
 
             return (
-              <div
-                key={leap.id}
-                className="rounded-2xl overflow-hidden transition-all"
-                style={{ background: s.bg, border: `1px solid ${s.border}` }}
-              >
-                <button
-                  onClick={() => setExpandedLeap(isExpanded ? null : leap.id)}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-left transition-all active:scale-[0.99]"
-                >
+              <div key={leap.id} className="rounded-2xl overflow-hidden transition-all" style={{ background: s.bg, border: `1px solid ${s.border}` }}>
+                <button onClick={() => setExpandedLeap(isExpanded ? null : leap.id)} className="w-full flex items-center gap-3 px-4 py-3 text-left transition-all active:scale-[0.99]">
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-lg" style={{ background: `${s.dot}20` }}>
                     {leap.emoji}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className={cn("text-[0.85rem] font-medium", leap.status === "upcoming" && "text-foreground/50")}>
-                        {leap.title}
-                      </p>
-                      <span className="text-[0.55rem] tracking-[0.1em] uppercase text-muted-foreground">
-                        ~{leap.weekStart} uger
-                      </span>
+                      <p className={cn("text-[0.85rem] font-medium", leap.status === "upcoming" && "text-foreground/50")}>{leap.title}</p>
+                      <span className="text-[0.55rem] tracking-[0.1em] uppercase text-muted-foreground">~{leap.weekStart} {t("common.weeks")}</span>
                     </div>
                     {leap.status === "active" && (
-                      <p className="text-[0.65rem] mt-0.5" style={{ color: "hsl(var(--clay))" }}>Kan ske nu</p>
+                      <p className="text-[0.65rem] mt-0.5" style={{ color: "hsl(var(--clay))" }}>{t("barn.happeningNow")}</p>
                     )}
                   </div>
                   {(leap.status === "completed" || leap.status === "achieved") && (
                     <span className="text-[0.55rem] tracking-[0.1em] uppercase px-2 py-0.5 rounded-full" style={{ background: "hsl(var(--sage) / 0.15)", color: "hsl(var(--moss))" }}>
-                      ✓ {leap.achievedEarly ? "Tidligt!" : "Nået"}
+                      ✓ {leap.achievedEarly ? t("barn.earlyReached") : t("barn.reached")}
                     </span>
                   )}
                   {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
@@ -217,35 +191,26 @@ function BornBarnPage({ ageWeeks, ageMonths }: { ageWeeks: number; ageMonths: nu
                 {isExpanded && (
                   <div className="px-4 pb-4 space-y-3">
                     <p className="text-[0.78rem] text-foreground/70 leading-relaxed">{leap.description}</p>
-
                     <div>
-                      <p className="text-[0.6rem] tracking-[0.14em] uppercase text-muted-foreground mb-1.5">Tegn at se efter</p>
+                      <p className="text-[0.6rem] tracking-[0.14em] uppercase text-muted-foreground mb-1.5">{t("barn.signsToWatch")}</p>
                       <div className="flex flex-wrap gap-1.5">
                         {leap.signs.map((sign, i) => (
-                          <span key={i} className="text-[0.68rem] px-2.5 py-1 rounded-full" style={{ background: "hsl(var(--warm-white))", border: "1px solid hsl(var(--stone-light))" }}>
-                            {sign}
-                          </span>
+                          <span key={i} className="text-[0.68rem] px-2.5 py-1 rounded-full" style={{ background: "hsl(var(--warm-white))", border: "1px solid hsl(var(--stone-light))" }}>{sign}</span>
                         ))}
                       </div>
                     </div>
-
                     <div>
-                      <p className="text-[0.6rem] tracking-[0.14em] uppercase text-muted-foreground mb-1.5">Tips</p>
+                      <p className="text-[0.6rem] tracking-[0.14em] uppercase text-muted-foreground mb-1.5">{t("barn.tips")}</p>
                       <ul className="space-y-1">
                         {leap.tips.map((tip, i) => (
                           <li key={i} className="flex items-start gap-2 text-[0.75rem] text-foreground/70">
-                            <span className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ background: "hsl(var(--sage))" }} />
-                            {tip}
+                            <span className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ background: "hsl(var(--sage))" }} />{tip}
                           </li>
                         ))}
                       </ul>
                     </div>
-
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleLeapCompleted(leap.id);
-                      }}
+                      onClick={(e) => { e.stopPropagation(); toggleLeapCompleted(leap.id); }}
                       className={cn(
                         "w-full mt-2 py-2.5 rounded-xl text-[0.72rem] tracking-[0.08em] uppercase font-medium transition-all active:scale-[0.98]",
                         completedLeaps.includes(leap.id)
@@ -253,10 +218,7 @@ function BornBarnPage({ ageWeeks, ageMonths }: { ageWeeks: number; ageMonths: nu
                           : "border border-[hsl(var(--stone-light))] hover:border-[hsl(var(--sage))] text-foreground/70"
                       )}
                     >
-                      {completedLeaps.includes(leap.id)
-                        ? `✓ ${childName} har nået dette`
-                        : `Markér som nået`
-                      }
+                      {completedLeaps.includes(leap.id) ? t("barn.childReached", { childName }) : t("barn.markReached")}
                     </button>
                   </div>
                 )}

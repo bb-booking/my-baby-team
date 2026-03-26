@@ -1,18 +1,20 @@
 import { useLocation, Link } from "react-router-dom";
 import { useFamily } from "@/context/FamilyContext";
+import { useTranslation } from "react-i18next";
 import { Home, Baby, Users, BookOpen, MessageCircle } from "lucide-react";
 
 export function BottomNav() {
   const { pathname } = useLocation();
   const { profile } = useFamily();
+  const { t } = useTranslation();
   const isPregnant = profile.phase === "pregnant";
 
   const navItems = [
-    { label: "Hjem", icon: Home, path: "/" },
-    { label: isPregnant ? "Graviditet" : "Barn", icon: Baby, path: "/barn" },
-    { label: "Spørg", icon: MessageCircle, path: "/chat" },
-    { label: "Dagbog", icon: BookOpen, path: "/dagbog" },
-    { label: "Sammen", icon: Users, path: "/sammen" },
+    { label: t("nav.home"), icon: Home, path: "/" },
+    { label: isPregnant ? t("nav.pregnancy") : t("nav.child"), icon: Baby, path: "/barn" },
+    { label: t("nav.ask"), icon: MessageCircle, path: "/chat" },
+    { label: t("nav.diary"), icon: BookOpen, path: "/dagbog" },
+    { label: t("nav.together"), icon: Users, path: "/sammen" },
   ];
 
   return (

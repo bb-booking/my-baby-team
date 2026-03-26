@@ -553,5 +553,52 @@
     "monthsOld": "måneder gammel",
     "newborn": "Nyfødt",
     "weekOf": "Uge {{week}} af 40"
-  }
+  },
+  "settingsPage": {
+    "back": "Tilbage",
+    "theme": "Tema",
+    "themeDesc": "Vælg mellem lyst og mørkt tema. Mørkt tema er rart om natten.",
+    "light": "☀️ Lyst",
+    "dark": "🌙 Mørkt",
+    "languagePerRole": "Vælg dit foretrukne sprog. Hver forælder kan have sit eget sprog."
+  },
+  "sidebarSections": {
+    "overview": "OVERSIGT",
+    "ask": "SPØRG",
+    "name": "NAVN",
+    "family": "FAMILIE",
+    "diary": "DAGBOG",
+    "plan": "PLANLÆG",
+    "shop": "INDKØB",
+    "forYou": "FOR DIG",
+    "settings": "INDSTILLINGER",
+    "switchUser": "SKIFT BRUGER",
+    "switchTo": "Skift til {{role}}",
+    "pregnant": "GRAVID",
+    "onLeave": "PÅ BARSEL",
+    "familyLabel": "Familie",
+    "nursing": "Amning",
+    "diaper": "Ble"
+  },
+  "legCategories": {
+    "udenfor": "Udenfor",
+    "indenfor": "Indenfor",
+    "udviklende": "Udviklende",
+    "kreativitet": "Kreativitet",
+    "naerhed": "Nærhed & ro",
+    "social": "Med andre"
+  },
+  "farFacts": {
+    "header": "VIDSTE DU?",
+    "allDone": "Stærkt! Du gør en kæmpe forskel for hele familien 💚",
+    "keepGoing": "Du er godt i gang — bliv ved 🌿",
+    "todaysActions": "DAGENS HANDLINGER"
+  },
+  "morMicro": [
+    "Du gør det godt — også når det ikke føles sådan 💛",
+    "Det er okay at være træt. Det er en hård fase.",
+    "Du behøver ikke have styr på alt. Bare vær der.",
+    "Små skridt tæller. Du er en fantastisk mor.",
+    "Tag imod hjælp — det er styrke, ikke svaghed."
+  ]
 }

@@ -1,5 +1,6 @@
 import { useLocation, Link } from "react-router-dom";
 import { useFamily, type ParentRole } from "@/context/FamilyContext";
+import { useTranslation } from "react-i18next";
 import {
   Home, Baby, Users, Settings, BookOpen, Calendar, CheckSquare,
   Lightbulb, Heart, Moon, ShoppingBag, Circle, Droplet,
@@ -18,73 +19,72 @@ interface NavSection {
   items: NavItem[];
 }
 
-function getNavSections(phase: "pregnant" | "newborn" | "baby", role: "mor" | "far"): NavSection[] {
+function getNavSections(phase: "pregnant" | "newborn" | "baby", role: "mor" | "far", t: (key: string) => string): NavSection[] {
   const isPregnant = phase === "pregnant";
 
   const sections: NavSection[] = [
     {
-      label: "OVERSIGT",
+      label: t("sidebarSections.overview"),
       items: [
-        { label: "Hjem", icon: Home, path: "/" },
-        ...(isPregnant ? [{ label: "Graviditet", icon: Baby, path: "/barn" }] : [{ label: "Barn", icon: Baby, path: "/barn" }]),
+        { label: t("nav.home"), icon: Home, path: "/" },
+        ...(isPregnant ? [{ label: t("nav.pregnancy"), icon: Baby, path: "/barn" }] : [{ label: t("nav.child"), icon: Baby, path: "/barn" }]),
       ],
     },
   ];
 
-  // AI Chat — always visible
   sections.push({
-    label: "SPØRG",
-    items: [{ label: "Spørg Melo", icon: MessageCircle, path: "/chat" }],
+    label: t("sidebarSections.ask"),
+    items: [{ label: t("chat.title"), icon: MessageCircle, path: "/chat" }],
   });
 
   if (isPregnant) {
     sections.push({
-      label: "NAVN",
-      items: [{ label: "Babynavne", icon: Heart, path: "/babynavne" }],
+      label: t("sidebarSections.name"),
+      items: [{ label: t("sidebar.babyNames"), icon: Heart, path: "/babynavne" }],
     });
   } else {
     sections.push({
-      label: "FAMILIE",
+      label: t("sidebarSections.family"),
       items: [
-        { label: "Samarbejde", icon: Users, path: "/sammen" },
-        { label: "Leg & aktiviteter", icon: PuzzleIcon, path: "/leg" },
+        { label: t("together.title"), icon: Users, path: "/sammen" },
+        { label: t("play.title"), icon: PuzzleIcon, path: "/leg" },
       ],
     });
     sections.push({
-      label: "DAGBOG",
+      label: t("sidebarSections.diary"),
       items: [
-        { label: "Amning", icon: Circle, path: "/dagbog?tab=amning" },
-        { label: "Ble", icon: Droplet, path: "/dagbog?tab=ble" },
-        { label: "Søvn", icon: Moon, path: "/sovn" },
+        { label: t("sidebarSections.nursing"), icon: Circle, path: "/dagbog?tab=amning" },
+        { label: t("sidebarSections.diaper"), icon: Droplet, path: "/dagbog?tab=ble" },
+        { label: t("sidebar.sleep"), icon: Moon, path: "/sovn" },
       ],
     });
   }
 
   sections.push({
-    label: "PLANLÆG",
+    label: t("sidebarSections.plan"),
     items: [
-      { label: "Tjekliste", icon: CheckSquare, path: "/tjekliste" },
-      { label: "Kalender", icon: Calendar, path: "/kalender" },
+      { label: t("sidebar.checklist"), icon: CheckSquare, path: "/tjekliste" },
+      { label: t("sidebar.calendar"), icon: Calendar, path: "/kalender" },
     ],
   });
 
   if (!isPregnant) {
     sections.push({
-      label: "INDKØB",
-      items: [{ label: "Shop", icon: ShoppingBag, path: "/shop" }],
+      label: t("sidebarSections.shop"),
+      items: [{ label: t("shop.title"), icon: ShoppingBag, path: "/shop" }],
     });
   }
 
   sections.push({
-    label: "FOR DIG",
+    label: t("sidebarSections.forYou"),
     items: [
-      { label: "Råd & guides", icon: Lightbulb, path: "/raad" },
+      { label: t("sidebar.advice"), icon: Lightbulb, path: "/raad" },
     ],
   });
 
   sections.push({
-    label: "INDSTILLINGER",
-    items: [{ label: "Indstillinger", icon: Settings, path: "/mere" }],
+    label: t("sidebarSections.settings"),
+    items: [{ label: t("settings.settingsMenu"), icon: Settings, path: "/mere" }],
   });
 
   return sections;
@@ -98,7 +98,8 @@ interface DesktopSidebarProps {
 export function DesktopSidebar({ open, onClose }: DesktopSidebarProps) {
   const { pathname } = useLocation();
   const { profile, setProfile, morName, farName, phaseLabel } = useFamily();
-  const sections = getNavSections(profile.phase, profile.role);
+  const { t } = useTranslation();
+  const sections = getNavSections(profile.phase, profile.role, t);
 
   const otherRole: ParentRole = profile.role === "mor" ? "far" : "mor";
   const otherName = otherRole === "mor" ? morName : farName;
@@ -115,8 +116,10 @@ export function DesktopSidebar({ open, onClose }: DesktopSidebarProps) {
   };
 
   const phaseTagLabel = profile.phase === "pregnant"
-    ? "GRAVID"
-    : "PÅ BARSEL";
+    ? t("sidebarSections.pregnant")
+    : t("sidebarSections.onLeave");
+
+  const roleLabel = profile.role === "mor" ? t("settings.mom") : t("settings.dad");
 
   return (
     <aside
@@ -153,7 +156,7 @@ export function DesktopSidebar({ open, onClose }: DesktopSidebarProps) {
             ))}
           </div>
           <div>
-            <p className="text-[0.78rem]">Familie</p>
+            <p className="text-[0.78rem]">{t("sidebarSections.familyLabel")}</p>
             <p className="text-[0.6rem] text-muted-foreground">{profile.parentName}</p>
           </div>
         </div>
@@ -167,7 +170,7 @@ export function DesktopSidebar({ open, onClose }: DesktopSidebarProps) {
           <div className="flex-1 min-w-0">
             <p className="text-[0.85rem] font-medium truncate">{profile.parentName}</p>
             <p className="text-[0.58rem] tracking-[0.14em] uppercase text-muted-foreground">
-              {profile.role === "mor" ? "Mor" : "Far"} · {phaseTagLabel}
+              {roleLabel} · {phaseTagLabel}
             </p>
           </div>
         </div>
@@ -213,7 +216,7 @@ export function DesktopSidebar({ open, onClose }: DesktopSidebarProps) {
       {/* Profile switcher at bottom */}
       <div className="mt-auto border-t border-stone-light px-4 py-3">
         <p className="text-[0.52rem] tracking-[0.2em] uppercase text-muted-foreground mb-2">
-          SKIFT BRUGER
+          {t("sidebarSections.switchUser")}
         </p>
         <button
           onClick={() => switchRole(otherRole)}
@@ -221,9 +224,9 @@ export function DesktopSidebar({ open, onClose }: DesktopSidebarProps) {
         >
           <span className="text-lg">{otherEmoji}</span>
           <div className="flex-1 text-left">
-            <p className="text-[0.82rem] font-medium">{otherName || (otherRole === "mor" ? "Mor" : "Far")}</p>
+            <p className="text-[0.82rem] font-medium">{otherName || (otherRole === "mor" ? t("settings.mom") : t("settings.dad"))}</p>
             <p className="text-[0.58rem] text-muted-foreground uppercase tracking-wider">
-              Skift til {otherRole === "mor" ? "mor" : "far"}
+              {t("sidebarSections.switchTo", { role: otherRole === "mor" ? t("settings.mom").toLowerCase() : t("settings.dad").toLowerCase() })}
             </p>
           </div>
           <ArrowLeftRight className="w-3.5 h-3.5 text-muted-foreground" />
