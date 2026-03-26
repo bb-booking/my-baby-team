@@ -67,7 +67,7 @@
     "whatInDiaper": "What's in the diaper?",
     "wetOnly": "💧 Wet only",
     "stool": "💩 Stool",
-    "expectedToday": "📋 Expected today {{day}}: ",
+    "expectedToday": "📋 Expected: ",
     "color": "Color",
     "consistency": "Consistency",
     "back": "← Back",
@@ -78,7 +78,12 @@
     "diapers": "Diapers",
     "sleepLabel": "Sleep",
     "noData": "—",
-    "partnerTip": "Get water, a pillow and put your phone away during nursing. Your support makes it easier for both of you."
+    "partnerTip": "Get water, a pillow and put your phone away during nursing. Your support makes it easier for both of you.",
+    "dadTip": "💡 Dad tip",
+    "dadTipNewborn": "{{childName}} feeds often in the first days. Have water, snacks and a pillow ready — it makes a huge difference.",
+    "sleepingNow": "💤 Sleeping now",
+    "napsOne": "{{count}} nap",
+    "napsMany": "{{count}} naps"
   },
   "tasks": {
     "title": "Tasks",
@@ -99,10 +104,15 @@
     "nextWeek": "Next week",
     "moveToDay": "Move to another day",
     "noTasks": "No tasks for this day",
+    "noCompletedTasks": "No completed tasks yet",
     "addFirst": "Add a task to get started",
     "addTask": "Add task",
     "weekView": "Week",
-    "dayView": "Day"
+    "dayView": "Day",
+    "addTo": "Add to {{filter}}",
+    "noTasksDay": "No tasks for this day ✨",
+    "mom": "Mom",
+    "dad": "Dad"
   },
   "settings": {
     "title": "Settings",
@@ -243,7 +253,28 @@
     "diaryWaitingDesc": "Once baby is born you can log nursing, diapers, sleep and notes.",
     "logAndOverview": "LOG & OVERVIEW",
     "today": "Today",
-    "history": "History"
+    "history": "History",
+    "dailyLog": "TODAY'S LOG",
+    "last7days": "Last 7 days",
+    "nursingLeft": "Nursing — left",
+    "nursingRight": "Nursing — right",
+    "bottleLog": "Bottle",
+    "wetDiaper": "Wet",
+    "dirtyDiaper": "Stool",
+    "wetAndDirty": "Wet + stool",
+    "napLabel": "Nap",
+    "nightSleepLabel": "Night sleep",
+    "inProgress": "in progress",
+    "feedingNursing": "NURSING",
+    "feedingBottle": "BOTTLE",
+    "feedingCombi": "NURSING/BOTTLE",
+    "feedingNursingShort": "Nursing",
+    "feedingBottleShort": "Bottle",
+    "feedingCombiShort": "Nurs/Bot",
+    "mealsLow": "{{name}} has had {{count}} meals — recommended is at least {{rec}}.",
+    "wetLow": "Only {{count}} wet diapers — expected is {{rec}}+. Watch for hydration.",
+    "allGood": "{{name}} has had enough food and diaper changes today. You're doing it!",
+    "register": "Register ✓"
   },
   "sleep": {
     "title": "Sleep",
@@ -283,7 +314,10 @@
     "bedtime": "Bedtime",
     "last7days": "LAST 7 DAYS",
     "goal": "Goal: {{hours}}h · Green = ≥85% of recommended",
-    "todayLog": "TODAY"
+    "todayLog": "TODAY",
+    "napLog": "Nap",
+    "nightLog": "Night sleep",
+    "min": "min"
   },
   "together": {
     "title": "Teamwork",
@@ -347,7 +381,20 @@
     "markAchievedEarly": "Mark as achieved early",
     "activeNow": "Active now",
     "passed": "✓ Passed",
-    "now": "Now"
+    "now": "Now",
+    "nextLeapLabel": "Next leap",
+    "levelUp": "LEVEL UP!",
+    "levelUpMsg": "You've reached a new level! Keep up the amazing journey 🌟",
+    "fantastic": "Amazing! 🎉",
+    "firstScan": "First scan",
+    "nuchScan": "Nuchal scan",
+    "trim1End": "1st trimester ends",
+    "anomalyScan": "Anomaly scan",
+    "trim3Start": "3rd trimester starts",
+    "birthPrep": "Birth preparation",
+    "weeklyChecks": "Weekly checks",
+    "fullTerm": "Full term",
+    "dueDate": "Due date"
   },
   "checklist": {
     "title": "Checklist",
@@ -391,7 +438,10 @@
     "activateOnSignup": "Activates on signup",
     "edit": "Edit",
     "seeMenu": "See menu",
-    "recommendedForYou": "RECOMMENDED FOR YOU"
+    "recommendedForYou": "RECOMMENDED FOR YOU",
+    "autoSizeSwitch": "Automatic size switch:",
+    "sizeSwitch": "{{name}} weighs approx. 6.5 kg. Melo suggests switching to the next size in ~10 days.",
+    "seePlan": "See plan"
   },
   "commandCenter": {
     "rightNow": "RIGHT NOW",
@@ -452,7 +502,8 @@
     "exploreDesc": "Cloth books, grasping toys, or just explore things in the kitchen. Everything is a discovery!",
     "playWith": "Play with {{childName}} 🎈",
     "playDesc": "Build towers, play peekaboo, or go exploring. Play is learning!",
-    "moreActivities": "More activities"
+    "moreActivities": "More activities",
+    "tasksTodayDesc": "You have things on the list — take them at your own pace."
   },
   "flow": {
     "todaysFlow": "TODAY'S FLOW",
@@ -471,12 +522,12 @@
   "support": {
     "useTaskList": "Use the task list to show who does what — it helps both of you.",
     "seeTasks": "See tasks",
-    "momHasMore": "{{morName}} is doing a lot. Ask: 'What can I take on?'",
-    "helpMom": "Help {{morName}}",
-    "dadHasMore": "{{farName}} has taken on many tasks — make sure to discuss the distribution.",
-    "helpDad": "See distribution",
-    "balanced": "You're well balanced this week. Keep it up!",
-    "keepGoing": "You're a team"
+    "momHasMore": "It seems one of you has had a bit extra this past week. Maybe you can swap a routine today?",
+    "dadHasMore": "It seems one of you has taken on extra. Make sure both get breaks.",
+    "balanced": "You've distributed things well this past week. Keep talking about it.",
+    "distributeTasks": "Distribute tasks",
+    "seeDistribution": "See distribution",
+    "team": "You're a team"
   },
   "morCards": {
     "recovery": "RECOVERY",
@@ -529,6 +580,7 @@
     "achieved": "✓ Achieved",
     "achievedEarly": "✓ Achieved (early!)",
     "markAchieved": "✨ Mark as completed",
+    "earlyAchieved": "{{childName}} has already reached this leap! 🎉",
     "growing": "{{childName}} is growing — and so are you. 💛",
     "continue": "Continue! 🚀"
   },
@@ -624,13 +676,21 @@
     "okayResponse": "That's fine. One day at a time.",
     "hardResponse": "Thank you for checking in. You're doing better than you think."
   },
-  "kalender": {
-    "nextLeap": "Next leap",
-    "levelUp": "LEVEL UP!",
-    "levelUpMsg": "You've reached a new level! Keep up the amazing journey 🌟",
-    "fantastic": "Amazing! 🎉",
-    "noCompletedTasks": "No completed tasks yet",
-    "noTasksDay": "No tasks for this day ✨",
-    "addTo": "Add to {{filter}}"
+  "nudge": {
+    "momNudges": [
+      {"emoji": "☕", "text": "Take 15 minutes for yourself", "detail": "You don't need a reason. Just do it."},
+      {"emoji": "🚶‍♀️", "text": "Go for a walk — alone", "detail": "Fresh air and silence work wonders."},
+      {"emoji": "💬", "text": "Tell {{partnerName}} what you need", "detail": "Asking for help is strength, not weakness."},
+      {"emoji": "🛁", "text": "A bath or warm drink", "detail": "Small things that feel big right now."},
+      {"emoji": "📝", "text": "Write one thing you're grateful for", "detail": "It shifts your perspective."}
+    ],
+    "dadNudges": [
+      {"emoji": "🏃", "text": "Take {{childName}} for a short walk", "detail": "{{partnerName}} gets a break — you get fresh air."},
+      {"emoji": "💬", "text": "Say something nice to {{partnerName}}", "detail": "'I see everything you do' always works."},
+      {"emoji": "🍳", "text": "Make dinner today", "detail": "Practical help > big words."},
+      {"emoji": "🌙", "text": "Take the bedtime routine tonight", "detail": "Bath, diaper, pajamas — you've got this, {{childName}} loves it."},
+      {"emoji": "🫂", "text": "Give {{partnerName}} a full break", "detail": "Just 30 minutes without responsibility makes a huge difference."},
+      {"emoji": "👀", "text": "See what needs doing — and do it", "detail": "No checklist needed. Just do it."}
+    ]
   }
 }

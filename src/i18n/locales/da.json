@@ -67,7 +67,7 @@
     "whatInDiaper": "Hvad indeholder bleen?",
     "wetOnly": "💧 Kun tis",
     "stool": "💩 Afføring",
-    "expectedToday": "📋 Forventet i dag {{day}}: ",
+    "expectedToday": "📋 Forventet: ",
     "color": "Farve",
     "consistency": "Konsistens",
     "back": "← Tilbage",
@@ -78,7 +78,12 @@
     "diapers": "Bleer",
     "sleepLabel": "Søvn",
     "noData": "—",
-    "partnerTip": "Hent vand, en pude og lad telefonen ligge når der ammes. Din støtte gør det nemmere for jer begge."
+    "partnerTip": "Hent vand, en pude og lad telefonen ligge når der ammes. Din støtte gør det nemmere for jer begge.",
+    "dadTip": "💡 Far-tip",
+    "dadTipNewborn": "{{childName}} spiser ofte de første dage. Sørg for at have vand, snacks og pude klar — det gør en kæmpe forskel.",
+    "sleepingNow": "💤 Sover nu",
+    "napsOne": "{{count}} lur",
+    "napsMany": "{{count}} lure"
   },
   "tasks": {
     "title": "Opgaver",
@@ -99,10 +104,15 @@
     "nextWeek": "Næste uge",
     "moveToDay": "Flyt til anden dag",
     "noTasks": "Ingen opgaver for denne dag",
+    "noCompletedTasks": "Ingen afsluttede opgaver endnu",
     "addFirst": "Tilføj en opgave for at komme i gang",
     "addTask": "Tilføj opgave",
     "weekView": "Uge",
-    "dayView": "Dag"
+    "dayView": "Dag",
+    "addTo": "Tilføj til {{filter}}",
+    "noTasksDay": "Ingen opgaver denne dag ✨",
+    "mom": "Mor",
+    "dad": "Far"
   },
   "settings": {
     "title": "Indstillinger",
@@ -243,7 +253,28 @@
     "diaryWaitingDesc": "Når baby er født kan I logge amning, bleer, søvn og noter.",
     "logAndOverview": "LOG OG OVERBLIK",
     "today": "I dag",
-    "history": "Historik"
+    "history": "Historik",
+    "dailyLog": "DAGENS LOG",
+    "last7days": "Sidste 7 dage",
+    "nursingLeft": "Amning — venstre",
+    "nursingRight": "Amning — højre",
+    "bottleLog": "Flaske",
+    "wetDiaper": "Tisse",
+    "dirtyDiaper": "Afføring",
+    "wetAndDirty": "Tisse + afføring",
+    "napLabel": "Lur",
+    "nightSleepLabel": "Nattesøvn",
+    "inProgress": "i gang",
+    "feedingNursing": "AMNING",
+    "feedingBottle": "FLASKE",
+    "feedingCombi": "AMNING/FLASKE",
+    "feedingNursingShort": "Amning",
+    "feedingBottleShort": "Flaske",
+    "feedingCombiShort": "Amn/Fl",
+    "mealsLow": "{{name}} har fået {{count}} måltider — anbefalet er mindst {{rec}}.",
+    "wetLow": "Kun {{count}} tissebleer — forventet er {{rec}}+. Hold øje med hydrering.",
+    "allGood": "{{name}} har fået nok mad og bleskift i dag. I klarer det!",
+    "register": "Registrér ✓"
   },
   "sleep": {
     "title": "Søvn",
@@ -283,7 +314,10 @@
     "bedtime": "Sengetid",
     "last7days": "SENESTE 7 DAGE",
     "goal": "Mål: {{hours}}t · Grøn = ≥85% af anbefalet",
-    "todayLog": "I DAG"
+    "todayLog": "I DAG",
+    "napLog": "Lur",
+    "nightLog": "Nattesøvn",
+    "min": "min"
   },
   "together": {
     "title": "Samarbejde",
@@ -347,7 +381,20 @@
     "markAchievedEarly": "Markér som opnået tidligt",
     "activeNow": "Aktivt nu",
     "passed": "✓ Passeret",
-    "now": "Nu"
+    "now": "Nu",
+    "nextLeapLabel": "Næste tigerspring",
+    "levelUp": "LEVEL UP!",
+    "levelUpMsg": "Du har nået et nyt niveau! Fortsæt den fantastiske rejse 🌟",
+    "fantastic": "Fantastisk! 🎉",
+    "firstScan": "Første scanning",
+    "nuchScan": "Nakkefoldsscanning",
+    "trim1End": "1. trimester slut",
+    "anomalyScan": "Misdannelsesscanning",
+    "trim3Start": "3. trimester start",
+    "birthPrep": "Fødselsforberedelse",
+    "weeklyChecks": "Ugentlige tjek",
+    "fullTerm": "Fuldbåren",
+    "dueDate": "Terminsdato"
   },
   "checklist": {
     "title": "Tjekliste",
@@ -391,7 +438,10 @@
     "activateOnSignup": "Aktiveres ved tilmelding",
     "edit": "Rediger",
     "seeMenu": "Se menu",
-    "recommendedForYou": "ANBEFALET TIL JER"
+    "recommendedForYou": "ANBEFALET TIL JER",
+    "autoSizeSwitch": "Automatisk størrelsesskift:",
+    "sizeSwitch": "{{name}} vejer ca. 6,5 kg. Melo foreslår at skifte til næste størrelse om ~10 dage.",
+    "seePlan": "Se plan"
   },
   "commandCenter": {
     "rightNow": "LIGE NU",
@@ -452,7 +502,8 @@
     "exploreDesc": "Stof-bøger, gribelegetøj, eller bare udforsk ting i køkkenet. Alt er en opdagelse!",
     "playWith": "Leg med {{childName}} 🎈",
     "playDesc": "Byg tårne, leg tittit-bansen, eller gå på opdagelse. Leg er læring!",
-    "moreActivities": "Flere aktiviteter"
+    "moreActivities": "Flere aktiviteter",
+    "tasksTodayDesc": "Du har ting på listen — tag dem i det tempo der passer."
   },
   "flow": {
     "todaysFlow": "DAGENS FLOW",
@@ -471,12 +522,12 @@
   "support": {
     "useTaskList": "Brug opgavelisten til at synliggøre hvem der gør hvad — det hjælper jer begge.",
     "seeTasks": "Se opgaver",
-    "momHasMore": "{{morName}} gør mange opgaver. Spørg: 'Hvad kan jeg tage?'",
-    "helpMom": "Aflast {{morName}}",
-    "dadHasMore": "{{farName}} har taget mange opgaver — sørg for at tale om fordelingen.",
-    "helpDad": "Se fordeling",
-    "balanced": "I er godt afbalancerede denne uge. Fortsæt!",
-    "keepGoing": "I er et team"
+    "momHasMore": "Det ser ud til at den ene af jer har haft lidt ekstra den seneste uge. Måske I kan bytte en rutine i dag?",
+    "dadHasMore": "Det ser ud til at den ene af jer har taget lidt ekstra. Sørg for at begge får pauser.",
+    "balanced": "I har fordelt tingene godt den seneste uge. Bliv ved med at snakke om det.",
+    "distributeTasks": "Fordel opgaver",
+    "seeDistribution": "Se fordeling",
+    "team": "I er et team"
   },
   "morCards": {
     "recovery": "RECOVERY",
@@ -529,6 +580,7 @@
     "achieved": "✓ Opnået",
     "achievedEarly": "✓ Opnået (tidligt!)",
     "markAchieved": "✨ Markér som gennemført",
+    "earlyAchieved": "{{childName}} har allerede nået dette spring! 🎉",
     "growing": "{{childName}} vokser — og I vokser med. 💛",
     "continue": "Videre! 🚀"
   },
@@ -624,13 +676,21 @@
     "okayResponse": "Helt fint. Én dag ad gangen.",
     "hardResponse": "Tak fordi du mærker efter. Du gør det bedre end du tror."
   },
-  "kalender": {
-    "nextLeap": "Næste tigerspring",
-    "levelUp": "LEVEL UP!",
-    "levelUpMsg": "Du har nået et nyt niveau! Fortsæt den fantastiske rejse 🌟",
-    "fantastic": "Fantastisk! 🎉",
-    "noCompletedTasks": "Ingen afsluttede opgaver endnu",
-    "noTasksDay": "Ingen opgaver denne dag ✨",
-    "addTo": "Tilføj til {{filter}}"
+  "nudge": {
+    "momNudges": [
+      {"emoji": "☕", "text": "Tag 15 minutter for dig selv", "detail": "Du behøver ikke en grund. Bare gør det."},
+      {"emoji": "🚶‍♀️", "text": "Gå en tur — alene", "detail": "Frisk luft og stilhed gør underværker."},
+      {"emoji": "💬", "text": "Fortæl {{partnerName}} hvad du har brug for", "detail": "At bede om hjælp er styrke, ikke svaghed."},
+      {"emoji": "🛁", "text": "Bad eller varm drik", "detail": "Små ting der føles store lige nu."},
+      {"emoji": "📝", "text": "Skriv én ting du er taknemmelig for", "detail": "Det ændrer perspektivet."}
+    ],
+    "dadNudges": [
+      {"emoji": "🏃", "text": "Tag {{childName}} med på en kort gåtur", "detail": "{{partnerName}} får en pause — I får frisk luft."},
+      {"emoji": "💬", "text": "Sig noget rart til {{partnerName}}", "detail": "'Jeg ser alt det du gør' virker altid."},
+      {"emoji": "🍳", "text": "Lav aftensmad i dag", "detail": "Praktisk hjælp > store ord."},
+      {"emoji": "🌙", "text": "Tag aftenrutinen i aften", "detail": "Bad, ble, nattøj — du klarer det, {{childName}} elsker det."},
+      {"emoji": "🫂", "text": "Giv {{partnerName}} en fuld pause", "detail": "Bare 30 minutter uden ansvar gør en kæmpe forskel."},
+      {"emoji": "👀", "text": "Se hvad der skal gøres — og gør det", "detail": "Ingen huskeliste. Bare gør det."}
+    ]
   }
 }
