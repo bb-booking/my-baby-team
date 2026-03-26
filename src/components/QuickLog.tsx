@@ -47,6 +47,7 @@ const STOOL_CONSISTENCIES: { value: StoolConsistency; label: string; icon: strin
 export function QuickLog() {
   const { nursingLogs, addNursing, diaperLogs, addDiaper, todayNursingCount, todayDiaperCount, activeSleep, addSleep, endSleep, todaySleepMinutes } = useDiary();
   const { babyAgeWeeks, babyAgeMonths, profile } = useFamily();
+  const childName = profile.children?.[0]?.name || "Baby";
   const feedingMethod = profile.morHealth?.feedingMethod;
   const feedingLabel = feedingMethod === "flaske" ? "Flaske" : feedingMethod === "begge" ? "Amning/Flaske" : "Amning";
   const feedingEmoji = feedingMethod === "flaske" ? "🍼" : feedingMethod === "begge" ? "🍼" : "🤱";
@@ -322,7 +323,7 @@ export function QuickLog() {
           <p className="font-medium text-[0.8rem] mb-1">💡 Far-tip</p>
           <p className="text-muted-foreground text-[0.72rem]">
             {ageDays < 3
-              ? "Baby spiser ofte de første dage. Sørg for at have vand, snacks og pude klar — det gør en kæmpe forskel."
+              ? `${childName} spiser ofte de første dage. Sørg for at have vand, snacks og pude klar — det gør en kæmpe forskel.`
               : "Hent vand, en pude og lad telefonen ligge når der ammes. Din støtte gør det nemmere for jer begge."}
           </p>
         </div>
