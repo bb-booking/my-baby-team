@@ -1,15 +1,32 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useFamily, type ParentRole, type BirthType, type FeedingMethod, type MorHealth } from "@/context/FamilyContext";
-import { ArrowRight, ArrowLeft } from "lucide-react";
-import { format } from "date-fns";
+import { useFamily, type ParentRole, type BirthType, type FeedingMethod } from "@/context/FamilyContext";
+import { useAuth } from "@/context/AuthContext";
+import { ArrowRight, ArrowLeft, Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { format, addDays } from "date-fns";
 import { da } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import meloLogoImg from "@/assets/melo-logo.png";
 
-type Step = "phase" | "date" | "role" | "names" | "child" | "morhealth" | "leave";
+// Calculate due date from LMP (last menstrual period): LMP + 280 days
+function lmpToDueDate(lmp: Date): Date {
+  return addDays(lmp, 280);
+}
+
+type Step =
+  | "phase"       // Venter barn / Har født
+  | "lmp"         // Gravid: første dag i sidste cyklus
+  | "birthdate"   // Født: barnets fødselsdato
+  | "babyname"    // Barnets navn
+  | "role"        // Hvem er du? Mor / Far
+  | "yourname"    // Dit navn
+  | "partnername" // Partners navn
+  | "birthtype"   // Fødselstype [spring over]
+  | "feeding"     // Amning / flaske [spring over]
+  | "leave"       // Hvem er på barsel
+  | "account";    // Email + adgangskode (sidst)
 
 const complications = [
   { id: "rift", label: "Bristning / klip", emoji: "🩹" },
@@ -22,43 +39,60 @@ const complications = [
 
 export default function OnboardingPage() {
   const { setProfile } = useFamily();
+  const { signUp, signIn } = useAuth();
   const navigate = useNavigate();
 
   const [step, setStep] = useState<Step>("phase");
   const [phase, setPhase] = useState<"pregnant" | "born" | null>(null);
-  const [date, setDate] = useState<Date | undefined>();
-  const [role, setRole] = useState<ParentRole | null>(null);
-  const [parentName, setParentName] = useState("");
+  const [lmpDate, setLmpDate] = useState<Date | undefined>();
+  const [birthDate, setBirthDate] = useState<Date | undefined>();
+  const [babyName, setBabyName] = useState("");
+  const [role, setRole] = useState<ParentRole>("mor");
+  const [yourName, setYourName] = useState("");
   const [partnerName, setPartnerName] = useState("");
-  const [childName, setChildName] = useState("");
-
-  // Mor health quiz
   const [birthType, setBirthType] = useState<BirthType | undefined>();
   const [selectedComplications, setSelectedComplications] = useState<string[]>([]);
   const [feedingMethod, setFeedingMethod] = useState<FeedingMethod | undefined>();
-
-  // Parental leave
   const [morLeave, setMorLeave] = useState(true);
   const [farLeave, setFarLeave] = useState(false);
 
-  const isMorBorn = role === "mor" && phase === "born";
+  // Account step
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authLoading, setAuthLoading] = useState(false);
+
   const steps: Step[] = [
-    "phase", "date", "role", "names",
-    ...(phase === "born" ? ["child" as Step] : []),
-    ...(isMorBorn ? ["morhealth" as Step] : []),
-    ...(phase === "born" ? ["leave" as Step] : []),
+    "phase",
+    ...(phase === "pregnant" ? ["lmp" as Step] : []),
+    ...(phase === "born" ? ["birthdate" as Step, "babyname" as Step] : []),
+    "role",
+    "yourname",
+    "partnername",
+    ...(phase === "born" ? ["birthtype" as Step, "feeding" as Step] : []),
+    "leave",
+    "account",
   ];
+
   const stepIndex = steps.indexOf(step);
   const progress = ((stepIndex + 1) / steps.length) * 100;
 
+  // Sensitive steps that can be skipped
+  const skippable: Step[] = ["birthtype", "feeding", "leave"];
+
   const canNext = () => {
     if (step === "phase") return phase !== null;
-    if (step === "date") return date !== undefined;
-    if (step === "role") return role !== null;
-    if (step === "names") return parentName.trim().length > 0 && partnerName.trim().length > 0;
-    if (step === "child") return true;
-    if (step === "morhealth") return true;
+    if (step === "lmp") return lmpDate !== undefined;
+    if (step === "birthdate") return birthDate !== undefined;
+    if (step === "babyname") return true; // optional
+    if (step === "role") return true;
+    if (step === "yourname") return yourName.trim().length > 0;
+    if (step === "partnername") return true; // optional
+    if (step === "birthtype") return true;
+    if (step === "feeding") return true;
     if (step === "leave") return true;
+    if (step === "account") return email.trim().length > 0 && password.length >= 6;
     return false;
   };
 
@@ -68,168 +102,253 @@ export default function OnboardingPage() {
     );
   };
 
-  const finish = () => {
-    const morHealth: MorHealth | undefined = isMorBorn ? {
-      birthType, complications: selectedComplications, feedingMethod,
-    } : undefined;
-
-    setProfile({
-      phase: phase === "pregnant" ? "pregnant" : "newborn",
-      role: role!,
-      dueOrBirthDate: date!.toISOString(),
-      parentName: parentName.trim(),
-      partnerName: partnerName.trim(),
-      children: childName.trim()
-        ? [{ id: crypto.randomUUID?.() || Math.random().toString(36).slice(2), name: childName.trim(), birthDate: date!.toISOString() }]
-        : [],
-      onboarded: true,
-      morHealth,
-      parentalLeave: { mor: morLeave, far: farLeave },
-    });
-    navigate("/");
-  };
-
-  const next = () => {
+  const goNext = () => {
     const i = steps.indexOf(step);
     if (i < steps.length - 1) setStep(steps[i + 1]);
-    else finish();
   };
 
-  const back = () => {
+  const goBack = () => {
     const i = steps.indexOf(step);
     if (i > 0) setStep(steps[i - 1]);
   };
 
+  const finish = async () => {
+    setAuthError(null);
+    setAuthLoading(true);
+
+    const dueOrBirthDate = phase === "pregnant"
+      ? lmpToDueDate(lmpDate!).toISOString()
+      : birthDate!.toISOString();
+
+    // Try sign up first, fall back to sign in if already exists
+    const { error: signUpError } = await signUp(email.trim(), password);
+
+    if (signUpError && signUpError.toLowerCase().includes("already")) {
+      const { error: signInError } = await signIn(email.trim(), password);
+      if (signInError) { setAuthError(signInError); setAuthLoading(false); return; }
+    } else if (signUpError) {
+      setAuthError(signUpError);
+      setAuthLoading(false);
+      return;
+    }
+
+    setProfile({
+      phase: phase === "pregnant" ? "pregnant" : "newborn",
+      role,
+      dueOrBirthDate,
+      parentName: yourName.trim(),
+      partnerName: partnerName.trim(),
+      children: babyName.trim()
+        ? [{ id: Math.random().toString(36).slice(2), name: babyName.trim(), birthDate: dueOrBirthDate }]
+        : [],
+      onboarded: true,
+      morHealth: phase === "born" ? { birthType, complications: selectedComplications, feedingMethod } : undefined,
+      parentalLeave: { mor: morLeave, far: farLeave },
+      languages: { mor: "da", far: "da" },
+    });
+
+    setAuthLoading(false);
+    navigate("/");
+  };
+
+  const handleNext = () => {
+    if (step === "account") {
+      finish();
+    } else {
+      goNext();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      {/* Progress bar */}
       <div className="h-0.5" style={{ background: "hsl(var(--stone-lighter))" }}>
         <div className="h-full transition-all duration-500 ease-out" style={{ width: `${progress}%`, background: "hsl(var(--moss))" }} />
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-10">
         <div className="w-full max-w-sm">
-          {/* Logo */}
-          <div className="flex flex-col items-center mb-12 section-fade-in">
-            <div className="flex items-center gap-2 mb-1">
-              <img src={meloLogoImg} alt="" className="w-7 h-7" />
-              <span className="font-sans font-extrabold text-[2.6rem] tracking-[0.28em] uppercase leading-none" style={{ color: "hsl(var(--moss))" }}>MELO</span>
-            </div>
-            <span className="text-[0.58rem] tracking-[0.28em] uppercase text-muted-foreground font-light">for nye forældre</span>
-          </div>
 
-          {/* Phase */}
+          {/* Logo — only on first step */}
+          {step === "phase" && (
+            <div className="flex flex-col items-center mb-12 section-fade-in">
+              <div className="flex items-center gap-2 mb-1">
+                <img src={meloLogoImg} alt="" className="w-7 h-7" />
+                <span className="font-sans font-extrabold text-[2.6rem] tracking-[0.28em] uppercase leading-none" style={{ color: "hsl(var(--moss))" }}>MELO</span>
+              </div>
+              <span className="text-[0.58rem] tracking-[0.28em] uppercase text-muted-foreground font-light">for nye forældre</span>
+            </div>
+          )}
+
+          {/* STEP: Phase */}
           {step === "phase" && (
             <div className="space-y-5 section-fade-in" key="phase">
-              <StepHeader num={stepIndex + 1} total={steps.length} title="Hvor er I på rejsen?" sub="Vi tilpasser alt indhold til netop jeres situation." />
+              <StepHeader title="Hvor er I på rejsen?" sub="Vi tilpasser alt indhold til netop jeres situation." />
               <div className="space-y-2.5">
-                <OptionButton selected={phase === "pregnant"} onClick={() => setPhase("pregnant")} emoji="🤰" title="Vi venter barn" sub="Graviditet — uge for uge" />
-                <OptionButton selected={phase === "born"} onClick={() => setPhase("born")} emoji="👶" title="Barnet er født" sub="Nyfødt eller baby" />
+                <OptionButton
+                  selected={phase === "pregnant"}
+                  onClick={() => setPhase("pregnant")}
+                  emoji="🤰" title="Vi venter barn" sub="Graviditet — uge for uge"
+                />
+                <OptionButton
+                  selected={phase === "born"}
+                  onClick={() => setPhase("born")}
+                  emoji="👶" title="Barnet er født" sub="Nyfødt eller baby"
+                />
               </div>
             </div>
           )}
 
-          {/* Date */}
-          {step === "date" && (
-            <div className="space-y-5 section-fade-in" key="date">
-              <StepHeader num={stepIndex + 1} total={steps.length}
-                title={phase === "pregnant" ? "Hvornår er terminen?" : "Hvornår blev barnet født?"}
-                sub={phase === "pregnant" ? "Vi beregner automatisk hvilken uge I er i." : "Vi tilpasser indhold til barnets alder."} />
+          {/* STEP: LMP (pregnant) */}
+          {step === "lmp" && (
+            <div className="space-y-5 section-fade-in" key="lmp">
+              <StepHeader
+                title="Hvornår startede din sidste cyklus?"
+                sub="Vi bruger dette til at beregne din termin automatisk. Første dag i din sidste menstruation."
+              />
               <Popover>
                 <PopoverTrigger asChild>
                   <button className={cn(
                     "w-full rounded-2xl border-[1.5px] px-5 py-4 text-left transition-all active:scale-[0.98]",
-                    date ? "border-[hsl(var(--moss))] bg-[hsl(var(--moss))]/5" : "border-[hsl(var(--stone-light))] bg-background"
+                    lmpDate ? "border-[hsl(var(--moss))] bg-[hsl(var(--moss))]/5" : "border-[hsl(var(--stone-light))] bg-background"
                   )}>
-                    {date ? <p className="font-semibold text-[0.95rem]">{format(date, "d. MMMM yyyy", { locale: da })}</p> : <p className="text-muted-foreground text-[0.95rem]">Vælg dato</p>}
-                    <p className="text-[0.62rem] tracking-[0.12em] uppercase text-muted-foreground mt-1">{phase === "pregnant" ? "Forventet fødselsdato" : "Fødselsdato"}</p>
+                    {lmpDate
+                      ? <p className="font-semibold text-[0.95rem]">{format(lmpDate, "d. MMMM yyyy", { locale: da })}</p>
+                      : <p className="text-muted-foreground text-[0.95rem]">Vælg dato</p>
+                    }
+                    <p className="text-[0.62rem] tracking-[0.12em] uppercase text-muted-foreground mt-1">Første dag i sidste menstruation</p>
                   </button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="center">
-                  <Calendar mode="single" selected={date} onSelect={setDate} locale={da} className="p-3 pointer-events-auto"
-                    disabled={(d) => phase === "pregnant" ? d < new Date() || d > new Date(Date.now() + 280 * 24 * 60 * 60 * 1000) : d > new Date() || d < new Date("2020-01-01")}
-                    defaultMonth={phase === "pregnant" ? new Date(Date.now() + 120 * 24 * 60 * 60 * 1000) : new Date()} />
+                  <Calendar
+                    mode="single" selected={lmpDate} onSelect={setLmpDate} locale={da}
+                    className="p-3 pointer-events-auto"
+                    disabled={(d) => d > new Date() || d < new Date("2024-01-01")}
+                    defaultMonth={new Date()}
+                  />
+                </PopoverContent>
+              </Popover>
+              {lmpDate && (
+                <div className="rounded-2xl px-4 py-3" style={{ background: "hsl(var(--sage-light))" }}>
+                  <p className="text-[0.62rem] tracking-[0.12em] uppercase text-muted-foreground mb-0.5">Beregnet termin</p>
+                  <p className="font-semibold text-[0.95rem]">{format(lmpToDueDate(lmpDate), "d. MMMM yyyy", { locale: da })}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* STEP: Birth date (born) */}
+          {step === "birthdate" && (
+            <div className="space-y-5 section-fade-in" key="birthdate">
+              <StepHeader title="Hvornår blev barnet født?" sub="Vi tilpasser indhold til barnets alder." />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className={cn(
+                    "w-full rounded-2xl border-[1.5px] px-5 py-4 text-left transition-all active:scale-[0.98]",
+                    birthDate ? "border-[hsl(var(--moss))] bg-[hsl(var(--moss))]/5" : "border-[hsl(var(--stone-light))] bg-background"
+                  )}>
+                    {birthDate
+                      ? <p className="font-semibold text-[0.95rem]">{format(birthDate, "d. MMMM yyyy", { locale: da })}</p>
+                      : <p className="text-muted-foreground text-[0.95rem]">Vælg dato</p>
+                    }
+                    <p className="text-[0.62rem] tracking-[0.12em] uppercase text-muted-foreground mt-1">Fødselsdato</p>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="center">
+                  <Calendar
+                    mode="single" selected={birthDate} onSelect={setBirthDate} locale={da}
+                    className="p-3 pointer-events-auto"
+                    disabled={(d) => d > new Date() || d < new Date("2020-01-01")}
+                    defaultMonth={new Date()}
+                  />
                 </PopoverContent>
               </Popover>
             </div>
           )}
 
-          {/* Role */}
+          {/* STEP: Baby name */}
+          {step === "babyname" && (
+            <div className="space-y-5 section-fade-in" key="babyname">
+              <StepHeader title="Hvad hedder jeres barn?" sub="Så vi kan gøre oplevelsen helt personlig. Du kan altid ændre det senere." />
+              <InputField label="Barnets navn" value={babyName} onChange={setBabyName} placeholder="F.eks. Alma" />
+            </div>
+          )}
+
+          {/* STEP: Role */}
           {step === "role" && (
             <div className="space-y-5 section-fade-in" key="role">
-              <StepHeader num={stepIndex + 1} total={steps.length} title="Hvem er du?" sub="Vi viser indhold der passer til din rolle." />
+              <StepHeader title="Hvem er du?" sub="Vi viser indhold der passer til din rolle." />
               <div className="grid grid-cols-2 gap-2.5">
-                <button onClick={() => setRole("mor")} className={cn("py-5 px-3 rounded-2xl border-[1.5px] text-center transition-all active:scale-[0.98]",
-                  role === "mor" ? "border-[hsl(var(--clay))] bg-[hsl(var(--clay))]/10" : "border-[hsl(var(--stone-light))] hover:border-[hsl(var(--clay))]")}>
-                  <span className="text-3xl block mb-1.5">👩</span><span className="text-[0.82rem] font-light">Mor</span>
+                <button onClick={() => setRole("mor")} className={cn(
+                  "py-5 px-3 rounded-2xl border-[1.5px] text-center transition-all active:scale-[0.98]",
+                  role === "mor" ? "border-[hsl(var(--clay))] bg-[hsl(var(--clay))]/10" : "border-[hsl(var(--stone-light))] hover:border-[hsl(var(--clay))]"
+                )}>
+                  <span className="text-3xl block mb-1.5">👩</span>
+                  <span className="text-[0.82rem] font-light">Mor</span>
                 </button>
-                <button onClick={() => setRole("far")} className={cn("py-5 px-3 rounded-2xl border-[1.5px] text-center transition-all active:scale-[0.98]",
-                  role === "far" ? "border-[hsl(var(--sage))] bg-[hsl(var(--sage))]/10" : "border-[hsl(var(--stone-light))] hover:border-[hsl(var(--sage))]")}>
-                  <span className="text-3xl block mb-1.5">👨</span><span className="text-[0.82rem] font-light">Far / Partner</span>
+                <button onClick={() => setRole("far")} className={cn(
+                  "py-5 px-3 rounded-2xl border-[1.5px] text-center transition-all active:scale-[0.98]",
+                  role === "far" ? "border-[hsl(var(--sage))] bg-[hsl(var(--sage))]/10" : "border-[hsl(var(--stone-light))] hover:border-[hsl(var(--sage))]"
+                )}>
+                  <span className="text-3xl block mb-1.5">👨</span>
+                  <span className="text-[0.82rem] font-light">Far / Partner</span>
                 </button>
               </div>
             </div>
           )}
 
-          {/* Names */}
-          {step === "names" && (
-            <div className="space-y-5 section-fade-in" key="names">
-              <StepHeader num={stepIndex + 1} total={steps.length} title="Hvad hedder I?" sub="Så appen føles personlig — kun for jer." />
-              <div className="space-y-3">
-                <InputField label="Dit navn" value={parentName} onChange={setParentName} placeholder={role === "mor" ? "F.eks. Line" : "F.eks. Mikkel"} />
-                <InputField label="Partners navn" value={partnerName} onChange={setPartnerName} placeholder={role === "mor" ? "F.eks. Mikkel" : "F.eks. Line"} />
-              </div>
+          {/* STEP: Your name */}
+          {step === "yourname" && (
+            <div className="space-y-5 section-fade-in" key="yourname">
+              <StepHeader
+                title={role === "mor" ? "Hvad hedder du, mor?" : "Hvad hedder du, far?"}
+                sub="Så appen kan tiltale dig personligt."
+              />
+              <InputField
+                label="Dit navn"
+                value={yourName}
+                onChange={setYourName}
+                placeholder={role === "mor" ? "F.eks. Sofie" : "F.eks. Mikkel"}
+              />
             </div>
           )}
 
-          {/* Child */}
-          {step === "child" && (
-            <div className="space-y-5 section-fade-in" key="child">
-              <StepHeader num={stepIndex + 1} total={steps.length} title="Hvad hedder jeres barn?" sub="Så vi kan gøre oplevelsen helt personlig." />
-              <InputField label="Barnets navn" value={childName} onChange={setChildName} placeholder="F.eks. Alma" />
-              <p className="text-[0.68rem] text-muted-foreground">Du kan altid tilføje eller ændre dette senere.</p>
+          {/* STEP: Partner name */}
+          {step === "partnername" && (
+            <div className="space-y-5 section-fade-in" key="partnername">
+              <StepHeader title="Hvad hedder din partner?" sub="Så appen føles personlig for jer begge." />
+              <InputField
+                label="Partners navn"
+                value={partnerName}
+                onChange={setPartnerName}
+                placeholder={role === "mor" ? "F.eks. Mikkel" : "F.eks. Line"}
+              />
             </div>
           )}
 
-          {/* Mor Health Quiz */}
-          {step === "morhealth" && (
-            <div className="space-y-5 section-fade-in" key="morhealth">
-              <StepHeader num={stepIndex + 1} total={steps.length} title="Lidt om din fødsel" sub="Så vi kan tilpasse råd om recovery og amning. Alt er valgfrit." />
-
-              {/* Birth type */}
-              <div>
-                <p className="text-[0.62rem] tracking-[0.16em] uppercase text-muted-foreground mb-2">Fødselstype</p>
-                <div className="grid grid-cols-2 gap-2">
-                  <OptionButton selected={birthType === "vaginal"} onClick={() => setBirthType("vaginal")} emoji="👶" title="Vaginal fødsel" compact />
-                  <OptionButton selected={birthType === "kejsersnit"} onClick={() => setBirthType("kejsersnit")} emoji="🏥" title="Kejsersnit" compact />
-                </div>
+          {/* STEP: Birth type [skippable] */}
+          {step === "birthtype" && (
+            <div className="space-y-5 section-fade-in" key="birthtype">
+              <StepHeader
+                title="Hvordan foregik fødslen?"
+                sub="Vi bruger dette til at tilpasse råd om recovery. Helt valgfrit."
+                skippable
+              />
+              <div className="grid grid-cols-2 gap-2.5">
+                <OptionButton selected={birthType === "vaginal"} onClick={() => setBirthType("vaginal")} emoji="👶" title="Vaginal fødsel" compact />
+                <OptionButton selected={birthType === "kejsersnit"} onClick={() => setBirthType("kejsersnit")} emoji="🏥" title="Kejsersnit" compact />
               </div>
-
-              {/* Feeding */}
-              <div>
-                <p className="text-[0.62rem] tracking-[0.16em] uppercase text-muted-foreground mb-2">Ernæring</p>
-                <div className="grid grid-cols-3 gap-2">
-                  {([
-                    { key: "amning" as FeedingMethod, emoji: "🤱", label: "Amning" },
-                    { key: "flaske" as FeedingMethod, emoji: "🍼", label: "Flaske" },
-                    { key: "begge" as FeedingMethod, emoji: "🤱🍼", label: "Begge" },
-                  ]).map(f => (
-                    <button key={f.key} onClick={() => setFeedingMethod(f.key)}
-                      className={cn("flex flex-col items-center gap-1 py-3 rounded-2xl border-[1.5px] text-[0.72rem] transition-all active:scale-[0.97]",
-                        feedingMethod === f.key ? "border-[hsl(var(--moss))] bg-[hsl(var(--moss))]/5 font-medium" : "border-[hsl(var(--stone-light))]")}>
-                      <span>{f.emoji}</span>{f.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Complications */}
               <div>
                 <p className="text-[0.62rem] tracking-[0.16em] uppercase text-muted-foreground mb-2">Komplikationer (valgfrit)</p>
                 <div className="space-y-1.5">
                   {complications.map(c => (
                     <button key={c.id} onClick={() => toggleComplication(c.id)}
-                      className={cn("w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border-[1.5px] text-left text-[0.82rem] transition-all active:scale-[0.98]",
-                        selectedComplications.includes(c.id) ? "border-[hsl(var(--clay))] bg-[hsl(var(--clay))]/8" : "border-[hsl(var(--stone-light))]")}>
+                      className={cn(
+                        "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border-[1.5px] text-left text-[0.82rem] transition-all active:scale-[0.98]",
+                        selectedComplications.includes(c.id)
+                          ? "border-[hsl(var(--clay))] bg-[hsl(var(--clay))]/8"
+                          : "border-[hsl(var(--stone-light))]"
+                      )}>
                       <span>{c.emoji}</span>{c.label}
                     </button>
                   ))}
@@ -238,17 +357,44 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Parental Leave */}
+          {/* STEP: Feeding [skippable] */}
+          {step === "feeding" && (
+            <div className="space-y-5 section-fade-in" key="feeding">
+              <StepHeader title="Hvordan ernærer I barnet?" sub="Vi tilpasser råd til jeres valg. Helt valgfrit." skippable />
+              <div className="grid grid-cols-3 gap-2">
+                {([
+                  { key: "amning" as FeedingMethod, emoji: "🤱", label: "Amning" },
+                  { key: "flaske" as FeedingMethod, emoji: "🍼", label: "Flaske" },
+                  { key: "begge" as FeedingMethod, emoji: "🤱🍼", label: "Begge" },
+                ] as const).map(f => (
+                  <button key={f.key} onClick={() => setFeedingMethod(f.key)}
+                    className={cn(
+                      "flex flex-col items-center gap-1.5 py-4 rounded-2xl border-[1.5px] text-[0.72rem] transition-all active:scale-[0.97]",
+                      feedingMethod === f.key
+                        ? "border-[hsl(var(--moss))] bg-[hsl(var(--moss))]/5 font-medium"
+                        : "border-[hsl(var(--stone-light))]"
+                    )}>
+                    <span className="text-2xl">{f.emoji}</span>{f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* STEP: Leave [skippable] */}
           {step === "leave" && (
             <div className="space-y-5 section-fade-in" key="leave">
-              <StepHeader num={stepIndex + 1} total={steps.length} title="Hvem er på barsel?" sub="Så vi kan tilpasse hvem der gør hvad i hverdagen." />
+              <StepHeader title="Hvem er på barsel?" sub="Så vi kan tilpasse hvem der gør hvad i hverdagen." skippable />
               <div className="space-y-3">
                 <button onClick={() => setMorLeave(!morLeave)}
-                  className={cn("w-full flex items-center gap-3.5 rounded-2xl border-[1.5px] text-left px-4 py-3.5 transition-all active:scale-[0.98]",
-                    morLeave ? "border-[hsl(var(--clay))] bg-[hsl(var(--clay))]/5" : "border-[hsl(var(--stone-light))] bg-background")}>
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-xl" style={{ background: morLeave ? "hsl(var(--clay-light))" : "hsl(var(--stone-lighter))" }}>👩</div>
+                  className={cn(
+                    "w-full flex items-center gap-3.5 rounded-2xl border-[1.5px] text-left px-4 py-3.5 transition-all active:scale-[0.98]",
+                    morLeave ? "border-[hsl(var(--clay))] bg-[hsl(var(--clay))]/5" : "border-[hsl(var(--stone-light))] bg-background"
+                  )}>
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-xl"
+                    style={{ background: morLeave ? "hsl(var(--clay-light))" : "hsl(var(--stone-lighter))" }}>👩</div>
                   <div className="flex-1">
-                    <p className="text-[0.95rem] font-semibold">{role === "mor" ? parentName || "Mor" : partnerName || "Mor"}</p>
+                    <p className="text-[0.95rem] font-semibold">{role === "mor" ? "Dig" : partnerName || "Mor"}</p>
                     <p className="text-[0.62rem] tracking-[0.12em] uppercase text-muted-foreground">{morLeave ? "På barsel" : "Ikke på barsel"}</p>
                   </div>
                   <div className={cn("w-5 h-5 rounded-md flex items-center justify-center", morLeave ? "bg-[hsl(var(--clay))]" : "border-[1.5px] border-[hsl(var(--stone-light))]")}>
@@ -256,11 +402,14 @@ export default function OnboardingPage() {
                   </div>
                 </button>
                 <button onClick={() => setFarLeave(!farLeave)}
-                  className={cn("w-full flex items-center gap-3.5 rounded-2xl border-[1.5px] text-left px-4 py-3.5 transition-all active:scale-[0.98]",
-                    farLeave ? "border-[hsl(var(--sage))] bg-[hsl(var(--sage))]/5" : "border-[hsl(var(--stone-light))] bg-background")}>
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-xl" style={{ background: farLeave ? "hsl(var(--sage-light))" : "hsl(var(--stone-lighter))" }}>👨</div>
+                  className={cn(
+                    "w-full flex items-center gap-3.5 rounded-2xl border-[1.5px] text-left px-4 py-3.5 transition-all active:scale-[0.98]",
+                    farLeave ? "border-[hsl(var(--sage))] bg-[hsl(var(--sage))]/5" : "border-[hsl(var(--stone-light))] bg-background"
+                  )}>
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-xl"
+                    style={{ background: farLeave ? "hsl(var(--sage-light))" : "hsl(var(--stone-lighter))" }}>👨</div>
                   <div className="flex-1">
-                    <p className="text-[0.95rem] font-semibold">{role === "far" ? parentName || "Far" : partnerName || "Far"}</p>
+                    <p className="text-[0.95rem] font-semibold">{role === "far" ? "Dig" : partnerName || "Far"}</p>
                     <p className="text-[0.62rem] tracking-[0.12em] uppercase text-muted-foreground">{farLeave ? "På barsel" : "Ikke på barsel"}</p>
                   </div>
                   <div className={cn("w-5 h-5 rounded-md flex items-center justify-center", farLeave ? "bg-[hsl(var(--sage))]" : "border-[1.5px] border-[hsl(var(--stone-light))]")}>
@@ -268,35 +417,101 @@ export default function OnboardingPage() {
                   </div>
                 </button>
               </div>
-              <p className="text-[0.68rem] text-muted-foreground text-center">Du kan altid ændre dette i indstillinger.</p>
+            </div>
+          )}
+
+          {/* STEP: Account (last) */}
+          {step === "account" && (
+            <div className="space-y-5 section-fade-in" key="account">
+              <StepHeader
+                title="Gem din konto"
+                sub="Opret en gratis konto så dine data er sikre og tilgængelige på alle dine enheder."
+              />
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <label className="text-[0.62rem] tracking-[0.16em] uppercase text-muted-foreground">E-mail</label>
+                  <div className="relative">
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="email" value={email} onChange={e => setEmail(e.target.value)}
+                      placeholder="din@email.dk" required
+                      className="w-full rounded-xl border-[1.5px] border-[hsl(var(--stone-light))] bg-background pl-10 pr-4 py-3 text-[0.88rem] focus:outline-none focus:border-[hsl(var(--moss))] transition-colors"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[0.62rem] tracking-[0.16em] uppercase text-muted-foreground">Adgangskode</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type={showPassword ? "text" : "password"} value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      placeholder="Min. 6 tegn" minLength={6}
+                      className="w-full rounded-xl border-[1.5px] border-[hsl(var(--stone-light))] bg-background pl-10 pr-11 py-3 text-[0.88rem] focus:outline-none focus:border-[hsl(var(--moss))] transition-colors"
+                    />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+                {authError && (
+                  <div className="rounded-xl px-4 py-3 text-[0.78rem]" style={{ background: "hsl(0 70% 95%)", color: "hsl(0 60% 40%)" }}>
+                    {authError}
+                  </div>
+                )}
+              </div>
+              <p className="text-[0.65rem] text-muted-foreground text-center">
+                Har du allerede en konto? Log ind med din e-mail og adgangskode ovenfor.
+              </p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Bottom actions */}
-      <div className="px-6 pb-8 pt-4 flex items-center gap-3 max-w-sm mx-auto w-full">
-        {stepIndex > 0 && (
-          <button onClick={back} className="w-12 h-12 rounded-xl border border-[hsl(var(--stone-light))] flex items-center justify-center transition-all active:scale-95 hover:bg-[hsl(var(--cream))]">
-            <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+      {/* Bottom navigation */}
+      <div className="px-6 pb-8 pt-4 flex flex-col gap-3 max-w-sm mx-auto w-full">
+        <div className="flex items-center gap-3">
+          {stepIndex > 0 && (
+            <button onClick={goBack}
+              className="w-12 h-12 rounded-xl border border-[hsl(var(--stone-light))] flex items-center justify-center transition-all active:scale-95 hover:bg-[hsl(var(--cream))]">
+              <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+            </button>
+          )}
+          <button
+            onClick={handleNext}
+            disabled={!canNext() || authLoading}
+            className={cn(
+              "flex-1 h-12 rounded-full font-semibold text-[0.74rem] tracking-[0.16em] uppercase flex items-center justify-center gap-2 transition-all active:scale-[0.98]",
+              canNext() && !authLoading
+                ? "bg-[hsl(var(--moss))] text-white hover:bg-[hsl(var(--sage-dark))]"
+                : "bg-muted text-muted-foreground cursor-not-allowed"
+            )}
+          >
+            {authLoading ? "Opretter konto..." : step === "account" ? "Kom i gang" : "Næste"}
+            {!authLoading && <ArrowRight className="w-4 h-4" />}
+          </button>
+        </div>
+
+        {/* Skip button for sensitive steps */}
+        {skippable.includes(step) && (
+          <button onClick={goNext}
+            className="text-center text-[0.72rem] text-muted-foreground hover:text-foreground transition-colors py-1">
+            Spring over
           </button>
         )}
-        <button onClick={next} disabled={!canNext()}
-          className={cn("flex-1 h-12 rounded-full font-semibold text-[0.74rem] tracking-[0.16em] uppercase flex items-center justify-center gap-2 transition-all active:scale-[0.98]",
-            canNext() ? "bg-[hsl(var(--moss))] text-white hover:bg-[hsl(var(--sage-dark))]" : "bg-muted text-muted-foreground cursor-not-allowed")}>
-          {step === steps[steps.length - 1] ? "Kom i gang" : step === "morhealth" ? "Kom i gang" : "Næste"}
-          <ArrowRight className="w-4 h-4" />
-        </button>
       </div>
     </div>
   );
 }
 
 // ── Helper components ──
-function StepHeader({ num, total, title, sub }: { num: number; total: number; title: string; sub: string }) {
+function StepHeader({ title, sub, skippable }: { title: string; sub: string; skippable?: boolean }) {
   return (
     <div className="text-center">
-      <p className="text-[0.6rem] tracking-[0.2em] uppercase text-muted-foreground mb-5">TRIN {num} AF {total}</p>
+      {skippable && (
+        <p className="text-[0.58rem] tracking-[0.18em] uppercase mb-4" style={{ color: "hsl(var(--sage))" }}>Valgfrit</p>
+      )}
       <h1 className="text-[1.45rem] font-bold mb-1.5">{title}</h1>
       <p className="text-[0.76rem] text-muted-foreground tracking-[0.04em] leading-relaxed">{sub}</p>
     </div>
@@ -311,7 +526,9 @@ function OptionButton({ selected, onClick, emoji, title, sub, compact }: {
       className={cn(
         "w-full flex items-center gap-3.5 rounded-2xl border-[1.5px] text-left transition-all active:scale-[0.98]",
         compact ? "px-3 py-2.5" : "px-4 py-3.5",
-        selected ? "border-[hsl(var(--moss))] bg-[hsl(var(--moss))]/5" : "border-[hsl(var(--stone-light))] hover:border-[hsl(var(--sage))] bg-background"
+        selected
+          ? "border-[hsl(var(--moss))] bg-[hsl(var(--moss))]/5"
+          : "border-[hsl(var(--stone-light))] hover:border-[hsl(var(--sage))] bg-background"
       )}>
       {!compact && (
         <div className="w-12 h-12 rounded-full flex items-center justify-center text-xl"
@@ -326,12 +543,17 @@ function OptionButton({ selected, onClick, emoji, title, sub, compact }: {
   );
 }
 
-function InputField({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder: string }) {
+function InputField({ label, value, onChange, placeholder }: {
+  label: string; value: string; onChange: (v: string) => void; placeholder: string;
+}) {
   return (
     <div>
       <label className="text-[0.62rem] tracking-[0.16em] uppercase text-muted-foreground mb-1.5 block">{label}</label>
-      <input type="text" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} maxLength={50}
-        className="w-full rounded-xl border-[1.5px] border-[hsl(var(--stone-light))] bg-background px-4 py-3 text-[0.9rem] font-normal focus:outline-none focus:border-[hsl(var(--sage))] transition-colors" />
+      <input
+        type="text" value={value} onChange={e => onChange(e.target.value)}
+        placeholder={placeholder} maxLength={50}
+        className="w-full rounded-xl border-[1.5px] border-[hsl(var(--stone-light))] bg-background px-4 py-3 text-[0.9rem] font-normal focus:outline-none focus:border-[hsl(var(--sage))] transition-colors"
+      />
     </div>
   );
 }
