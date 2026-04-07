@@ -6,8 +6,16 @@ import { AppHeader } from "@/components/AppHeader";
 import { useFamily } from "@/context/FamilyContext";
 
 export default function AppLayout() {
-  const { profile } = useFamily();
+  const { profile, profileLoading } = useFamily();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  if (profileLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[hsl(var(--moss))] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!profile.onboarded) {
     return <Navigate to="/onboarding" replace />;

@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useFamily, type BirthType, type FeedingMethod } from "@/context/FamilyContext";
+import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Settings, User, Bell, HelpCircle, RotateCcw, Baby, Plus, Trash2, Users, Heart } from "lucide-react";
+import { Settings, User, Bell, HelpCircle, RotateCcw, Baby, Plus, Trash2, Users, Heart, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function MerePage() {
   const { profile, setProfile, resetProfile, addChild, removeChild } = useFamily();
+  const { signOut } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [showAddChild, setShowAddChild] = useState(false);
@@ -15,6 +17,7 @@ export default function MerePage() {
   const [showMorHealth, setShowMorHealth] = useState(false);
 
   const handleReset = () => { resetProfile(); navigate("/onboarding"); };
+  const handleSignOut = async () => { await signOut(); };
 
   const handleAddChild = () => {
     if (newChildName.trim()) {
