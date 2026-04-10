@@ -9,6 +9,10 @@ import { MilestoneTimeline } from "@/components/MilestoneTimeline";
 import { MorRecoveryCard, MorAutoSupport, MorFeedingCard, MorMicroSupport } from "@/components/MorDashboardCards";
 import { VidsteDuCard } from "@/components/FarDashboardCards";
 import { WhatMattersNow } from "@/components/CommandCenter";
+import { NeedsCard } from "@/components/NeedsCard";
+import { PartnerHandoff } from "@/components/PartnerHandoff";
+import { AppreciationCard } from "@/components/AppreciationCard";
+import { MemoryKeeper } from "@/components/MemoryKeeper";
 import { MessageCircle, Heart, Gamepad2, Square } from "lucide-react";
 import { format } from "date-fns";
 import { da, enUS } from "date-fns/locale";
@@ -65,6 +69,8 @@ export default function Dashboard() {
       ) : (
         <>
           <WhatMattersNow />
+          <PartnerHandoff />
+          <NeedsCard />
           <NotificationPrompt childName={childName || "Baby"} />
           <LiveSleepTracker childName={childName || "Baby"} />
           <QuickLog />
@@ -79,6 +85,9 @@ export default function Dashboard() {
           ) : (
             <VidsteDuCard ageWeeks={babyAgeWeeks} morName={morName} />
           )}
+
+          <AppreciationCard />
+          <MemoryKeeper />
 
           <div className="grid grid-cols-2 gap-2.5 section-fade-in">
             <Link to="/chat" className="card-soft !p-4 flex flex-col items-center gap-2 transition-all hover:shadow-sm active:scale-[0.98]">

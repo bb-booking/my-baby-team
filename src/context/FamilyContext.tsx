@@ -49,6 +49,27 @@ export interface DailyCheckIn {
   role: ParentRole;
 }
 
+export interface ActiveNeed {
+  key: string;
+  emoji: string;
+  label: string;
+  setAt: string;
+}
+
+export interface Memory {
+  id: string;
+  date: string;
+  role: ParentRole;
+  text: string;
+}
+
+export interface Appreciation {
+  id: string;
+  date: string;
+  from: ParentRole;
+  text: string;
+}
+
 export type AppLanguage = "da" | "en";
 
 export interface LanguagePrefs {
@@ -67,6 +88,10 @@ export interface FamilyProfile {
   morHealth?: MorHealth;
   parentalLeave?: ParentalLeave;
   languages?: LanguagePrefs;
+  activeNeed?: {
+    mor?: ActiveNeed | null;
+    far?: ActiveNeed | null;
+  };
 }
 
 const defaultProfile: FamilyProfile = {
@@ -109,6 +134,11 @@ interface FamilyContextType {
   isOnLeave: (role: ParentRole) => boolean;
   partnerOnLeave: boolean;
   currentUserOnLeave: boolean;
+  memories: Memory[];
+  appreciations: Appreciation[];
+  setNeed: (need: ActiveNeed | null) => void;
+  addMemory: (text: string) => void;
+  addAppreciation: (text: string) => void;
 }
 
 const FamilyContext = createContext<FamilyContextType | null>(null);
@@ -154,6 +184,22 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
     return [];
   });
 
+  const [memories, setMemories] = useState<Memory[]>(() => {
+    try {
+      const stored = localStorage.getItem("melo-memories");
+      if (stored) return JSON.parse(stored);
+    } catch {}
+    return [];
+  });
+
+  const [appreciations, setAppreciations] = useState<Appreciation[]>(() => {
+    try {
+      const stored = localStorage.getItem("melo-appreciations");
+      if (stored) return JSON.parse(stored);
+    } catch {}
+    return [];
+  });
+
   // Start loading immediately — we always fetch from Supabase on mount
   const [profileLoading, setProfileLoading] = useState(true);
 
@@ -161,6 +207,8 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
   useEffect(() => { localStorage.setItem("lille-family", JSON.stringify(profile)); }, [profile]);
   useEffect(() => { localStorage.setItem("lille-tasks", JSON.stringify(tasks)); }, [tasks]);
   useEffect(() => { localStorage.setItem("melo-checkins", JSON.stringify(checkIns)); }, [checkIns]);
+  useEffect(() => { localStorage.setItem("melo-memories", JSON.stringify(memories)); }, [memories]);
+  useEffect(() => { localStorage.setItem("melo-appreciations", JSON.stringify(appreciations)); }, [appreciations]);
 
   // Sync i18n language
   useEffect(() => {
@@ -286,6 +334,25 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
   const editTaskTitle = (id: string, newTitle: string) => setTasks((prev) => prev.map((t) => t.id === id ? { ...t, title: newTitle } : t));
   const moveTaskToDate = (id: string, newDate: string) => setTasks((prev) => prev.map((t) => t.id === id ? { ...t, dueDate: newDate } : t));
 
+  const setNeed = (need: ActiveNeed | null) => {
+    setProfileState(prev => ({
+      ...prev,
+      activeNeed: { ...prev.activeNeed, [prev.role]: need },
+    }));
+  };
+
+  const addMemory = (text: string) => {
+    setMemories(prev => [...prev, {
+      id: generateId(), date: new Date().toISOString(), role: profile.role, text,
+    }]);
+  };
+
+  const addAppreciation = (text: string) => {
+    setAppreciations(prev => [...prev, {
+      id: generateId(), date: new Date().toISOString(), from: profile.role, text,
+    }]);
+  };
+
   const addChild = (name: string, birthDate: string) => {
     setProfileState((prev) => ({ ...prev, children: [...prev.children, { id: generateId(), name, birthDate }] }));
   };
@@ -336,6 +403,11 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
       isOnLeave,
       partnerOnLeave,
       currentUserOnLeave,
+      memories,
+      appreciations,
+      setNeed,
+      addMemory,
+      addAppreciation,
     }}>
       {children}
     </FamilyContext.Provider>
