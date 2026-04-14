@@ -68,11 +68,11 @@ export default function Dashboard() {
         </>
       ) : (
         <>
+          <LiveSleepTracker childName={childName || "Baby"} />
           <WhatMattersNow />
           <PartnerHandoff />
           <NeedsCard />
           <NotificationPrompt childName={childName || "Baby"} />
-          <LiveSleepTracker childName={childName || "Baby"} />
           <QuickLog />
           <TaskList />
 
