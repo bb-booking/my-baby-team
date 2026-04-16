@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="15%" y1="0%" x2="85%" y2="100%">
+      <stop offset="0%" style="stop-color:#2e4428"/>
+      <stop offset="50%" style="stop-color:#426039"/>
+      <stop offset="100%" style="stop-color:#5a7a4e"/>
+    </linearGradient>
+    <radialGradient id="bgshine" cx="52%" cy="40%" r="55%">
+      <stop offset="0%" style="stop-color:#6a9060;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#2e4428;stop-opacity:0"/>
+    </radialGradient>
+    <!-- Left leaf: cool sage -->
+    <linearGradient id="ll" x1="0%" y1="10%" x2="100%" y2="90%">
+      <stop offset="0%" style="stop-color:#e2eade"/>
+      <stop offset="100%" style="stop-color:#b8ccb0"/>
+    </linearGradient>
+    <!-- Right leaf: warm cream -->
+    <linearGradient id="rl" x1="100%" y1="10%" x2="0%" y2="90%">
+      <stop offset="0%" style="stop-color:#f2ede6"/>
+      <stop offset="100%" style="stop-color:#d8e2d2"/>
+    </linearGradient>
+    <!-- Child dot -->
+    <radialGradient id="child" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" style="stop-color:#e8c9a8"/>
+      <stop offset="60%" style="stop-color:#c4966a"/>
+      <stop offset="100%" style="stop-color:#a87848"/>
+    </radialGradient>
+    <filter id="ds">
+      <feDropShadow dx="0" dy="10" stdDeviation="18" flood-color="#1a2e16" flood-opacity="0.28"/>
+    </filter>
+    <filter id="ds2">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#1a2e16" flood-opacity="0.20"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <rect width="1024" height="1024" fill="url(#bgshine)"/>
+
+  <!-- Very subtle background texture -->
+  <circle cx="512" cy="480" r="390" fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.05"/>
+
+  <!--
+    LEFT LEAF — curves from top-center, sweeps left, comes back to bottom-center
+    Represents one parent
+  -->
+  <g filter="url(#ds)">
+    <path d="
+      M 512 210
+      C 490 224, 452 256, 408 308
+      C 358 368, 320 434, 314 500
+      C 308 566, 338 634, 388 672
+      C 420 696, 464 706, 512 702
+      Z
+    " fill="url(#ll)" opacity="0.93"/>
+  </g>
+
+  <!-- RIGHT LEAF — mirror, curves right -->
+  <g filter="url(#ds)">
+    <path d="
+      M 512 210
+      C 534 224, 572 256, 616 308
+      C 666 368, 704 434, 710 500
+      C 716 566, 686 634, 636 672
+      C 604 696, 560 706, 512 702
+      Z
+    " fill="url(#rl)" opacity="0.86"/>
+  </g>
+
+  <!-- Subtle dividing vein -->
+  <line x1="512" y1="210" x2="512" y2="702"
+    stroke="#426039" stroke-width="2.5" opacity="0.18"/>
+
+  <!-- Child bud — three concentric warm circles -->
+  <g filter="url(#ds2)">
+    <circle cx="512" cy="572" r="44" fill="#c4966a" opacity="0.15"/>
+    <circle cx="512" cy="572" r="36" fill="url(#child)" opacity="0.98"/>
+    <circle cx="512" cy="572" r="20" fill="#e0b990" opacity="0.6"/>
+    <circle cx="512" cy="567" r="8"  fill="#f0d8bc" opacity="0.5"/>
+  </g>
+
+  <!-- Sprout tip at top -->
+  <ellipse cx="512" cy="198" rx="9" ry="14" fill="#ccd9c6" opacity="0.6"/>
+  <ellipse cx="512" cy="189" rx="5" ry="8"  fill="#b8ccb0" opacity="0.4"/>
+
+</svg>
