@@ -24,6 +24,7 @@ import { useSleepNotifications } from "@/hooks/useSleepNotifications";
 
 export default function Dashboard() {
   const { profile, phaseLabel, morName, farName, babyAgeWeeks, babyAgeMonths } = useFamily();
+  const hasPartner = profile.hasPartner !== false;
   const { t, i18n } = useTranslation();
   const isMor = profile.role === "mor";
   const childName = profile.children?.[0]?.name;
@@ -91,7 +92,7 @@ export default function Dashboard() {
           <AppreciationCard />
           <MemoryKeeper />
 
-          <div className="grid grid-cols-2 gap-2.5 section-fade-in">
+          <div className={`grid gap-2.5 section-fade-in ${hasPartner ? "grid-cols-2" : "grid-cols-1 max-w-[200px] mx-auto"}`}>
             <Link to="/chat" className="card-soft !p-4 flex flex-col items-center gap-2 transition-all hover:shadow-sm active:scale-[0.98]">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: isMor ? "hsl(var(--clay-light))" : "hsl(var(--sage-light))" }}>
                 <MessageCircle className="w-5 h-5" style={{ color: isMor ? "hsl(var(--clay))" : "hsl(var(--moss))" }} />
@@ -99,13 +100,15 @@ export default function Dashboard() {
               <p className="text-[0.78rem] font-medium">{t("dashboard.askMelo")}</p>
               <p className="text-[0.6rem] text-muted-foreground text-center">{t("dashboard.sleepDevAll")}</p>
             </Link>
-            <Link to={isMor ? "/sammen" : "/leg"} className="card-soft !p-4 flex flex-col items-center gap-2 transition-all hover:shadow-sm active:scale-[0.98]">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: isMor ? "hsl(var(--clay-light))" : "hsl(var(--sage-light))" }}>
-                {isMor ? <Heart className="w-5 h-5" style={{ color: "hsl(var(--clay))" }} /> : <Gamepad2 className="w-5 h-5" style={{ color: "hsl(var(--moss))" }} />}
-              </div>
-              <p className="text-[0.78rem] font-medium">{isMor ? t("dashboard.collaboration") : t("dashboard.playActivities")}</p>
-              <p className="text-[0.6rem] text-muted-foreground text-center">{isMor ? t("dashboard.tasksDistribution") : t("dashboard.adaptedToAge", { childName: childName || "baby" })}</p>
-            </Link>
+            {hasPartner && (
+              <Link to={isMor ? "/sammen" : "/leg"} className="card-soft !p-4 flex flex-col items-center gap-2 transition-all hover:shadow-sm active:scale-[0.98]">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: isMor ? "hsl(var(--clay-light))" : "hsl(var(--sage-light))" }}>
+                  {isMor ? <Heart className="w-5 h-5" style={{ color: "hsl(var(--clay))" }} /> : <Gamepad2 className="w-5 h-5" style={{ color: "hsl(var(--moss))" }} />}
+                </div>
+                <p className="text-[0.78rem] font-medium">{isMor ? t("dashboard.collaboration") : t("dashboard.playActivities")}</p>
+                <p className="text-[0.6rem] text-muted-foreground text-center">{isMor ? t("dashboard.tasksDistribution") : t("dashboard.adaptedToAge", { childName: childName || "baby" })}</p>
+              </Link>
+            )}
           </div>
 
           <BabyInsightCard ageWeeks={babyAgeWeeks} ageMonths={babyAgeMonths} childName={childName || "Baby"} />

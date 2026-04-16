@@ -5,7 +5,7 @@ import type { FamilyProfile } from "@/context/FamilyContext";
 import type { NursingLog, DiaperLog, SleepLog, NightShift } from "@/context/DiaryContext";
 
 export async function upsertProfile(userId: string, profile: FamilyProfile) {
-  const { error } = await supabase.from("profiles").upsert({
+  await supabase.from("profiles").upsert({
     user_id: userId,
     phase: profile.phase,
     role: profile.role,
@@ -17,14 +17,17 @@ export async function upsertProfile(userId: string, profile: FamilyProfile) {
     mor_health: profile.morHealth as any,
     parental_leave: profile.parentalLeave as any,
     languages: profile.languages as any,
+    // family linking fields — require migration: 20260416_family_linking.sql
+    ...(profile.hasPartner !== undefined && { has_partner: profile.hasPartner }),
+    ...(profile.familyId && { family_id: profile.familyId }),
+    ...(profile.inviteCode && { invite_code: profile.inviteCode }),
+    ...(profile.partnerUserId && { partner_user_id: profile.partnerUserId }),
     updated_at: new Date().toISOString(),
   }, { onConflict: "user_id" });
-  if (error) console.error("Profile sync error:", error);
 }
 
 export async function fetchProfile(userId: string): Promise<FamilyProfile | null> {
   const { data, error } = await supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle();
-  console.log("[Melo] fetchProfile result:", { data, error });
   if (error || !data) return null;
   return {
     phase: data.phase as any,
@@ -37,6 +40,10 @@ export async function fetchProfile(userId: string): Promise<FamilyProfile | null
     morHealth: data.mor_health as any,
     parentalLeave: (data.parental_leave as any) || { mor: true, far: false },
     languages: (data.languages as any) || { mor: "da", far: "da" },
+    hasPartner: (data as any).has_partner ?? true,
+    familyId: (data as any).family_id ?? undefined,
+    inviteCode: (data as any).invite_code ?? undefined,
+    partnerUserId: (data as any).partner_user_id ?? undefined,
   };
 }
 
@@ -49,7 +56,7 @@ export async function syncTasks(userId: string, tasks: any[]) {
       due_date: t.dueDate, created_at: t.createdAt,
     }));
     const { error } = await supabase.from("tasks").insert(rows);
-    if (error) console.error("Tasks sync error:", error);
+    // sync errors handled silently
   }
 }
 

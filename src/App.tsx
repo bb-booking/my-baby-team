@@ -24,6 +24,7 @@ import LegPage from "@/pages/LegPage";
 import IndstillingerPage from "@/pages/IndstillingerPage";
 import AuthPage from "@/pages/AuthPage";
 import NotFound from "@/pages/NotFound";
+import PrivacyPage from "@/pages/PrivacyPage";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ function AuthenticatedApp() {
   if (!user) {
     return (
       <Routes>
+        <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="*" element={<AuthPage />} />
       </Routes>
     );
@@ -70,6 +72,7 @@ function AuthenticatedApp() {
             <Route path="/leg" element={<LegPage />} />
             <Route path="/indstillinger" element={<IndstillingerPage />} />
           </Route>
+          <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </DiaryProvider>

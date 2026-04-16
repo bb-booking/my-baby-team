@@ -48,6 +48,7 @@ export default function OnboardingPage() {
   const [birthDate, setBirthDate] = useState<Date | undefined>();
   const [babyName, setBabyName] = useState("");
   const [role, setRole] = useState<ParentRole>("mor");
+  const [hasPartner, setHasPartner] = useState(true);
   const [yourName, setYourName] = useState("");
   const [partnerName, setPartnerName] = useState("");
   const [birthType, setBirthType] = useState<BirthType | undefined>();
@@ -69,7 +70,7 @@ export default function OnboardingPage() {
     ...(phase === "born" ? ["birthdate" as Step, "babyname" as Step] : []),
     "role",
     "yourname",
-    "partnername",
+    ...(hasPartner ? ["partnername" as Step] : []),
     ...(phase === "born" ? ["birthtype" as Step, "feeding" as Step] : []),
     "leave",
     "account",
@@ -145,6 +146,9 @@ export default function OnboardingPage() {
       morHealth: phase === "born" ? { birthType, complications: selectedComplications, feedingMethod } : undefined,
       parentalLeave: { mor: morLeave, far: farLeave },
       languages: { mor: "da", far: "da" },
+      hasPartner,
+      inviteCode: Math.random().toString(36).substring(2, 8).toUpperCase(),
+      familyId: Math.random().toString(36).substring(2, 18),
     });
 
     setAuthLoading(false);
@@ -277,21 +281,52 @@ export default function OnboardingPage() {
           {/* STEP: Role */}
           {step === "role" && (
             <div className="space-y-5 section-fade-in" key="role">
-              <StepHeader title="Hvem er du?" sub="Vi viser indhold der passer til din rolle." />
-              <div className="grid grid-cols-2 gap-2.5">
-                <button onClick={() => setRole("mor")} className={cn(
-                  "py-5 px-3 rounded-2xl border-[1.5px] text-center transition-all active:scale-[0.98]",
-                  role === "mor" ? "border-[hsl(var(--clay))] bg-[hsl(var(--clay))]/10" : "border-[hsl(var(--stone-light))] hover:border-[hsl(var(--clay))]"
-                )}>
-                  <span className="text-3xl block mb-1.5">👩</span>
-                  <span className="text-[0.82rem] font-light">Mor</span>
+              <StepHeader title="Hvem er du?" sub="Vi tilpasser appen til din oplevelse — uanset familietype." />
+              <div className="space-y-2.5">
+                <button
+                  onClick={() => { setRole("mor"); setHasPartner(true); }}
+                  className={cn(
+                    "w-full flex items-start gap-3.5 rounded-2xl border-[1.5px] text-left px-4 py-3.5 transition-all active:scale-[0.98]",
+                    role === "mor" && hasPartner
+                      ? "border-[hsl(var(--clay))] bg-[hsl(var(--clay))]/8"
+                      : "border-[hsl(var(--stone-light))] hover:border-[hsl(var(--clay))]"
+                  )}
+                >
+                  <span className="text-2xl mt-0.5">🤱</span>
+                  <div>
+                    <p className="text-[0.95rem] font-semibold">Den gravide / fødende forælder</p>
+                    <p className="text-[0.62rem] tracking-[0.08em] text-muted-foreground mt-0.5">Graviditet, fødsel og recovery — med medforælder</p>
+                  </div>
                 </button>
-                <button onClick={() => setRole("far")} className={cn(
-                  "py-5 px-3 rounded-2xl border-[1.5px] text-center transition-all active:scale-[0.98]",
-                  role === "far" ? "border-[hsl(var(--sage))] bg-[hsl(var(--sage))]/10" : "border-[hsl(var(--stone-light))] hover:border-[hsl(var(--sage))]"
-                )}>
-                  <span className="text-3xl block mb-1.5">👨</span>
-                  <span className="text-[0.82rem] font-light">Far / Partner</span>
+                <button
+                  onClick={() => { setRole("far"); setHasPartner(true); }}
+                  className={cn(
+                    "w-full flex items-start gap-3.5 rounded-2xl border-[1.5px] text-left px-4 py-3.5 transition-all active:scale-[0.98]",
+                    role === "far" && hasPartner
+                      ? "border-[hsl(var(--sage))] bg-[hsl(var(--sage))]/8"
+                      : "border-[hsl(var(--stone-light))] hover:border-[hsl(var(--sage))]"
+                  )}
+                >
+                  <span className="text-2xl mt-0.5">🤝</span>
+                  <div>
+                    <p className="text-[0.95rem] font-semibold">Medforælder / partner</p>
+                    <p className="text-[0.62rem] tracking-[0.08em] text-muted-foreground mt-0.5">Støttende forælder — uanset køn eller relation</p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => { setRole("mor"); setHasPartner(false); }}
+                  className={cn(
+                    "w-full flex items-start gap-3.5 rounded-2xl border-[1.5px] text-left px-4 py-3.5 transition-all active:scale-[0.98]",
+                    !hasPartner
+                      ? "border-[hsl(var(--moss))] bg-[hsl(var(--moss))]/5"
+                      : "border-[hsl(var(--stone-light))] hover:border-[hsl(var(--moss))]"
+                  )}
+                >
+                  <span className="text-2xl mt-0.5">💪</span>
+                  <div>
+                    <p className="text-[0.95rem] font-semibold">Alene forælder</p>
+                    <p className="text-[0.62rem] tracking-[0.08em] text-muted-foreground mt-0.5">Du klarer det alene — vi er her for dig</p>
+                  </div>
                 </button>
               </div>
             </div>
@@ -301,14 +336,14 @@ export default function OnboardingPage() {
           {step === "yourname" && (
             <div className="space-y-5 section-fade-in" key="yourname">
               <StepHeader
-                title={role === "mor" ? "Hvad hedder du, mor?" : "Hvad hedder du, far?"}
+                title="Hvad hedder du?"
                 sub="Så appen kan tiltale dig personligt."
               />
               <InputField
                 label="Dit navn"
                 value={yourName}
                 onChange={setYourName}
-                placeholder={role === "mor" ? "F.eks. Sofie" : "F.eks. Mikkel"}
+                placeholder="F.eks. Sofie"
               />
             </div>
           )}
@@ -316,12 +351,12 @@ export default function OnboardingPage() {
           {/* STEP: Partner name */}
           {step === "partnername" && (
             <div className="space-y-5 section-fade-in" key="partnername">
-              <StepHeader title="Hvad hedder din partner?" sub="Så appen føles personlig for jer begge." />
+              <StepHeader title="Hvad hedder din medforælder?" sub="Så appen føles personlig for jer begge. Du kan ændre det senere." />
               <InputField
-                label="Partners navn"
+                label="Medforfælders navn"
                 value={partnerName}
                 onChange={setPartnerName}
-                placeholder={role === "mor" ? "F.eks. Mikkel" : "F.eks. Line"}
+                placeholder="F.eks. Mikkel"
               />
             </div>
           )}

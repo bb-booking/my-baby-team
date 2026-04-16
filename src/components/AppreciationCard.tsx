@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 
 export function AppreciationCard() {
   const { profile, appreciations, addAppreciation, morName, farName } = useFamily();
+  if (profile.hasPartner === false) return null;
   const { role } = profile;
   const partnerName = role === "mor" ? farName : morName;
 

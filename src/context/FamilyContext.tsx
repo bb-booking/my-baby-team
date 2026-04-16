@@ -96,6 +96,14 @@ export interface FamilyProfile {
     mor?: ActiveNeed | null;
     far?: ActiveNeed | null;
   };
+  hasPartner?: boolean;
+  familyId?: string;
+  inviteCode?: string;
+  partnerUserId?: string;
+}
+
+function generateInviteCode(): string {
+  return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
 const defaultProfile: FamilyProfile = {
@@ -108,6 +116,9 @@ const defaultProfile: FamilyProfile = {
   onboarded: false,
   parentalLeave: { mor: true, far: false },
   languages: { mor: "da", far: "da" },
+  hasPartner: true,
+  inviteCode: generateInviteCode(),
+  familyId: Math.random().toString(36).substring(2, 18),
 };
 
 interface FamilyContextType {
@@ -145,6 +156,7 @@ interface FamilyContextType {
   addAppreciation: (text: string) => void;
   takeTask: (id: string) => void;
   reactToTakenTask: (id: string, reaction: string) => void;
+  joinFamilyByCode: (code: string) => Promise<{ success: boolean; partnerName?: string; error?: string }>;
 }
 
 const FamilyContext = createContext<FamilyContextType | null>(null);
@@ -168,6 +180,9 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
         const parsed = JSON.parse(stored);
         if (!parsed.children) parsed.children = [];
         if (!parsed.parentalLeave) parsed.parentalLeave = { mor: true, far: false };
+        if (parsed.hasPartner === undefined) parsed.hasPartner = true;
+        if (!parsed.inviteCode) parsed.inviteCode = generateInviteCode();
+        if (!parsed.familyId) parsed.familyId = Math.random().toString(36).substring(2, 18);
         return parsed;
       }
     } catch {}
@@ -234,7 +249,6 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
         fetchTasks(user!.id),
         fetchCheckIns(user!.id),
       ]);
-      console.log("[Melo] DB profile loaded:", dbProfile);
       if (cancelled) return;
       if (dbProfile) {
         setProfileState(dbProfile);
@@ -383,6 +397,23 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
     setTasks(prev => prev.map(t => t.id === id ? { ...t, takenReaction: reaction } : t));
   };
 
+  const joinFamilyByCode = async (code: string): Promise<{ success: boolean; partnerName?: string; error?: string }> => {
+    const { data, error } = await import("@/integrations/supabase/client").then(m =>
+      m.supabase.from("profiles").select("user_id, parent_name, family_id, invite_code").eq("invite_code", code.toUpperCase()).maybeSingle()
+    );
+    if (error || !data) return { success: false, error: "Koden blev ikke fundet. Tjek at du har tastet korrekt." };
+    if (data.user_id === user?.id) return { success: false, error: "Det er din egen kode — del den med din partner." };
+    const partnerUserId = data.user_id;
+    const sharedFamilyId = data.family_id || data.user_id;
+    setProfileState(prev => ({
+      ...prev,
+      partnerUserId,
+      familyId: sharedFamilyId,
+      partnerName: prev.partnerName || data.parent_name,
+    }));
+    return { success: true, partnerName: data.parent_name };
+  };
+
   const addChild = (name: string, birthDate: string) => {
     setProfileState((prev) => ({ ...prev, children: [...prev.children, { id: generateId(), name, birthDate }] }));
   };
@@ -440,6 +471,7 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
       addAppreciation,
       takeTask,
       reactToTakenTask,
+      joinFamilyByCode,
     }}>
       {children}
     </FamilyContext.Provider>

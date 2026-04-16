@@ -7,6 +7,7 @@ const REACTIONS = ["❤️", "🥹", "😮"] as const;
 
 export function TakenTaskCard() {
   const { tasks, profile, reactToTakenTask, morName, farName } = useFamily();
+  if (profile.hasPartner === false) return null;
   const myRole = profile.role;
 
   // Tasks that were originally mine, taken by partner, not yet reacted to

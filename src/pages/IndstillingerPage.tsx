@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Globe, Sun, Moon, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { FamilyLinkCard } from "@/components/FamilyLinkCard";
 
 type Theme = "light" | "dark";
 
@@ -115,6 +116,13 @@ export default function IndstillingerPage() {
           ))}
         </div>
       </div>
+
+      {/* Partner linking */}
+      {profile.hasPartner !== false && (
+        <div style={{ animationDelay: "120ms" }}>
+          <FamilyLinkCard />
+        </div>
+      )}
 
       <div className="h-20 md:h-0" />
     </div>

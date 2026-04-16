@@ -6,6 +6,7 @@ import { da } from "date-fns/locale";
 // Visible to the partner when they open the app — shows the other person's current state
 export function PartnerHandoff() {
   const { profile, morName, farName, checkIns } = useFamily();
+  if (profile.hasPartner === false) return null;
   const { nursingLogs, diaperLogs, sleepLogs, getTonightShift } = useDiary();
 
   const { role } = profile;
@@ -35,7 +36,7 @@ export function PartnerHandoff() {
 
   const moodEmoji: Record<string, string> = {
     great: "😄", good: "🙂", okay: "😐", tired: "😔", hard: "😢",
-    "super": "😄", "godt": "🙂", "okay": "😐", "træt": "😔", "hård": "😢",
+    super: "😄", godt: "🙂", træt: "😔", hård: "😢",
   };
 
   return (
