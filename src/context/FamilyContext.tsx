@@ -41,6 +41,10 @@ export interface FamilyTask {
   createdAt: string;
   recurrence: TaskRecurrence;
   dueDate: string;
+  takenBy?: ParentRole;
+  takenFrom?: ParentRole;
+  takenAt?: string;
+  takenReaction?: string;
 }
 
 export interface DailyCheckIn {
@@ -139,6 +143,8 @@ interface FamilyContextType {
   setNeed: (need: ActiveNeed | null) => void;
   addMemory: (text: string) => void;
   addAppreciation: (text: string) => void;
+  takeTask: (id: string) => void;
+  reactToTakenTask: (id: string, reaction: string) => void;
 }
 
 const FamilyContext = createContext<FamilyContextType | null>(null);
@@ -353,6 +359,30 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
     }]);
   };
 
+  const takeTask = (id: string) => {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+    const takerRole = profile.role;
+    const fromRole = task.assignee as ParentRole;
+    setTasks(prev => prev.map(t =>
+      t.id === id
+        ? { ...t, assignee: takerRole, takenBy: takerRole, takenFrom: fromRole, takenAt: new Date().toISOString() }
+        : t
+    ));
+    // Auto-log to Memory Keeper
+    const takerName = profile.parentName;
+    setMemories(prev => [...prev, {
+      id: generateId(),
+      date: new Date().toISOString(),
+      role: takerRole,
+      text: `${takerName} tog opgaven "${task.title}" 💚`,
+    }]);
+  };
+
+  const reactToTakenTask = (id: string, reaction: string) => {
+    setTasks(prev => prev.map(t => t.id === id ? { ...t, takenReaction: reaction } : t));
+  };
+
   const addChild = (name: string, birthDate: string) => {
     setProfileState((prev) => ({ ...prev, children: [...prev.children, { id: generateId(), name, birthDate }] }));
   };
@@ -408,6 +438,8 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
       setNeed,
       addMemory,
       addAppreciation,
+      takeTask,
+      reactToTakenTask,
     }}>
       {children}
     </FamilyContext.Provider>

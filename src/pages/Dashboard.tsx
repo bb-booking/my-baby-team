@@ -13,6 +13,7 @@ import { NeedsCard } from "@/components/NeedsCard";
 import { PartnerHandoff } from "@/components/PartnerHandoff";
 import { AppreciationCard } from "@/components/AppreciationCard";
 import { MemoryKeeper } from "@/components/MemoryKeeper";
+import { TakenTaskCard } from "@/components/TakenTaskCard";
 import { MessageCircle, Heart, Gamepad2, Square } from "lucide-react";
 import { format } from "date-fns";
 import { da, enUS } from "date-fns/locale";
@@ -69,6 +70,7 @@ export default function Dashboard() {
       ) : (
         <>
           <LiveSleepTracker childName={childName || "Baby"} />
+          <TakenTaskCard />
           <WhatMattersNow />
           <PartnerHandoff />
           <NeedsCard />

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useFamily, type TaskAssignee, type TaskRecurrence } from "@/context/FamilyContext";
-import { Check, Plus, X, ChevronDown, ChevronLeft, ChevronRight, User, Users, Pencil, Trash2, RefreshCw, CalendarDays, Calendar, ArrowRight } from "lucide-react";
+import { Check, Plus, X, ChevronDown, ChevronLeft, ChevronRight, User, Users, Pencil, Trash2, RefreshCw, CalendarDays, Calendar, ArrowRight, HandHeart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, addDays, subDays, isToday, isTomorrow, isYesterday, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay } from "date-fns";
 import { da, enUS } from "date-fns/locale";
@@ -206,7 +206,7 @@ function AddTaskInline({ onAdd, onCancel, morName, farName, defaultAssignee, com
 type FilterTab = "alle" | "mor" | "far" | "fælles" | "afsluttet";
 
 export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externalShowAdd?: boolean; onExternalShowAddChange?: (v: boolean) => void } = {}) {
-  const { tasks, toggleTask, removeTask, reassignTask, addTask, editTaskTitle, moveTaskToDate, morName, farName, profile } = useFamily();
+  const { tasks, toggleTask, removeTask, reassignTask, addTask, editTaskTitle, moveTaskToDate, morName, farName, profile, takeTask } = useFamily();
   const { t, i18n } = useTranslation();
   const dateFnsLocale = i18n.language === "en" ? enUS : da;
 
@@ -328,6 +328,11 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
   const renderTask = (task: typeof tasks[0]) => {
     const isCompleted = task.completed;
     const isMoving = movingTaskId === task.id;
+    const partnerRole = profile.role === "mor" ? "far" : "mor";
+    const isPartnerTask = task.assignee === partnerRole;
+    const isTakenByMe = task.takenBy === profile.role;
+    const takenFromName = task.takenFrom === "mor" ? morName : farName;
+
     return (
       <div key={task.id}>
         <div
@@ -362,6 +367,15 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
                 <p className={cn("text-[0.85rem] leading-snug", isCompleted && "text-muted-foreground line-through")}>
                   {task.title}
                 </p>
+                {isTakenByMe && task.takenFrom && (
+                  <span className="flex items-center gap-1 text-[0.58rem] mt-0.5" style={{ color: "hsl(var(--moss))" }}>
+                    <HandHeart className="w-2.5 h-2.5" />
+                    Taget fra {takenFromName}
+                    {task.takenReaction && (
+                      <span className="ml-1 text-sm animate-bounce-once">{task.takenReaction}</span>
+                    )}
+                  </span>
+                )}
                 {task.recurrence && task.recurrence !== "never" && (
                   <span className="flex items-center gap-0.5 text-[0.58rem] text-muted-foreground mt-0.5">
                     <RefreshCw className="w-2 h-2" />
@@ -372,7 +386,18 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
             )}
           </div>
           <div className="flex items-center gap-1.5">
-            {!isCompleted && (
+            {!isCompleted && isPartnerTask && !task.takenBy && (
+              <button
+                onClick={(e) => { e.stopPropagation(); takeTask(task.id); }}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[0.62rem] font-medium transition-all active:scale-95"
+                style={{ background: "hsl(var(--sage-light))", color: "hsl(var(--moss))" }}
+                title="Tag den"
+              >
+                <HandHeart className="w-3 h-3" />
+                Tag den
+              </button>
+            )}
+            {!isCompleted && !isPartnerTask && (
               <button
                 onClick={() => setMovingTaskId(isMoving ? null : task.id)}
                 className="opacity-0 group-hover:opacity-60 transition-opacity p-1 hover:opacity-100"
@@ -381,7 +406,7 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
                 <ArrowRight className="w-3 h-3" />
               </button>
             )}
-            {!isCompleted && (
+            {!isCompleted && !isPartnerTask && (
               <button
                 onClick={() => startEdit(task.id, task.title)}
                 className="opacity-0 group-hover:opacity-60 transition-opacity p-1 hover:opacity-100"
@@ -395,7 +420,7 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
             >
               <Trash2 className="w-3 h-3" />
             </button>
-            {!isCompleted && (
+            {!isCompleted && !isPartnerTask && (
               <AssigneeChip
                 assignee={task.assignee}
                 onReassign={(a) => reassignTask(task.id, a)}
