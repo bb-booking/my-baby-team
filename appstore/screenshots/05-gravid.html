@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1242">
+<title>Melo – Graviditet</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --moss: #496043;
+    --moss-dark: #3a5036;
+    --moss-light: #6a8a5e;
+    --cream: #f3eee8;
+    --cream-dark: #e8e0d6;
+    --clay: #c3a383;
+    --clay-light: #e8d4bc;
+    --clay-dark: #a07248;
+    --sage: #7a9a6e;
+    --sage-light: #d0deca;
+    --text: #2a2420;
+    --text-muted: #7a7068;
+  }
+  body {
+    width: 1242px;
+    height: 2688px;
+    background: var(--cream);
+    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    color: var(--text);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .caption {
+    background: linear-gradient(135deg, var(--clay-dark) 0%, var(--clay) 100%);
+    color: #fff;
+    text-align: center;
+    padding: 80px 60px 60px;
+  }
+  .caption-label { font-size: 36px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.75; margin-bottom: 18px; }
+  .caption-title { font-size: 88px; font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; }
+  .caption-sub { font-size: 40px; opacity: 0.8; margin-top: 20px; }
+
+  .phone-wrap { display: flex; justify-content: center; margin-top: 90px; }
+  .phone {
+    width: 700px;
+    background: var(--cream);
+    border-radius: 80px;
+    box-shadow: 0 60px 160px rgba(42,36,32,0.32), 0 0 0 8px var(--clay-dark);
+    overflow: hidden;
+  }
+
+  .status-bar {
+    background: var(--cream);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 40px 14px;
+    font-size: 24px;
+    font-weight: 600;
+  }
+
+  /* Hero week card */
+  .week-hero {
+    margin: 20px 36px;
+    background: linear-gradient(135deg, var(--clay-dark) 0%, var(--clay) 80%);
+    border-radius: 48px;
+    padding: 48px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .week-hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+  }
+  .week-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: -40px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+  }
+  .week-number {
+    font-size: 108px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+  .week-label { font-size: 36px; opacity: 0.8; margin-top: 4px; }
+  .week-progress {
+    margin-top: 28px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    height: 16px;
+    overflow: hidden;
+  }
+  .week-progress-bar {
+    width: 64%;
+    height: 100%;
+    background: rgba(255,255,255,0.8);
+    border-radius: 20px;
+  }
+  .week-progress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-size: 22px;
+    opacity: 0.65;
+  }
+  .term-countdown {
+    margin-top: 28px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 24px;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .term-label { font-size: 24px; opacity: 0.8; }
+  .term-days { font-size: 40px; font-weight: 700; }
+
+  /* Baby size card */
+  .size-card {
+    margin: 20px 36px;
+    background: #fff;
+    border-radius: 36px;
+    padding: 32px 40px;
+    box-shadow: 0 4px 20px rgba(42,36,32,0.07);
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+  .size-fruit {
+    width: 100px; height: 100px;
+    border-radius: 28px;
+    background: var(--clay-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+    flex-shrink: 0;
+  }
+  .size-title { font-size: 30px; font-weight: 700; }
+  .size-desc { font-size: 24px; color: var(--text-muted); margin-top: 6px; line-height: 1.4; }
+
+  /* Info sections */
+  .info-grid {
+    margin: 20px 36px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  .info-tile {
+    background: #fff;
+    border-radius: 28px;
+    padding: 28px 28px;
+    box-shadow: 0 2px 12px rgba(42,36,32,0.06);
+  }
+  .info-tile-icon { font-size: 36px; margin-bottom: 10px; }
+  .info-tile-title { font-size: 26px; font-weight: 700; }
+  .info-tile-text { font-size: 22px; color: var(--text-muted); margin-top: 6px; line-height: 1.4; }
+
+  /* Checklist card */
+  .check-card {
+    margin: 20px 36px;
+    background: var(--sage-light);
+    border-radius: 32px;
+    padding: 28px 36px;
+  }
+  .check-title { font-size: 28px; font-weight: 700; color: var(--moss-dark); margin-bottom: 16px; }
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
+    font-size: 26px;
+    color: var(--moss-dark);
+  }
+  .check-box {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    border: 2.5px solid var(--moss);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    color: var(--moss);
+  }
+  .check-box.done { background: var(--moss); color: #fff; border-color: var(--moss); }
+
+  .bottom-strip {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: var(--clay-dark);
+    padding: 60px 80px;
+    text-align: center;
+  }
+  .bottom-strip-text { color: rgba(255,255,255,0.95); font-size: 52px; font-weight: 700; }
+  .bottom-strip-sub { color: rgba(255,255,255,0.65); font-size: 34px; margin-top: 12px; }
+</style>
+</head>
+<body>
+
+<div class="caption">
+  <div class="caption-label">Melo — Graviditet</div>
+  <div class="caption-title">Uge for uge.<br>Tæt på jer begge.</div>
+  <div class="caption-sub">Indsigter til den gravide og partneren</div>
+</div>
+
+<div class="phone-wrap">
+  <div class="phone">
+    <div style="background:#1a2018; height:54px; border-radius:0 0 36px 36px; width:260px; margin:0 auto;"></div>
+    <div class="status-bar">
+      <span>9:41</span>
+      <span style="font-weight:700; color:var(--moss);">Melo</span>
+      <span>100%</span>
+    </div>
+
+    <!-- Week hero -->
+    <div class="week-hero">
+      <div class="week-number">Uge 26</div>
+      <div class="week-label">af 40 uger · 2. trimester</div>
+      <div class="week-progress">
+        <div class="week-progress-bar"></div>
+      </div>
+      <div class="week-progress-label">
+        <span>Uge 1</span>
+        <span>Du er her</span>
+        <span>Termin</span>
+      </div>
+      <div class="term-countdown">
+        <div class="term-label">🗓️ Termin</div>
+        <div class="term-days">Om 98 dage</div>
+      </div>
+    </div>
+
+    <!-- Baby size -->
+    <div class="size-card">
+      <div class="size-fruit">🥬</div>
+      <div>
+        <div class="size-title">Stor som et salathoved</div>
+        <div class="size-desc">Ca. 36 cm · 760 gram · Øjnene åbner sig nu</div>
+      </div>
+    </div>
+
+    <!-- Info tiles -->
+    <div class="info-grid">
+      <div class="info-tile">
+        <div class="info-tile-icon">🫁</div>
+        <div class="info-tile-title">Lunger</div>
+        <div class="info-tile-text">Begynder at øve vejrtrækning med fostervand</div>
+      </div>
+      <div class="info-tile">
+        <div class="info-tile-icon">🧠</div>
+        <div class="info-tile-title">Hjerne</div>
+        <div class="info-tile-text">Hurtig vækst — rynker dannes nu</div>
+      </div>
+      <div class="info-tile">
+        <div class="info-tile-icon">👁️</div>
+        <div class="info-tile-title">Øjne</div>
+        <div class="info-tile-text">Reagerer på lys fra omverdenen</div>
+      </div>
+      <div class="info-tile">
+        <div class="info-tile-icon">💪</div>
+        <div class="info-tile-title">Dig</div>
+        <div class="info-tile-text">Spænder i ryggen er normale nu</div>
+      </div>
+    </div>
+
+    <!-- Checklist -->
+    <div class="check-card">
+      <div class="check-title">Forberedelser til uge 26</div>
+      <div class="check-item">
+        <div class="check-box done">✓</div>
+        Bestilt barselsorlov
+      </div>
+      <div class="check-item">
+        <div class="check-box done">✓</div>
+        Jordemoderkonsultation
+      </div>
+      <div class="check-item">
+        <div class="check-box"></div>
+        Pakket hospitaltaske
+      </div>
+      <div class="check-item">
+        <div class="check-box"></div>
+        Fødselsforberedelse kursus
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="bottom-strip">
+  <div class="bottom-strip-text">Graviditetstracker for jer begge</div>
+  <div class="bottom-strip-sub">Uge-for-uge info · Termin · Forberedelsesliste</div>
+</div>
+
+</body>
+</html>

@@ -1,7 +1,8 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
-import { useTranslation } from "react-i18next";
 import i18n from "@/i18n";
 import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { getTasksForPhase } from "@/lib/phaseData";
 import {
   upsertProfile, fetchProfile, syncTasks, fetchTasks,
   syncCheckIns, fetchCheckIns, useDebouncedSync,
@@ -398,9 +399,11 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
   };
 
   const joinFamilyByCode = async (code: string): Promise<{ success: boolean; partnerName?: string; error?: string }> => {
-    const { data, error } = await import("@/integrations/supabase/client").then(m =>
-      m.supabase.from("profiles").select("user_id, parent_name, family_id, invite_code").eq("invite_code", code.toUpperCase()).maybeSingle()
-    );
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("user_id, parent_name, family_id, invite_code")
+      .eq("invite_code", code.toUpperCase())
+      .maybeSingle();
     if (error || !data) return { success: false, error: "Koden blev ikke fundet. Tjek at du har tastet korrekt." };
     if (data.user_id === user?.id) return { success: false, error: "Det er din egen kode — del den med din partner." };
     const partnerUserId = data.user_id;
@@ -423,15 +426,13 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (profile.onboarded && tasks.length === 0) {
-      import("@/lib/phaseData").then(({ getTasksForPhase }) => {
-        const week = effectivePhase === "pregnant" ? currentWeek : babyAgeWeeks;
-        const phaseTasks = getTasksForPhase(effectivePhase, week);
-        const today = new Date().toISOString().split("T")[0];
-        setTasks(phaseTasks.map((t) => ({
-          ...t, completed: false, category: t.category || "custom",
-          createdAt: new Date().toISOString(), recurrence: "never" as TaskRecurrence, dueDate: today,
-        })));
-      });
+      const week = effectivePhase === "pregnant" ? currentWeek : babyAgeWeeks;
+      const phaseTasks = getTasksForPhase(effectivePhase, week);
+      const today = new Date().toISOString().split("T")[0];
+      setTasks(phaseTasks.map((t) => ({
+        ...t, completed: false, category: t.category || "custom",
+        createdAt: new Date().toISOString(), recurrence: "never" as TaskRecurrence, dueDate: today,
+      })));
     }
   }, [profile.onboarded, effectivePhase]);
 

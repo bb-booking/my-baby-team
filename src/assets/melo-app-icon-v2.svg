@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- Background: warmer, richer moss -->
+    <linearGradient id="bg" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" style="stop-color:#3a5036"/>
+      <stop offset="45%" style="stop-color:#496043"/>
+      <stop offset="100%" style="stop-color:#5c7a50"/>
+    </linearGradient>
+    <!-- Warm inner glow — slightly amber-tinted -->
+    <radialGradient id="bgwarm" cx="50%" cy="38%" r="52%">
+      <stop offset="0%" style="stop-color:#7a9e6a;stop-opacity:0.22"/>
+      <stop offset="70%" style="stop-color:#c4a060;stop-opacity:0.06"/>
+      <stop offset="100%" style="stop-color:#2e4428;stop-opacity:0"/>
+    </radialGradient>
+
+    <!-- Left leaf: sage-white with warm undertone -->
+    <linearGradient id="ll" x1="0%" y1="8%" x2="98%" y2="92%">
+      <stop offset="0%" style="stop-color:#edf2e8"/>
+      <stop offset="55%" style="stop-color:#d0dcca"/>
+      <stop offset="100%" style="stop-color:#b0c4a8"/>
+    </linearGradient>
+    <!-- Left leaf highlight -->
+    <linearGradient id="llhi" x1="0%" y1="0%" x2="60%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.40"/>
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0"/>
+    </linearGradient>
+
+    <!-- Right leaf: warm cream -->
+    <linearGradient id="rl" x1="100%" y1="8%" x2="2%" y2="92%">
+      <stop offset="0%" style="stop-color:#f5ede2"/>
+      <stop offset="55%" style="stop-color:#dde6d8"/>
+      <stop offset="100%" style="stop-color:#bccdb4"/>
+    </linearGradient>
+    <!-- Right leaf highlight -->
+    <linearGradient id="rlhi" x1="100%" y1="0%" x2="40%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.32"/>
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0"/>
+    </linearGradient>
+
+    <!-- Child bud: warm clay -->
+    <radialGradient id="child" cx="38%" cy="32%" r="68%">
+      <stop offset="0%" style="stop-color:#f0d4b0"/>
+      <stop offset="50%" style="stop-color:#c9996e"/>
+      <stop offset="100%" style="stop-color:#a07242"/>
+    </radialGradient>
+
+    <!-- Subtle M glyph gradient -->
+    <linearGradient id="mgrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.22"/>
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.06"/>
+    </linearGradient>
+
+    <!-- Drop shadow for leaves -->
+    <filter id="ds" x="-20%" y="-10%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="22" flood-color="#1a2e16" flood-opacity="0.32"/>
+    </filter>
+    <!-- Inner leaf glow -->
+    <filter id="leafglow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <!-- Drop shadow for child bud -->
+    <filter id="ds2" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="5" stdDeviation="10" flood-color="#1a2e16" flood-opacity="0.24"/>
+    </filter>
+    <!-- Outer ring subtle glow -->
+    <filter id="ringglow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- === BACKGROUND === -->
+  <rect width="1024" height="1024" rx="230" ry="230" fill="url(#bg)"/>
+  <rect width="1024" height="1024" rx="230" ry="230" fill="url(#bgwarm)"/>
+
+  <!-- Very subtle "M" letterform behind leaves — gives brand anchor -->
+  <!-- Two diagonal strokes and a valley, at 30% opacity -->
+  <path d="M 340 720 L 340 340 L 512 540 L 684 340 L 684 720"
+    fill="none" stroke="url(#mgrad)" stroke-width="56" stroke-linecap="round" stroke-linejoin="round"
+    opacity="0.55"/>
+
+  <!-- === LEFT LEAF === -->
+  <!-- More beautifully curved S-curve: starts at apex, sweeps wide left, tapers back -->
+  <g filter="url(#ds)">
+    <path d="
+      M 512 195
+      C 492 210, 456 244, 414 294
+      C 364 356, 322 424, 314 498
+      C 306 574, 334 642, 382 678
+      C 414 702, 460 714, 512 710
+      Z
+    " fill="url(#ll)" opacity="0.95"/>
+    <!-- Highlight overlay -->
+    <path d="
+      M 512 195
+      C 492 210, 456 244, 414 294
+      C 364 356, 322 424, 314 498
+      C 306 574, 334 642, 382 678
+      C 414 702, 460 714, 512 710
+      Z
+    " fill="url(#llhi)"/>
+    <!-- Fine vein on left leaf -->
+    <path d="M 512 200 Q 445 390, 390 540 Q 365 605, 368 660"
+      fill="none" stroke="#426039" stroke-width="1.8" opacity="0.15"/>
+    <!-- Secondary veins -->
+    <path d="M 470 310 Q 420 340, 360 360" fill="none" stroke="#426039" stroke-width="1.2" opacity="0.10"/>
+    <path d="M 440 430 Q 390 455, 336 466" fill="none" stroke="#426039" stroke-width="1.2" opacity="0.10"/>
+  </g>
+
+  <!-- === RIGHT LEAF === -->
+  <g filter="url(#ds)">
+    <path d="
+      M 512 195
+      C 532 210, 568 244, 610 294
+      C 660 356, 702 424, 710 498
+      C 718 574, 690 642, 642 678
+      C 610 702, 564 714, 512 710
+      Z
+    " fill="url(#rl)" opacity="0.90"/>
+    <!-- Highlight overlay -->
+    <path d="
+      M 512 195
+      C 532 210, 568 244, 610 294
+      C 660 356, 702 424, 710 498
+      C 718 574, 690 642, 642 678
+      C 610 702, 564 714, 512 710
+      Z
+    " fill="url(#rlhi)"/>
+    <!-- Fine vein on right leaf -->
+    <path d="M 512 200 Q 579 390, 634 540 Q 659 605, 656 660"
+      fill="none" stroke="#426039" stroke-width="1.8" opacity="0.13"/>
+    <!-- Secondary veins -->
+    <path d="M 554 310 Q 604 340, 664 360" fill="none" stroke="#426039" stroke-width="1.2" opacity="0.09"/>
+    <path d="M 584 430 Q 634 455, 688 466" fill="none" stroke="#426039" stroke-width="1.2" opacity="0.09"/>
+  </g>
+
+  <!-- Center dividing vein — subtle -->
+  <line x1="512" y1="195" x2="512" y2="710"
+    stroke="#426039" stroke-width="2.2" opacity="0.20"/>
+
+  <!-- === CHILD BUD === -->
+  <!-- Outer halo -->
+  <circle cx="512" cy="576" r="52" fill="#c4966a" opacity="0.12"/>
+  <!-- Main bud -->
+  <g filter="url(#ds2)">
+    <circle cx="512" cy="576" r="38" fill="url(#child)"/>
+    <!-- Shine -->
+    <ellipse cx="502" cy="564" rx="14" ry="10" fill="#f5e0c0" opacity="0.50"/>
+    <circle cx="506" cy="561" r="5" fill="#fff8f0" opacity="0.35"/>
+  </g>
+
+  <!-- === SPROUT TIP at apex === -->
+  <ellipse cx="512" cy="184" rx="10" ry="15" fill="#ccd9c6" opacity="0.65"/>
+  <ellipse cx="512" cy="174" rx="6"  ry="9"  fill="#b8ccb0" opacity="0.45"/>
+  <!-- Tiny left sprouting leaf -->
+  <path d="M 510 178 Q 494 168, 498 154 Q 510 162, 510 178 Z" fill="#ccd9c6" opacity="0.40"/>
+  <!-- Tiny right sprouting leaf -->
+  <path d="M 514 178 Q 530 168, 526 154 Q 514 162, 514 178 Z" fill="#d8e2d2" opacity="0.35"/>
+
+</svg>

@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2732 2732" width="2732" height="2732">
+  <defs>
+    <linearGradient id="bg" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" style="stop-color:#3d5238"/>
+      <stop offset="50%" style="stop-color:#496043"/>
+      <stop offset="100%" style="stop-color:#5a7a4e"/>
+    </linearGradient>
+    <radialGradient id="bgshine" cx="50%" cy="42%" r="50%">
+      <stop offset="0%" style="stop-color:#6a9060;stop-opacity:0.25"/>
+      <stop offset="100%" style="stop-color:#2e4428;stop-opacity:0"/>
+    </radialGradient>
+    <linearGradient id="ll" x1="0%" y1="10%" x2="100%" y2="90%">
+      <stop offset="0%" style="stop-color:#e2eade"/>
+      <stop offset="100%" style="stop-color:#b8ccb0"/>
+    </linearGradient>
+    <linearGradient id="rl" x1="100%" y1="10%" x2="0%" y2="90%">
+      <stop offset="0%" style="stop-color:#f2ede6"/>
+      <stop offset="100%" style="stop-color:#d8e2d2"/>
+    </linearGradient>
+    <radialGradient id="child" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" style="stop-color:#e8c9a8"/>
+      <stop offset="60%" style="stop-color:#c4966a"/>
+      <stop offset="100%" style="stop-color:#a87848"/>
+    </radialGradient>
+    <filter id="ds">
+      <feDropShadow dx="0" dy="28" stdDeviation="48" flood-color="#1a2e16" flood-opacity="0.30"/>
+    </filter>
+    <filter id="ds2">
+      <feDropShadow dx="0" dy="10" stdDeviation="22" flood-color="#1a2e16" flood-opacity="0.22"/>
+    </filter>
+  </defs>
+
+  <!-- Background: moss green -->
+  <rect width="2732" height="2732" fill="url(#bg)"/>
+  <rect width="2732" height="2732" fill="url(#bgshine)"/>
+
+  <!-- Subtle ring -->
+  <circle cx="1366" cy="1280" r="1040" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.05"/>
+
+  <!-- Melo icon centered — scaled up 2.66x from 1024 center -->
+  <!-- Icon center at 1366,1280; icon is ~490px tall in 1024 space => ~1300px in 2732 space -->
+  <!-- Original: leaves from y=210..702 (center 512), child at 572 -->
+  <!-- Scale factor: 2732/1024 = 2.668; translate center: (1366-512*2.668, 1280-456*2.668) -->
+  <!-- Easier: use transform scale+translate -->
+  <g transform="translate(1366,1280) scale(2.2) translate(-512,-456)">
+    <!-- Left leaf -->
+    <g filter="url(#ds)">
+      <path d="M 512 210
+        C 490 224, 452 256, 408 308
+        C 358 368, 320 434, 314 500
+        C 308 566, 338 634, 388 672
+        C 420 696, 464 706, 512 702
+        Z" fill="url(#ll)" opacity="0.94"/>
+    </g>
+    <!-- Right leaf -->
+    <g filter="url(#ds)">
+      <path d="M 512 210
+        C 534 224, 572 256, 616 308
+        C 666 368, 704 434, 710 500
+        C 716 566, 686 634, 636 672
+        C 604 696, 560 706, 512 702
+        Z" fill="url(#rl)" opacity="0.88"/>
+    </g>
+    <!-- Vein -->
+    <line x1="512" y1="210" x2="512" y2="702" stroke="#426039" stroke-width="2.5" opacity="0.18"/>
+    <!-- Child bud -->
+    <g filter="url(#ds2)">
+      <circle cx="512" cy="572" r="44" fill="#c4966a" opacity="0.15"/>
+      <circle cx="512" cy="572" r="36" fill="url(#child)" opacity="0.98"/>
+      <circle cx="512" cy="572" r="20" fill="#e0b990" opacity="0.60"/>
+      <circle cx="512" cy="567" r="8"  fill="#f0d8bc" opacity="0.50"/>
+    </g>
+    <!-- Sprout tip -->
+    <ellipse cx="512" cy="198" rx="9" ry="14" fill="#ccd9c6" opacity="0.60"/>
+    <ellipse cx="512" cy="189" rx="5" ry="8"  fill="#b8ccb0" opacity="0.40"/>
+  </g>
+
+  <!-- MELO wordmark below icon -->
+  <text
+    x="1366" y="1720"
+    text-anchor="middle"
+    font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+    font-weight="800"
+    font-size="148"
+    letter-spacing="52"
+    fill="#f3eee8"
+    opacity="0.92"
+  >MELO</text>
+  <!-- Tagline -->
+  <text
+    x="1366" y="1800"
+    text-anchor="middle"
+    font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+    font-weight="300"
+    font-size="52"
+    letter-spacing="18"
+    fill="#f3eee8"
+    opacity="0.55"
+  >FOR NYE FORÆLDRE</text>
+</svg>

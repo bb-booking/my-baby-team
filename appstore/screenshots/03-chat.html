@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1242">
+<title>Melo – Chat</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --moss: #496043;
+    --moss-dark: #3a5036;
+    --moss-light: #6a8a5e;
+    --cream: #f3eee8;
+    --cream-dark: #e8e0d6;
+    --clay: #c3a383;
+    --clay-light: #e8d4bc;
+    --clay-dark: #a07248;
+    --sage: #7a9a6e;
+    --sage-light: #d0deca;
+    --stone: #9a8e84;
+    --text: #2a2420;
+    --text-muted: #7a7068;
+  }
+  body {
+    width: 1242px;
+    height: 2688px;
+    background: var(--cream);
+    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    color: var(--text);
+    position: relative;
+    overflow: hidden;
+  }
+  .caption {
+    background: var(--moss-dark);
+    color: #fff;
+    text-align: center;
+    padding: 80px 60px 60px;
+  }
+  .caption-label { font-size: 36px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.7; margin-bottom: 18px; font-weight: 400; }
+  .caption-title { font-size: 88px; font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; }
+  .caption-sub { font-size: 40px; opacity: 0.75; margin-top: 20px; }
+
+  .phone-wrap { display: flex; justify-content: center; margin-top: 90px; }
+  .phone {
+    width: 700px;
+    background: var(--cream);
+    border-radius: 80px;
+    box-shadow: 0 60px 160px rgba(42,36,32,0.32), 0 0 0 8px #3a5036;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .status-bar {
+    background: var(--moss-dark);
+    color: rgba(255,255,255,0.85);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 40px 16px;
+    font-size: 24px;
+    font-weight: 600;
+  }
+
+  .chat-header {
+    background: var(--moss-dark);
+    padding: 16px 40px 28px;
+    color: #fff;
+  }
+  .chat-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .chat-avatar {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: var(--moss-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    border: 3px solid rgba(255,255,255,0.25);
+  }
+  .chat-name { font-size: 38px; font-weight: 700; margin-top: 16px; }
+  .chat-tagline { font-size: 24px; opacity: 0.65; margin-top: 6px; }
+
+  /* Mode pills */
+  .mode-bar {
+    display: flex;
+    gap: 14px;
+    padding: 20px 36px;
+    background: #fff;
+    overflow-x: auto;
+  }
+  .mode-pill {
+    border-radius: 50px;
+    padding: 14px 28px;
+    font-size: 24px;
+    font-weight: 600;
+    white-space: nowrap;
+    background: var(--cream);
+    color: var(--text-muted);
+    border: 2px solid var(--cream-dark);
+  }
+  .mode-pill.active {
+    background: var(--moss);
+    color: #fff;
+    border-color: var(--moss);
+  }
+
+  /* Chat messages */
+  .messages { padding: 24px 36px; display: flex; flex-direction: column; gap: 20px; }
+
+  .msg { display: flex; flex-direction: column; }
+  .msg.user { align-items: flex-end; }
+  .msg.ai { align-items: flex-start; }
+
+  .bubble {
+    max-width: 85%;
+    border-radius: 28px;
+    padding: 24px 30px;
+    font-size: 26px;
+    line-height: 1.5;
+  }
+  .msg.user .bubble {
+    background: var(--moss);
+    color: #fff;
+    border-bottom-right-radius: 8px;
+  }
+  .msg.ai .bubble {
+    background: #fff;
+    color: var(--text);
+    border-bottom-left-radius: 8px;
+    box-shadow: 0 2px 12px rgba(42,36,32,0.08);
+  }
+  .msg-time {
+    font-size: 20px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    padding: 0 8px;
+  }
+
+  /* Suggestion chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 12px; padding: 0 36px 24px; }
+  .chip {
+    border: 2px solid var(--sage-light);
+    border-radius: 50px;
+    padding: 14px 28px;
+    font-size: 24px;
+    color: var(--moss);
+    background: rgba(208,222,202,0.25);
+  }
+
+  /* Input bar */
+  .input-bar {
+    margin: 0 36px 24px;
+    background: #fff;
+    border-radius: 50px;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 2px 16px rgba(42,36,32,0.08);
+    border: 2px solid var(--cream-dark);
+  }
+  .input-placeholder { flex: 1; font-size: 26px; color: var(--text-muted); }
+  .input-send {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: var(--moss);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: #fff;
+  }
+
+  .bottom-strip {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: var(--moss);
+    padding: 60px 80px;
+    text-align: center;
+  }
+  .bottom-strip-text { color: rgba(255,255,255,0.9); font-size: 52px; font-weight: 700; letter-spacing: -0.01em; }
+  .bottom-strip-sub { color: rgba(255,255,255,0.6); font-size: 34px; margin-top: 12px; }
+</style>
+</head>
+<body>
+
+<div class="caption">
+  <div class="caption-label">Melo Chat</div>
+  <div class="caption-title">Spørg om alt.<br>Få svar der bærer.</div>
+  <div class="caption-sub">Normal · Er det normalt? · Ventil</div>
+</div>
+
+<div class="phone-wrap">
+  <div class="phone">
+    <div style="background:#1a2018; height:54px; border-radius:0 0 36px 36px; width:260px; margin:0 auto;"></div>
+
+    <div class="status-bar">
+      <span>9:41</span>
+      <span>Melo</span>
+      <span>100%</span>
+    </div>
+
+    <div class="chat-header">
+      <div class="chat-header-top">
+        <div class="chat-avatar">🌿</div>
+        <div style="font-size:28px; opacity:0.6;">···</div>
+      </div>
+      <div class="chat-name">Melo</div>
+      <div class="chat-tagline">Din daglige støtte · Altid her</div>
+    </div>
+
+    <div class="mode-bar">
+      <div class="mode-pill active">Normal</div>
+      <div class="mode-pill">Er det normalt?</div>
+      <div class="mode-pill">Ventil</div>
+    </div>
+
+    <div class="messages">
+      <div class="msg user">
+        <div class="bubble">Emilia vågner hver 45 min om natten. Er det søvnregression?</div>
+        <div class="msg-time">13:24</div>
+      </div>
+      <div class="msg ai">
+        <div class="bubble">Ja — det lyder præcis som 4-månedersregressionen 💛<br><br>Omkring 3–4 måneder ændrer babyers søvnarkitektur sig til at ligne voksnes. Det betyder kortere søvncyklusser og flere opvågninger.<br><br>Det er midlertidigt, og det er et tegn på udvikling — ikke noget du gør forkert.</div>
+        <div class="msg-time">13:24</div>
+      </div>
+      <div class="msg user">
+        <div class="bubble">Hvad kan jeg gøre for at hjælpe hende?</div>
+        <div class="msg-time">13:25</div>
+      </div>
+      <div class="msg ai">
+        <div class="bubble">Tre ting hjælper mest:<br>• Fast sengeritual (bad → sang → mørke)<br>• Giv hende en chance for at falde i søvn selv ved lette opvågninger<br>• Sørg for du sover nok — det er vigtigt 🌙</div>
+        <div class="msg-time">13:25</div>
+      </div>
+    </div>
+
+    <div class="chips">
+      <div class="chip">Hvornår stopper det?</div>
+      <div class="chip">Amning om natten</div>
+      <div class="chip">Hvad er normalt?</div>
+    </div>
+
+    <div class="input-bar">
+      <div class="input-placeholder">Skriv til Melo...</div>
+      <div class="input-send">↑</div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-strip">
+  <div class="bottom-strip-text">AI-støtte der faktisk forstår dig</div>
+  <div class="bottom-strip-sub">Evidensbaseret · Varm · Aldrig fordømmende</div>
+</div>
+
+</body>
+</html>

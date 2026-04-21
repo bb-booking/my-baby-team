@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1242">
+<title>Melo – Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --moss: #496043;
+    --moss-dark: #3a5036;
+    --moss-light: #6a8a5e;
+    --cream: #f3eee8;
+    --cream-dark: #e8e0d6;
+    --clay: #c3a383;
+    --clay-light: #e8d4bc;
+    --clay-dark: #a07248;
+    --sage: #7a9a6e;
+    --sage-light: #d0deca;
+    --stone: #9a8e84;
+    --stone-light: #d4ccc6;
+    --stone-lighter: #eeeae6;
+    --text: #2a2420;
+    --text-muted: #7a7068;
+  }
+  body {
+    width: 1242px;
+    height: 2688px;
+    background: var(--cream);
+    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    color: var(--text);
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* iPhone status bar */
+  .status-bar {
+    width: 100%;
+    height: 88px;
+    background: var(--moss);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 60px 18px;
+    color: white;
+    font-size: 28px;
+    font-weight: 600;
+  }
+  .status-bar .time { font-size: 34px; font-weight: 700; }
+  .status-bar .icons { display: flex; gap: 12px; align-items: center; }
+
+  /* Top nav / header */
+  .header {
+    background: var(--moss);
+    padding: 28px 60px 48px;
+    color: white;
+  }
+  .header-greeting {
+    font-size: 26px;
+    font-weight: 400;
+    opacity: 0.75;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+  }
+  .header-name {
+    font-size: 52px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+  .header-sub {
+    font-size: 24px;
+    opacity: 0.65;
+    margin-top: 8px;
+    font-weight: 400;
+  }
+
+  /* Content area */
+  .content {
+    padding: 0 40px;
+    margin-top: -36px;
+  }
+
+  /* Cards */
+  .card {
+    background: white;
+    border-radius: 32px;
+    padding: 40px;
+    margin-bottom: 28px;
+    box-shadow: 0 4px 24px rgba(42,36,32,0.08);
+  }
+  .card-label {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--stone);
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 34px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .card-sub {
+    font-size: 24px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* Sleep tracker card */
+  .sleep-card {
+    background: linear-gradient(135deg, var(--moss) 0%, var(--moss-light) 100%);
+    border-radius: 32px;
+    padding: 40px;
+    margin-bottom: 28px;
+    color: white;
+    box-shadow: 0 8px 32px rgba(73,96,67,0.28);
+  }
+  .sleep-card .label {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.65;
+    margin-bottom: 14px;
+  }
+  .sleep-card .status {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 18px;
+  }
+  .sleep-dot {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: #7dffb0;
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 0 6px rgba(125,255,176,0.25);
+  }
+  .sleep-status-text { font-size: 30px; font-weight: 700; }
+  .sleep-time { font-size: 64px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
+  .sleep-since { font-size: 22px; opacity: 0.65; margin-top: 6px; }
+  .sleep-bar-bg {
+    height: 10px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 5px;
+    margin-top: 20px;
+    overflow: hidden;
+  }
+  .sleep-bar-fill {
+    height: 100%;
+    width: 72%;
+    background: linear-gradient(90deg, rgba(255,255,255,0.5), rgba(255,255,255,0.85));
+    border-radius: 5px;
+  }
+
+  /* Quick actions */
+  .quick-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+  .quick-card {
+    background: white;
+    border-radius: 28px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(42,36,32,0.07);
+  }
+  .quick-emoji { font-size: 40px; margin-bottom: 12px; }
+  .quick-title { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+  .quick-sub { font-size: 20px; color: var(--text-muted); }
+
+  /* Tasks */
+  .task-item {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--stone-lighter);
+  }
+  .task-item:last-child { border-bottom: none; }
+  .task-check {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    border: 2px solid var(--stone-light);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .task-check.done { background: var(--moss); border-color: var(--moss); }
+  .task-check.done::after { content: '✓'; color: white; font-size: 22px; font-weight: 700; }
+  .task-text { font-size: 26px; font-weight: 500; flex: 1; }
+  .task-text.done { color: var(--stone); text-decoration: line-through; }
+  .task-tag {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    padding: 6px 14px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+  .tag-mor { background: var(--clay-light); color: var(--clay-dark); }
+  .tag-far { background: var(--sage-light); color: var(--moss); }
+  .tag-faelles { background: var(--stone-lighter); color: var(--stone); }
+
+  /* Bottom nav */
+  .bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    height: 160px;
+    background: white;
+    border-top: 1px solid var(--stone-lighter);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-around;
+    padding-top: 20px;
+    box-shadow: 0 -4px 20px rgba(42,36,32,0.06);
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-icon { font-size: 36px; }
+  .nav-label { font-size: 18px; font-weight: 500; color: var(--stone); letter-spacing: 0.04em; }
+  .nav-item.active .nav-label { color: var(--moss); font-weight: 700; }
+  .nav-item.active .nav-icon { filter: none; }
+
+  /* Caption bar */
+  .caption-bar {
+    position: absolute;
+    bottom: 160px;
+    left: 0; right: 0;
+    background: var(--moss);
+    padding: 24px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+  }
+  .caption-text {
+    font-size: 28px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .caption-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--clay); opacity: 0.7; }
+</style>
+</head>
+<body>
+
+<!-- Status bar -->
+<div class="status-bar">
+  <span class="time">9:41</span>
+  <div class="icons">
+    <svg width="28" height="20" fill="white" viewBox="0 0 24 17"><rect x="0" y="4" width="4" height="13" rx="1"/><rect x="5" y="2" width="4" height="15" rx="1"/><rect x="10" y="0" width="4" height="17" rx="1"/><rect x="15" y="0" width="4" height="17" rx="1" opacity="0.3"/></svg>
+    <svg width="28" height="20" fill="white" viewBox="0 0 24 24"><path d="M1.5 8.5c5.799-5.799 15.201-5.799 21 0M4.5 11.5c4.142-4.142 10.858-4.142 15 0M7.5 14.5c2.485-2.485 6.515-2.485 9 0M12 17.5h.01"/></svg>
+    <svg width="40" height="20" fill="white" viewBox="0 0 40 20"><rect x="0" y="2" width="34" height="16" rx="4" stroke="white" stroke-width="2" fill="none"/><rect x="2" y="4" width="26" height="12" rx="2" fill="white"/><path d="M36 8v4a2 2 0 000-4z"/></svg>
+  </div>
+</div>
+
+<!-- Header -->
+<div class="header">
+  <p class="header-greeting">God morgen,</p>
+  <p class="header-name">Sofie 👋</p>
+  <p class="header-sub">Uge 28 af graviditeten · Sofie & Mikkel</p>
+</div>
+
+<!-- Content -->
+<div class="content">
+
+  <!-- Live sleep tracker -->
+  <div class="sleep-card">
+    <div class="label">Søvnsporing · Live</div>
+    <div class="status">
+      <div class="sleep-dot"></div>
+      <span class="sleep-status-text">Barnet sover</span>
+    </div>
+    <div class="sleep-time">2t 14m</div>
+    <div class="sleep-since">Siden 07:27 — i gang nu</div>
+    <div class="sleep-bar-bg"><div class="sleep-bar-fill"></div></div>
+  </div>
+
+  <!-- Quick actions -->
+  <div class="quick-grid">
+    <div class="quick-card">
+      <div class="quick-emoji">🤱</div>
+      <div class="quick-title">Amning</div>
+      <div class="quick-sub">Sidst: 07:15</div>
+    </div>
+    <div class="quick-card">
+      <div class="quick-emoji">👶</div>
+      <div class="quick-title">Ble</div>
+      <div class="quick-sub">Sidst: 06:40</div>
+    </div>
+  </div>
+
+  <!-- Today's tasks -->
+  <div class="card">
+    <div class="card-label">Dagens opgaver</div>
+    <div class="task-item">
+      <div class="task-check done"></div>
+      <span class="task-text done">Jordemoder aftale — 10:30</span>
+      <span class="task-tag tag-mor">Sofie</span>
+    </div>
+    <div class="task-item">
+      <div class="task-check"></div>
+      <span class="task-text">Køb bleer (str. 2)</span>
+      <span class="task-tag tag-far">Mikkel</span>
+    </div>
+    <div class="task-item">
+      <div class="task-check"></div>
+      <span class="task-text">Snak om navnevalg</span>
+      <span class="task-tag tag-faelles">Fælles</span>
+    </div>
+    <div class="task-item">
+      <div class="task-check"></div>
+      <span class="task-text">Udfyld barsel-ansøgning</span>
+      <span class="task-tag tag-mor">Sofie</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Caption bar -->
+<div class="caption-bar">
+  <div class="caption-dot"></div>
+  <span class="caption-text">Dit overblik — alt samlet ét sted</span>
+  <div class="caption-dot"></div>
+</div>
+
+<!-- Bottom nav -->
+<div class="bottom-nav">
+  <div class="nav-item active">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-label">Hjem</span>
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">💤</span>
+    <span class="nav-label">Søvn</span>
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">💬</span>
+    <span class="nav-label">Melo AI</span>
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">✅</span>
+    <span class="nav-label">Opgaver</span>
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">👤</span>
+    <span class="nav-label">Profil</span>
+  </div>
+</div>
+
+</body>
+</html>

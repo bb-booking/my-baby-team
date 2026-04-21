@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1242">
+<title>Melo – Graviditets-view</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --moss: #496043;
+    --moss-dark: #3a5036;
+    --moss-light: #6a8a5e;
+    --cream: #f3eee8;
+    --clay: #c3a383;
+    --clay-light: #e8d4bc;
+    --clay-dark: #a07248;
+    --sage: #7a9a6e;
+    --sage-light: #d0deca;
+    --stone: #9a8e84;
+    --stone-light: #d4ccc6;
+    --stone-lighter: #eeeae6;
+    --text: #2a2420;
+    --text-muted: #7a7068;
+  }
+  body {
+    width: 1242px;
+    height: 2688px;
+    background: var(--cream);
+    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    color: var(--text);
+    overflow: hidden;
+    position: relative;
+  }
+  .status-bar {
+    width: 100%;
+    height: 88px;
+    background: linear-gradient(180deg, #3a5036 0%, #496043 100%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 60px 18px;
+    color: white;
+  }
+  .status-bar .time { font-size: 34px; font-weight: 700; }
+  .status-bar .icons { display: flex; gap: 12px; }
+
+  /* Hero pregnancy section */
+  .hero {
+    background: linear-gradient(160deg, #2e4428 0%, #496043 60%, #6a8a5e 100%);
+    padding: 36px 60px 64px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -100px; right: -100px;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+
+  .week-label {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    margin-bottom: 10px;
+  }
+  .week-number {
+    font-size: 104px;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .week-of { font-size: 32px; opacity: 0.55; font-weight: 400; }
+  .trimester-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.16);
+    border: 1.5px solid rgba(255,255,255,0.25);
+    border-radius: 40px;
+    padding: 12px 28px;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    margin-top: 18px;
+    margin-bottom: 28px;
+  }
+  .due-date {
+    font-size: 26px;
+    opacity: 0.65;
+    margin-bottom: 28px;
+  }
+  .due-date strong { opacity: 1; font-weight: 700; }
+
+  /* Progress arc / weeks bar */
+  .weeks-bar-wrap {
+    margin-bottom: 12px;
+  }
+  .weeks-bar-track {
+    height: 10px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .weeks-bar-fill {
+    height: 100%;
+    width: 70%;
+    background: linear-gradient(90deg, rgba(255,255,255,0.45), rgba(255,255,255,0.85));
+    border-radius: 5px;
+  }
+  .weeks-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    opacity: 0.45;
+    margin-top: 8px;
+  }
+
+  /* Content area */
+  .content { padding: 0 40px; margin-top: -36px; }
+
+  .card {
+    background: white;
+    border-radius: 32px;
+    padding: 36px 40px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 24px rgba(42,36,32,0.08);
+  }
+  .card-label {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--stone);
+    margin-bottom: 20px;
+  }
+
+  /* Baby size card */
+  .size-card {
+    background: white;
+    border-radius: 32px;
+    padding: 36px 40px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 24px rgba(42,36,32,0.08);
+    display: flex;
+    gap: 32px;
+    align-items: center;
+  }
+  .baby-emoji {
+    font-size: 88px;
+    width: 160px;
+    height: 160px;
+    background: var(--stone-lighter);
+    border-radius: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .size-info .size-label {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--stone);
+    margin-bottom: 10px;
+  }
+  .size-info .size-name { font-size: 36px; font-weight: 800; margin-bottom: 6px; }
+  .size-info .size-desc { font-size: 24px; color: var(--text-muted); line-height: 1.4; }
+
+  /* Development milestones */
+  .milestone {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--stone-lighter);
+  }
+  .milestone:last-child { border-bottom: none; }
+  .milestone-icon {
+    width: 52px; height: 52px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+    background: var(--stone-lighter);
+  }
+  .milestone-text .m-title { font-size: 26px; font-weight: 600; margin-bottom: 4px; }
+  .milestone-text .m-sub { font-size: 22px; color: var(--text-muted); }
+
+  /* Checklist */
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--stone-lighter);
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-box {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+  .check-box.done { background: var(--moss); }
+  .check-box.done::after { content: '✓'; color: white; font-weight: 700; }
+  .check-box.todo { border: 2px solid var(--stone-light); }
+  .check-text { font-size: 26px; font-weight: 500; flex: 1; }
+  .check-text.done { color: var(--stone); text-decoration: line-through; }
+
+  /* Trimester tabs */
+  .tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .tab {
+    flex: 1;
+    padding: 16px;
+    border-radius: 16px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 600;
+    border: 1.5px solid var(--stone-light);
+    color: var(--stone);
+  }
+  .tab.active {
+    background: var(--moss);
+    color: white;
+    border-color: var(--moss);
+  }
+
+  .caption-bar {
+    position: absolute;
+    bottom: 160px;
+    left: 0; right: 0;
+    background: var(--moss);
+    padding: 24px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+  }
+  .caption-text {
+    font-size: 28px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+  }
+  .caption-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--clay); opacity: 0.7; }
+
+  .bottom-nav {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 160px;
+    background: white;
+    border-top: 1px solid var(--stone-lighter);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-around;
+    padding-top: 20px;
+  }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .nav-icon { font-size: 36px; }
+  .nav-label { font-size: 18px; font-weight: 500; color: var(--stone); }
+  .nav-item.active .nav-label { color: var(--moss); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+  <span class="time">9:41</span>
+  <div class="icons">
+    <svg width="28" height="20" fill="white" viewBox="0 0 24 17"><rect x="0" y="4" width="4" height="13" rx="1"/><rect x="5" y="2" width="4" height="15" rx="1"/><rect x="10" y="0" width="4" height="17" rx="1"/></svg>
+    <svg width="40" height="20" fill="white" viewBox="0 0 40 20"><rect x="0" y="2" width="34" height="16" rx="4" stroke="white" stroke-width="2" fill="none"/><rect x="2" y="4" width="26" height="12" rx="2" fill="white"/><path d="M36 8v4a2 2 0 000-4z"/></svg>
+  </div>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+  <p class="week-label">Du er i</p>
+  <p class="week-number">Uge 28</p>
+  <p class="week-of">af 40 uger</p>
+  <div class="trimester-badge">🌱 3. trimester</div>
+  <p class="due-date">Termin: <strong>9. juli 2026</strong> · 84 dage tilbage</p>
+  <div class="weeks-bar-wrap">
+    <div class="weeks-bar-track">
+      <div class="weeks-bar-fill"></div>
+    </div>
+    <div class="weeks-bar-labels">
+      <span>Uge 1</span>
+      <span>Uge 14</span>
+      <span>Uge 28 ←</span>
+      <span>Uge 40</span>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- Baby size this week -->
+  <div class="size-card">
+    <div class="baby-emoji">🫐</div>
+    <div class="size-info">
+      <div class="size-label">Baby denne uge</div>
+      <div class="size-name">Stor som en aubergine</div>
+      <div class="size-desc">Ca. 38 cm · 1,0 kg<br>Øjnene kan nu åbne sig</div>
+    </div>
+  </div>
+
+  <!-- Development this week -->
+  <div class="card">
+    <div class="card-label">Udvikling i uge 28</div>
+    <div class="milestone">
+      <div class="milestone-icon">👁️</div>
+      <div class="milestone-text">
+        <div class="m-title">Øjne åbner sig</div>
+        <div class="m-sub">Baby kan nu skelne lys og mørke</div>
+      </div>
+    </div>
+    <div class="milestone">
+      <div class="milestone-icon">🧠</div>
+      <div class="milestone-text">
+        <div class="m-title">Hjernens riller dannes</div>
+        <div class="m-sub">Hjernen vokser og folder sig hurtigt</div>
+      </div>
+    </div>
+    <div class="milestone">
+      <div class="milestone-icon">🫁</div>
+      <div class="milestone-text">
+        <div class="m-title">Lungerne modnes</div>
+        <div class="m-sub">Surfaktant produceres — vigtig for åndedrættet</div>
+      </div>
+    </div>
+    <div class="milestone">
+      <div class="milestone-icon">👂</div>
+      <div class="milestone-text">
+        <div class="m-title">Hører din stemme</div>
+        <div class="m-sub">Babyen genkender mor og fars stemmer</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trimester checklist -->
+  <div class="card">
+    <div class="card-label">3. trimester tjekliste</div>
+    <div class="check-item">
+      <div class="check-box done"></div>
+      <span class="check-text done">Scanningsaftale — uge 20</span>
+    </div>
+    <div class="check-item">
+      <div class="check-box done"></div>
+      <span class="check-text done">Tilmeld fødselsforberedelse</span>
+    </div>
+    <div class="check-item">
+      <div class="check-box todo"></div>
+      <span class="check-text">Pak fødselstaske</span>
+    </div>
+    <div class="check-item">
+      <div class="check-box todo"></div>
+      <span class="check-text">Aftale med barselslæge (uge 32)</span>
+    </div>
+    <div class="check-item">
+      <div class="check-box todo"></div>
+      <span class="check-text">Ansøg barselsdagpenge</span>
+    </div>
+  </div>
+
+</div>
+
+<div class="caption-bar">
+  <div class="caption-dot"></div>
+  <span class="caption-text">Graviditet uge for uge — din personlige guide</span>
+  <div class="caption-dot"></div>
+</div>
+
+<div class="bottom-nav">
+  <div class="nav-item active"><span class="nav-icon">🏠</span><span class="nav-label">Hjem</span></div>
+  <div class="nav-item"><span class="nav-icon">💤</span><span class="nav-label">Søvn</span></div>
+  <div class="nav-item"><span class="nav-icon">💬</span><span class="nav-label">Melo AI</span></div>
+  <div class="nav-item"><span class="nav-icon">✅</span><span class="nav-label">Opgaver</span></div>
+  <div class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Profil</span></div>
+</div>
+
+</body>
+</html>
