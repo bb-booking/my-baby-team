@@ -79,7 +79,7 @@ function PregnantBarnPage({ week }: { week: number }) {
         </div>
       ))}
 
-      <div className="h-20 md:h-0" />
+
     </div>
   );
 }
@@ -228,7 +228,7 @@ function BornBarnPage({ ageWeeks, ageMonths }: { ageWeeks: number; ageMonths: nu
         </div>
       </div>
 
-      <div className="h-20 md:h-0" />
+
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { getMilestones, developmentalLeaps, type MilestoneLevel } from "@/lib/ph
 import { useState, useEffect, useCallback } from "react";
 import { Lock, ChevronRight, Sparkles, X, Check, Zap } from "lucide-react";
 import confetti from "canvas-confetti";
+import { useTranslation } from "react-i18next";
 
 // ── Achievement persistence ──
 function getAchievedLeaps(): string[] {
@@ -19,7 +20,17 @@ function saveAchievedLeaps(leaps: string[]) {
 }
 
 // ── Level-up encouragement messages ──
-function getLevelUpMessages(name: string): Record<number, { title: string; body: string }> {
+function getLevelUpMessages(name: string, en: boolean): Record<number, { title: string; body: string }> {
+  if (en) return {
+    1: { title: "First leap complete!", body: "You've navigated the first sensory impressions together. That takes courage." },
+    2: { title: "Patterns unlocked!", body: `${name} sees the world in patterns now — and you are the most beautiful pattern.` },
+    3: { title: "Leap 3 — smooth transitions!", body: "Movements flow. You've found a rhythm together." },
+    4: { title: "Events understood!", body: `${name} understands cause and effect. You are the reason for all that safety.` },
+    5: { title: "Connections cracked!", body: `${name} knows you can leave — and trusts that you'll come back. ❤️` },
+    6: { title: "Categories in place!", body: `The world is being sorted. ${name} is a little researcher with you as the lab.` },
+    7: { title: "Sequences mastered!", body: `${name} understands sequences. You've built a foundation of trust.` },
+    8: { title: "All leaps complete!", body: "You've made it through all 8 leaps. You are legendary parents. 🏆" },
+  };
   return {
     1: { title: "Første spring klaret!", body: "I har navigeret de første sanseindtryk sammen. Det kræver mod." },
     2: { title: "Mønstre unlocked!", body: `${name} ser verden i mønstre nu — og I er det smukkeste mønster.` },
@@ -53,7 +64,12 @@ function LevelUpOverlay({
   childName: string;
   onDismiss: () => void;
 }) {
-  const msg = getLevelUpMessages(childName)[level] || { title: `Spring ${level} opnået!`, body: "I klarer det fantastisk." };
+  const { t, i18n } = useTranslation();
+  const en = i18n.language === "en";
+  const msg = getLevelUpMessages(childName, en)[level] || {
+    title: en ? `Leap ${level} reached!` : `Spring ${level} opnået!`,
+    body: en ? "You're doing fantastically." : "I klarer det fantastisk.",
+  };
 
   useEffect(() => {
     fireLevelUpConfetti();
@@ -81,7 +97,7 @@ function LevelUpOverlay({
             {emoji}
           </div>
           <p className="text-[0.6rem] tracking-[0.25em] uppercase font-semibold mb-1" style={{ color: "hsl(var(--moss))" }}>
-            Spring {level} af 8
+            {t("milestone.springOfTotal", { level, total: 8 })}
           </p>
           <h2 className="text-[1.4rem] font-bold leading-tight mb-2">{msg.title}</h2>
           <p className="text-[0.85rem] text-muted-foreground leading-relaxed">{msg.body}</p>
@@ -89,14 +105,14 @@ function LevelUpOverlay({
 
         <div className="px-6 pb-8">
           <p className="text-[0.75rem] text-muted-foreground mb-4">
-            {childName} vokser — og I vokser med. 💛
+            {t("milestone.growing", { childName })}
           </p>
           <button
             onClick={onDismiss}
-            className="w-full py-3.5 rounded-xl text-[0.88rem] font-semibold transition-all active:scale-[0.97]"
+            className="w-full py-3.5 rounded-full text-[0.88rem] font-semibold transition-all active:scale-[0.97]"
             style={{ background: "hsl(var(--moss))", color: "white" }}
           >
-            Videre! 🚀
+            {t("milestone.continue")}
           </button>
         </div>
       </div>
@@ -106,6 +122,7 @@ function LevelUpOverlay({
 
 export function MilestoneTimeline() {
   const { profile, currentWeek, babyAgeWeeks } = useFamily();
+  const { t } = useTranslation();
   const [achievedLeaps, setAchievedLeaps] = useState<string[]>(getAchievedLeaps);
   const [selected, setSelected] = useState<MilestoneLevel | null>(null);
   const [levelUp, setLevelUp] = useState<{ level: number; emoji: string } | null>(null);
@@ -150,11 +167,11 @@ export function MilestoneTimeline() {
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="font-serif text-lg">{isPregnant ? "Jeres rejse" : "Tigerspring"}</h3>
+            <h3 className="font-serif text-lg">{t(isPregnant ? "milestone.yourJourney" : "milestone.leaps")}</h3>
             <p className="text-[0.65rem] text-muted-foreground mt-0.5">
               {isPregnant
-                ? `Level ${achievedCount} af ${milestones.length}`
-                : `${achievedCount} af ${milestones.length} spring`}
+                ? t("milestone.level", { level: achievedCount, total: milestones.length })
+                : t("milestone.springs", { count: achievedCount, total: milestones.length })}
             </p>
           </div>
           <div
@@ -165,7 +182,7 @@ export function MilestoneTimeline() {
             }}
           >
             {isPregnant ? <Sparkles className="w-3.5 h-3.5" /> : <Zap className="w-3.5 h-3.5" />}
-            {isPregnant ? `Level ${achievedCount}` : `Spring ${achievedCount}`}
+            {isPregnant ? t("milestone.levelBadge", { level: achievedCount }) : t("milestone.spring", { count: achievedCount })}
           </div>
         </div>
 
@@ -241,17 +258,17 @@ export function MilestoneTimeline() {
                     </span>
                     {m.active && !isAchieved && !isPregnant && (
                       <span className="text-[0.5rem] uppercase tracking-wider font-semibold" style={{ color: isMor ? "hsl(var(--clay))" : "hsl(var(--moss))" }}>
-                        Nu
+                        {t("milestone.now")}
                       </span>
                     )}
                     {isNextUp && (
                       <span className="text-[0.5rem] uppercase tracking-wider font-medium" style={{ color: isMor ? "hsl(var(--clay) / 0.6)" : "hsl(var(--sage) / 0.7)" }}>
-                        Snart
+                        {t("milestone.soon")}
                       </span>
                     )}
                     {m.unlocked && !m.active && (
                       <span className="text-[0.55rem] text-muted-foreground flex items-center justify-center gap-0.5 mt-0.5">
-                        Tryk <ChevronRight className="w-2.5 h-2.5" />
+                        {t("milestone.press")} <ChevronRight className="w-2.5 h-2.5" />
                       </span>
                     )}
                   </div>
@@ -310,6 +327,7 @@ function LeapDetail({
   onAchieve: () => void;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const suggestions = isMor ? milestone.momSuggestions : milestone.dadSuggestions;
   const relatable = isMor ? milestone.momRelatable : milestone.dadRelatable;
   const accentBg = isMor ? "hsl(var(--clay-light))" : "hsl(var(--sage-light))";
@@ -336,16 +354,16 @@ function LeapDetail({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[0.6rem] font-semibold tracking-wider uppercase" style={{ color: accentColor }}>
-              Spring {milestone.level}
+              {t("milestone.spring", { count: milestone.level })}
             </span>
             {milestone.active && !isAchieved && (
               <span className="text-[0.55rem] px-2 py-0.5 rounded-full font-medium" style={{ background: accentBg, color: accentBark }}>
-                Nu
+                {t("milestone.now")}
               </span>
             )}
             {isAchieved && (
               <span className="text-[0.55rem] px-2 py-0.5 rounded-full font-medium" style={{ background: "hsl(var(--moss) / 0.12)", color: "hsl(var(--moss))" }}>
-                ✓ Opnået{isEarly ? " (tidligt!)" : ""}
+                {isEarly ? t("milestone.achievedEarly") : t("milestone.achieved")}
               </span>
             )}
           </div>
@@ -362,7 +380,7 @@ function LeapDetail({
         {milestone.signs && milestone.signs.length > 0 && (
           <div>
             <p className="text-[0.65rem] tracking-wider uppercase font-medium text-muted-foreground mb-2">
-              Tegn på at det er i gang
+              {t("milestone.signsInProgress")}
             </p>
             <div className="flex flex-wrap gap-1.5">
               {milestone.signs.map((s, i) => (
@@ -380,7 +398,7 @@ function LeapDetail({
         {/* Activities */}
         <div>
           <p className="text-[0.65rem] tracking-wider uppercase font-medium text-muted-foreground mb-2">
-            Gør med {childName}
+            {t("milestone.doWith", { childName })}
           </p>
           <div className="space-y-1.5">
             {milestone.activities.map((a, i) => (
@@ -395,7 +413,7 @@ function LeapDetail({
         {/* Role-specific suggestions */}
         <div>
           <p className="text-[0.65rem] tracking-wider uppercase font-medium text-muted-foreground mb-2">
-            {isMor ? "Til dig, mor" : "Til dig, far"}
+            {t(isMor ? "milestone.forMom" : "milestone.forDad")}
           </p>
           <div className="space-y-1.5">
             {suggestions.map((s, i) => (
@@ -424,14 +442,14 @@ function LeapDetail({
         {canAchieve && (
           <button
             onClick={() => { onAchieve(); onClose(); }}
-            className="w-full py-3 rounded-xl text-[0.85rem] font-semibold transition-all active:scale-[0.97] flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-full text-[0.85rem] font-semibold transition-all active:scale-[0.97] flex items-center justify-center gap-2"
             style={{
               background: "hsl(var(--moss))",
               color: "white",
             }}
           >
             <Zap className="w-4 h-4" />
-            {isEarly ? `${childName} har allerede nået dette spring! 🎉` : `Markér som opnået`}
+            {isEarly ? t("milestone.earlyAchieved", { childName }) : t("milestone.markAchieved")}
           </button>
         )}
       </div>

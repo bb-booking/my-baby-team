@@ -341,6 +341,35 @@ export function getTasksForPhase(phase: "pregnant" | "newborn" | "baby", week: n
   ];
 }
 
+// Health visit suggestions based on baby age — shown as suggested tasks in checklist
+export function getHealthSuggestions(ageWeeks: number): PhaseTask[] {
+  const tasks: PhaseTask[] = [];
+
+  if (ageWeeks >= 0 && ageWeeks < 1) {
+    tasks.push({ id: "h_jm1", title: "Jordemoderbesøg dag 3–5 — book hvis I ikke har fået tid", assignee: "mor", category: "health" });
+  }
+  if (ageWeeks >= 1 && ageWeeks < 3) {
+    tasks.push({ id: "h_sp14", title: "Sundhedsplejerske dag 14 — husk at booke", assignee: "mor", category: "health" });
+  }
+  if (ageWeeks >= 2 && ageWeeks < 4) {
+    tasks.push({ id: "h_sp3u", title: "Sundhedsplejerske uge 3 — book tid", assignee: "mor", category: "health" });
+  }
+  if (ageWeeks >= 7 && ageWeeks < 10) {
+    tasks.push({ id: "h_2mdr", title: "2-måneders undersøgelse + første vaccination — book hos læge", assignee: "fælles", category: "health" });
+  }
+  if (ageWeeks >= 5 && ageWeeks < 9) {
+    tasks.push({ id: "h_8u_mor", title: "8-ugers kontrol hos læge (mor) — husk at booke", assignee: "mor", category: "health" });
+  }
+  if (ageWeeks >= 19 && ageWeeks < 23) {
+    tasks.push({ id: "h_5mdr", title: "5-måneders undersøgelse + anden vaccination — book hos læge", assignee: "fælles", category: "health" });
+  }
+  if (ageWeeks >= 33 && ageWeeks < 37) {
+    tasks.push({ id: "h_8mdr", title: "8–10-måneders undersøgelse + tredje vaccination — book hos læge", assignee: "fælles", category: "health" });
+  }
+
+  return tasks;
+}
+
 export function getPartnerNudge(phase: "pregnant" | "newborn" | "baby", role: "mor" | "far"): { title: string; hint: string }[] {
   if (phase === "pregnant" && role === "far") return [
     { title: "Lav aftensmad i aften", hint: "Mor er ekstra træt — en lille ting gør en stor forskel." },
@@ -421,3 +450,85 @@ export function getMilestones(phase: "pregnant" | "newborn" | "baby", currentWee
     };
   });
 }
+
+// ── Detailed week-by-week pregnancy data ─────────────────────────────────────
+
+export interface PregnancyWeekData {
+  babyDev: string;
+  motherBody: string;
+  partnerFocus: string;
+  highlight: string;
+  highlightEmoji: string;
+}
+
+const weeklyPregnancyData: Record<number, PregnancyWeekData> = {
+  5:  { babyDev: "Embryoet er på størrelse med et sesamfrø. Hjertet begynder at dannes — to bittesmå rør, der snart smelter sammen.", motherBody: "Du producerer nu store mængder HCG. Kvalme, træthed og ømme bryster er de første tegn.", partnerFocus: "Hun er mere træt end nogensinde — ikke fordi hun vil. Kroppen arbejder hårdt. Overtag aftensmaden.", highlight: "Hjertet begynder at dannes", highlightEmoji: "💗" },
+  6:  { babyDev: "Hjertet slår for første gang — ca. 100 slag i minuttet. Øjne, ører og næse begynder at forme sig.", motherBody: "Kvalmen topper typisk morgen og aften. Sæt tørkiks ved sengen. Små, hyppige måltider hjælper.", partnerFocus: "Lug ikke kraftigt parfumeret sæbe, stearinlys eller mad frem. Lugtesansen er skærpet dramatisk.", highlight: "Hjertet slår for første gang", highlightEmoji: "💓" },
+  7:  { babyDev: "Embryoet er på størrelse med et blåbær. Hjernen vokser med 100 neuroner i minuttet.", motherBody: "Livmoderen er nu dobbelt så stor som normalt. Du kan mærke trykken i bækkenet.", partnerFocus: "Book den første jordemoder-samtale nu hvis I ikke har gjort det. Det er din opgave denne uge.", highlight: "100 neuroner pr. minut dannes", highlightEmoji: "🧠" },
+  8:  { babyDev: "Alle vitale organer er dannet. Baby har nu fingre — med svømmehud, der langsomt forsvinder.", motherBody: "Mange oplever forværret kvalme uge 8-10. Det er et tegn på at HCG er højt — altså et godt tegn.", partnerFocus: "Første scanning nærmer sig. Vær med — det er jeres første fælles oplevelse af barnet.", highlight: "Alle organer er dannet", highlightEmoji: "✅" },
+  9:  { babyDev: "Baby hedder nu et foster. Halen er væk. Baby kan sluge og sparke — du kan bare ikke mærke det endnu.", motherBody: "Bækkenbunden begynder at bærer på ekstra vægt. Start bækkenbundstræning allerede nu.", partnerFocus: "Spørg ind til kvalme og energi uden at komme med løsninger. Lyt og anerkend.", highlight: "Foster-stadiet begynder", highlightEmoji: "🌱" },
+  10: { babyDev: "Baby er på størrelse med en oliven — og kan nu bøje og strække armene. Fingernegle dannes.", motherBody: "Blodvolumen stiger. Du kan opleve svimmelhed og hjertebanken — det er normalt.", partnerFocus: "Undersøg jeres rettigheder til barselsorlov og dagpenge nu. Det tager tid at sætte sig ind i.", highlight: "Baby kan bøje armene", highlightEmoji: "💪" },
+  11: { babyDev: "Babys knogler begynder at hærde. Fingrene er ikke længere sammenvoksede. Kønsorganerne dannes.", motherBody: "Kvalmen begynder at aftage for mange. Energien vender langsomt tilbage.", partnerFocus: "Book nakkefoldscanning (uge 11-14) nu hvis I ønsker den. Ventelisterne kan være lange.", highlight: "Knogler begynder at hærde", highlightEmoji: "🦴" },
+  12: { babyDev: "Baby er nu 5 cm lang — og kan åbne munden og strække fingrene. Nyrerne fungerer og baby laver urin.", motherBody: "1. trimester slutter! Risikoen for spontan abort falder markant. Mange fortæller nyheden nu.", partnerFocus: "Nakkefoldsscanningen er denne uge. Tag fri og vær med — og vær klar på alle mulige svar.", highlight: "1. trimester overstået", highlightEmoji: "🎉" },
+  13: { babyDev: "Baby har fingeraftryk. Ansigtet er fuldt formet. Baby kan suge på tommelfingeren.", motherBody: "Maven begynder at vise sig. Mange oplever øget energi og lyst i 2. trimester.", partnerFocus: "Tal om jeres forventninger til hinanden som forældre. Det er lettere nu end efter fødslen.", highlight: "Fingeraftryk dannes", highlightEmoji: "👆" },
+  14: { babyDev: "Baby laver vejrtrækningsbevægelser og øver synke-refleksen med fostervand.", motherBody: "Livmoderen er nu over skambenet. Du mærker måske første lette pres oppefra.", partnerFocus: "Undersøg fødesteder sammen. Er det hospitalet, et fødecenter eller hjemmefødsel? Start samtalen.", highlight: "Baby øver at trække vejret", highlightEmoji: "🫁" },
+  15: { babyDev: "Baby kan høre lyde fra omverdenen. Tal med din mave — baby kender allerede din stemme.", motherBody: "Mange oplever rund ligament-smerter — stikkende smerter i siden. Det er normalt.", partnerFocus: "Begynd at tale til maven. Det føles mærkeligt, men baby genkender din stemme ved fødslen.", highlight: "Baby kan høre din stemme", highlightEmoji: "👂" },
+  16: { babyDev: "Baby er på størrelse med en avocado. Muskler og knogler vokser hurtigt. Øjnene bevæger sig.", motherBody: "Nogle mærker de første forsigtige spark — som sommerfugleflagren eller bobler.", partnerFocus: "Mærk maven dagligt med hånden. Det er din måde at skabe kontakt på allerede nu.", highlight: "Første spark mærkes måske", highlightEmoji: "🦋" },
+  17: { babyDev: "Baby er dækket af lanugo — fin dun der holder varmen. Fedtlag begynder at dannes.", motherBody: "Rygsmerter er almindelige nu. Gravid-pude om natten hjælper. Undgå at stå meget.", partnerFocus: "Overtag gulvvask og andet tungt husarbejde. Hendes tyngdepunkt forskydes og giver rygbelastning.", highlight: "Lanugo-dun dækker kroppen", highlightEmoji: "🌫️" },
+  18: { babyDev: "Baby kan nu gabe, strækkke sig og sparke. Knoglerne er synlige på scanning.", motherBody: "Maveblodkarrene udvider sig — nogle oplever svimmelhed ved at rejse sig hurtigt.", partnerFocus: "Meld jer til fødselsforberedelseskurset nu — de fylder hurtigt op, særligt weekend-hold.", highlight: "Baby strækker og sparker", highlightEmoji: "🤸" },
+  19: { babyDev: "Babys sanser udvikles hurtigt. Hjernens sensoriske centre aktiveres.", motherBody: "Du er tæt på halvvejs. Mærkbare spark begynder for de fleste nu.", partnerFocus: "Lav en liste over hvad I mangler at købe/klargøre. Del det op i måneder fremfor uger.", highlight: "Alle sanser aktiveres", highlightEmoji: "✨" },
+  20: { babyDev: "Baby er nu 25 cm lang — fra top til hæl. 20-ugers scanningen viser alt: hjertet, hjernen, rygraden.", motherBody: "HALVVEJS! Maven er nu tydelig. Hudens strækmærker begynder at dannes — fugtig hud hjælper.", partnerFocus: "Mødregruppe og faderskabskursus: undersøg muligheder. Netværket er uvurderligt det første år.", highlight: "HALVVEJS — 20 uger! 🎉", highlightEmoji: "🎉" },
+  21: { babyDev: "Baby sover og er vågen i egne cyklusser — uafhængigt af dig. Baby kan smage fostervandet.", motherBody: "Fordøjelsen sænkes af progesteron. Forstoppelse og halsbrand er almindelige nu.", partnerFocus: "Sæt gang i babyværelset — det er en fælles opgave der styrker jeres samhørighed.", highlight: "Baby har sine egne søvncyklusser", highlightEmoji: "💤" },
+  22: { babyDev: "Babys læber og øjenbryn er fuldt formede. Hørelsen skærpes — baby reagerer på høje lyde.", motherBody: "Braxton Hicks sammentrækninger (øve-veer) kan starte nu. De er uregelmæssige og smertefrie.", partnerFocus: "Øv dig i at sige 'hvad har du brug for?' frem for at komme med løsninger.", highlight: "Baby reagerer på høje lyde", highlightEmoji: "🔊" },
+  23: { babyDev: "Babys hud er stadig rynket — fedtlaget er endnu ikke fyldt ud. Lungerne modner.", motherBody: "Øget svedtendens og varme i kroppen er normalt — blodvolumen er steget 40%.", partnerFocus: "Tjek om arbejdsgiver kræver særlig opsigelse ved barselsstart. Frister kan snige sig op.", highlight: "Blodvolumen +40% over normal", highlightEmoji: "❤️" },
+  24: { babyDev: "Levedygtighed nået. Baby er nu levedygtig med intensiv pleje ved præterm fødsel.", motherBody: "Bækkenbund under stigende pres. Inkontinens-øvelser er vigtige — 3 sæt × 10 dagligt.", partnerFocus: "Tal om jeres fødselsplan: ønsker, smertestillende, musik. Det reducerer stress på dagen.", highlight: "Levedygtighed nået ved intensiv pleje", highlightEmoji: "💪" },
+  25: { babyDev: "Baby vejer nu ca. 700g. Håndflader og fodsåler er fuldt formede med unikke linjer.", motherBody: "Mange oplever øget sparkaktivitet efter måltider. Baby kan mærke dine blodsukkerstigninger.", partnerFocus: "Frys 10-15 portioner mad ned til barslen. Det er den bedste praktiske investering I kan gøre.", highlight: "Håndlinjer og fodlinjer er unikke", highlightEmoji: "✋" },
+  26: { babyDev: "Babys øjne åbner sig for første gang. Baby kan skelne lys fra mørke.", motherBody: "Søvnbesvær starter for mange. Lig på venstre side — det forbedrer blodgennemstrømningen.", partnerFocus: "Masér hendes ryg og ben dagligt. Det er ikke luksus — det lindrer reelle smerter.", highlight: "Baby åbner øjnene for første gang", highlightEmoji: "👀" },
+  27: { babyDev: "Hjernens overflade begynder at bugte sig — hjernebarken danner folder. REM-søvn starter.", motherBody: "3. trimester er snart her. Tyngdefølelse, hyppig vandladning og åndenød starter.", partnerFocus: "Undersøg muligheder for besøgskarantæne de første dage hjemme — det er jeres valg, ikke familiens.", highlight: "Baby drømmer måske allerede", highlightEmoji: "🌙" },
+  28: { babyDev: "3. trimester! Baby vejer ca. 1 kg. Huden glatter ud efterhånden som fedtet dannes.", motherBody: "Bekken-løsning er hyppig nu. Smerter i symfysen, lysken og indersiden af låret — tag det seriøst.", partnerFocus: "GDM-screening sker typisk uge 28-30. Kør hende derhen — det er et langt besøg.", highlight: "3. TRIMESTER begynder", highlightEmoji: "🏁" },
+  29: { babyDev: "Baby kan styre sin kropstemperatur. Muskelmasse og knogletæthed stiger hurtigt.", motherBody: "Åndedrætet kan føles tungt — livmoderen trykker på diafragma. Det er normalt.", partnerFocus: "Forbered jer på de første uger hjemme: hvem kommer? Hvornår? Sæt klare forventninger til familie.", highlight: "Baby styrer selv kropstemperaturen", highlightEmoji: "🌡️" },
+  30: { babyDev: "Baby er ca. 40 cm lang og vejer 1,3 kg. Hjernen udvikler sig med enorm fart.", motherBody: "Rygsmertere er på sit højeste. Fysioterapi og vandgymnastik er effektivt.", partnerFocus: "Lær tegn på for tidlig fødsel: regelmæssige veer, pres nedad, vandafgang — og planen hvis det sker.", highlight: "Hjernen vokser eksplosivt", highlightEmoji: "🧠" },
+  31: { babyDev: "Baby er ved at vende sig med hovedet nedad. Alle organer er fuldt funktionelle.", motherBody: "Søvnen er svær. Prøv: U-pude, hævet hoved, ingen skærme efter 21.", partnerFocus: "Tag ansvaret for det logistiske: hvem passer dyrene/søskende? Hvad er bilen tanket op?", highlight: "Baby drejer sig med hovedet ned", highlightEmoji: "🔄" },
+  32: { babyDev: "Baby øver åndedræt intensivt. Fingre og tæer er fuldt udviklede med negle.", motherBody: "Falske veer (Braxton Hicks) intensiveres. Rigtige veer: regelmæssige, stærkere, tættere.", partnerFocus: "Pak hospitalstasken — begge jeres. Det er for sent at pakke under veerne.", highlight: "Hospitalstasken skal pakkes nu", highlightEmoji: "🧳" },
+  33: { babyDev: "Babys knogler hærder fuldstændigt — undtagen kraniet, der forbliver bøjeligt til fødslen.", motherBody: "Brysterne kan producere råmælk (colostrum) allerede nu — let gullig, klistret væske.", partnerFocus: "Kør ruten til hospitalet/fødestedet en gang. Find parkeringen. Kend alternativt transportmiddel.", highlight: "Råmælk begynder at dannes", highlightEmoji: "🤱" },
+  34: { babyDev: "Baby sover 90-95% af dagen. CNS og immunforsvaret modnes. Øjnene kan fokusere.", motherBody: "Bækkenbunden bærer nu 10+ kg ekstra. Inkontinens er hyppigt — det er normalt.", partnerFocus: "Gennemgå jeres fødselsplan med jordemoderen. Kend jeres holdning til smertelindring.", highlight: "Immunforsvaret modnes", highlightEmoji: "🛡️" },
+  35: { babyDev: "Baby fylder nu hele livmoderen. Plads er knap — bevægelserne mærkes anderledes.", motherBody: "Lysningsperioden starter — maven 'falder' lidt nedad. Åndedræt lettere, pres på blæren øges.", partnerFocus: "Meld dig syg eller tag hjemmefra-dage fremover. Vær tilgængelig. Timen kan komme pludseligt.", highlight: "Maven falder — lysning begynder", highlightEmoji: "⬇️" },
+  36: { babyDev: "Baby er fuldt udviklet. Alt handler nu om at tage på. Lanugo-dunene forsvinder.", motherBody: "Uge 36-scaning tjekker præsentation og fostervand. GBS-test kan foretages.", partnerFocus: "Tjek at I har: bilsæde installeret, vugge klar, barnets tøj vasket, bleer og våde klude klar.", highlight: "Baby er fuldt udviklet", highlightEmoji: "✅" },
+  37: { babyDev: "FULD TERMIN. Baby kan fødes til enhver tid og er klar. Vejer typisk 2,8-3,2 kg.", motherBody: "Cervix kan begynde at modne. Slimproppen kan afgå (brunlig/rosa slim) — fødsel inden for dage.", partnerFocus: "Sov. Tag resten. Energifyld. Fødslen kræver udholdenhed af jer begge.", highlight: "Fuld termin — baby er klar", highlightEmoji: "🏆" },
+  38: { babyDev: "Baby producerer surfaktant der forhindrer lungernes alveolier i at klæbe sammen.", motherBody: "Veer kan starte. Husk: Regelmæssige veer (5-1-1 reglen: veer hvert 5. min, 1 min lange, i 1 time).", partnerFocus: "Sov med telefonen på lyd. Hav en plan for hvad du gør hvis veerne starter om natten.", highlight: "Lungerne er 100% klar", highlightEmoji: "🫁" },
+  39: { babyDev: "Baby er typisk 50 cm lang. Voksbeskyttelsen (vernix) vaskes af under veer.", motherBody: "Træthed og uro er normalt. Følg instinkterne — mange kvinder har rastløs energi dagene før fødsel.", partnerFocus: "Vær til stede. Intet arbejde, ingen aftaler. Bare vær der.", highlight: "Fødslen er nær — stol på kroppen", highlightEmoji: "🌅" },
+  40: { babyDev: "TERMIN. Baby er klar. Vejer typisk 3,0-3,5 kg og er 50-52 cm lang.", motherBody: "Termin er en gennemsnitsdato — 50% føder efter. Igangsættelse tilbydes typisk uge 41-42.", partnerFocus: "Hold telefonen opladet. Vær calm. Hun har brug for din ro mere end noget andet nu.", highlight: "TERMIN 🎉 I er klar", highlightEmoji: "🎉" },
+};
+
+export function getPregnancyWeekData(week: number): PregnancyWeekData {
+  const keys = Object.keys(weeklyPregnancyData).map(Number).sort((a, b) => a - b);
+  let closest = keys[0];
+  for (const k of keys) { if (k <= week) closest = k; }
+  return weeklyPregnancyData[closest] || weeklyPregnancyData[40];
+}
+
+// ── Standard Danish pregnancy appointments ────────────────────────────────────
+
+export interface PregnancyAppointment {
+  id: string;
+  week: number;
+  title: string;
+  description: string;
+  emoji: string;
+  type: "scan" | "test" | "visit" | "course";
+}
+
+export const pregnancyAppointments: PregnancyAppointment[] = [
+  { id: "a1", week: 8,  title: "1. jordemodersamtale", description: "Opstart hos jordemoder: helbred, arbejde, kost og screening-tilbud gennemgås.", emoji: "👩‍⚕️", type: "visit" },
+  { id: "a2", week: 12, title: "Nakkefoldscanning", description: "Ultralydsscanning der måler nakkefold + kombineret med blodprøve.", emoji: "🔬", type: "scan" },
+  { id: "a3", week: 15, title: "2. jordemodersamtale", description: "Gennemgang af screeningsresultater. Samtale om velvære.", emoji: "👩‍⚕️", type: "visit" },
+  { id: "a4", week: 19, title: "Misdannelsesscanning", description: "Grundig anatomisk scanning. Hjertet, hjernen, rygraden og alle organer gennemgås.", emoji: "🫀", type: "scan" },
+  { id: "a5", week: 25, title: "3. jordemodersamtale", description: "Blodtryk, jerntal og diabetes-screening. Gennemgang af veer og fødselstegn.", emoji: "👩‍⚕️", type: "visit" },
+  { id: "a6", week: 28, title: "GDM-blodprøve", description: "Screening for svangerskabsdiabetes. Blodprøve efter faste.", emoji: "🩸", type: "test" },
+  { id: "a7", week: 30, title: "Fødselsforberedelseskursus", description: "Kursus på hospitalet eller privat: veer, smertestillende, amning og de første dage.", emoji: "📚", type: "course" },
+  { id: "a8", week: 32, title: "4. jordemodersamtale", description: "Babys position, bækkenbund, fødselsplan og tegn på for tidlig fødsel.", emoji: "👩‍⚕️", type: "visit" },
+  { id: "a9", week: 36, title: "36-ugers scanning", description: "Tjekker babys præsentation (er hovedet nedad?), fostervandsmængde og placenta.", emoji: "📡", type: "scan" },
+  { id: "a10", week: 37, title: "5. jordemodersamtale", description: "Cervix-vurdering, GBS-test, gennemgang af fødselstegn og plan for igangsættelse.", emoji: "👩‍⚕️", type: "visit" },
+  { id: "a11", week: 39, title: "6. jordemodersamtale / afrunding", description: "Tjek af mor og baby. Plan for termin-overskridelse.", emoji: "👩‍⚕️", type: "visit" },
+];
+

@@ -1,8 +1,37 @@
 import { useState } from "react";
 import { useFamily } from "@/context/FamilyContext";
-import { Check, ChevronRight } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
+import { getHealthSuggestions } from "@/lib/phaseData";
+
+interface CustomItem {
+  id: string;
+  title: string;
+  category: string;
+  phase: Phase;
+  assignee: "mor" | "far" | "fælles";
+}
+
+const CUSTOM_KEY = "lille-checklist-custom";
+
+function CircularProgress({ pct, size = 52 }: { pct: number; size?: number }) {
+  const r = (size - 8) / 2;
+  const circumference = 2 * Math.PI * r;
+  const dash = circumference * Math.min(pct, 1);
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: "rotate(-90deg)" }}>
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="hsl(var(--stone-lighter))" strokeWidth="4" />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none"
+        stroke={pct >= 1 ? "hsl(var(--sage))" : "hsl(var(--clay))"}
+        strokeWidth="4"
+        strokeDasharray={`${dash} ${circumference}`}
+        strokeLinecap="round"
+        style={{ transition: "stroke-dasharray 0.5s ease" }}
+      />
+    </svg>
+  );
+}
 
 type Priority = "nødvendig" | "valgfri";
 type Phase = "before" | "after";
@@ -77,10 +106,10 @@ const STORAGE_KEY = "lille-checklist";
 
 function useChecklist() {
   const [checked, setChecked] = useState<string[]>(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
-    } catch { return []; }
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); } catch { return []; }
+  });
+  const [customItems, setCustomItems] = useState<CustomItem[]>(() => {
+    try { return JSON.parse(localStorage.getItem(CUSTOM_KEY) || "[]"); } catch { return []; }
   });
 
   const toggle = (id: string) => {
@@ -94,26 +123,71 @@ function useChecklist() {
     });
   };
 
-  return { checked, toggle };
+  const addCustom = (item: Omit<CustomItem, "id">) => {
+    const newItem = { ...item, id: `custom-${Date.now()}` };
+    setCustomItems(prev => {
+      const next = [...prev, newItem];
+      localStorage.setItem(CUSTOM_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const removeCustom = (id: string) => {
+    setCustomItems(prev => {
+      const next = prev.filter(i => i.id !== id);
+      localStorage.setItem(CUSTOM_KEY, JSON.stringify(next));
+      return next;
+    });
+    setChecked(prev => {
+      const next = prev.filter(x => x !== id);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
+  return { checked, toggle, customItems, addCustom, removeCustom };
 }
 
 export default function TjeklistePage() {
-  const { checked, toggle } = useChecklist();
+  const { profile } = useFamily();
+  const { checked, toggle, customItems, addCustom, removeCustom } = useChecklist();
   const [phase, setPhase] = useState<Phase>("before");
+  const [selectedCat, setSelectedCat] = useState<string | null>(null);
+  const [addingTo, setAddingTo] = useState<string | null>(null);
+  const [newTitle, setNewTitle] = useState("");
+  const [newAssignee, setNewAssignee] = useState<"mor" | "far" | "fælles">("fælles");
+  const morName = profile.parentName || "Mor";
+  const farName = profile.partnerName || "Far";
 
   const items = CHECKLIST_ITEMS.filter(i => i.phase === phase);
+  const phaseCustom = customItems.filter(i => i.phase === phase);
 
-  // Group by category
-  const categories: { name: string; emoji: string; items: ChecklistItem[] }[] = [];
+  // Group by category (static + custom)
+  const categories: { name: string; emoji: string; items: (ChecklistItem | CustomItem & { hint?: string; priority?: Priority })[]; } [] = [];
   items.forEach(item => {
     const existing = categories.find(c => c.name === item.category);
     if (existing) existing.items.push(item);
     else categories.push({ name: item.category, emoji: item.emoji, items: [item] });
   });
+  phaseCustom.forEach(item => {
+    const existing = categories.find(c => c.name === item.category);
+    if (existing) existing.items.push(item);
+  });
 
-  const totalItems = items.length;
-  const checkedInPhase = items.filter(i => checked.includes(i.id)).length;
-  const pct = totalItems > 0 ? Math.round((checkedInPhase / totalItems) * 100) : 0;
+  const allIds = [...items.map(i => i.id), ...phaseCustom.map(i => i.id)];
+  const checkedInPhase = allIds.filter(id => checked.includes(id)).length;
+  const pct = allIds.length > 0 ? Math.round((checkedInPhase / allIds.length) * 100) : 0;
+
+  const handleAddItem = (catName: string) => {
+    if (!newTitle.trim()) return;
+    addCustom({ title: newTitle.trim(), category: catName, phase, assignee: newAssignee });
+    setNewTitle("");
+    setAddingTo(null);
+  };
+
+  // Group categories into rows of 2 for inline expansion
+  const rows: typeof categories[] = [];
+  for (let i = 0; i < categories.length; i += 2) rows.push(categories.slice(i, i + 2));
 
   return (
     <div className="space-y-5">
@@ -162,65 +236,208 @@ export default function TjeklistePage() {
         </div>
       </div>
 
-      {/* Categories */}
-      <div className="space-y-6 section-fade-in" style={{ animationDelay: "100ms" }}>
-        {categories.map(cat => {
-          const catChecked = cat.items.filter(i => checked.includes(i.id)).length;
+      {/* Health visit suggestions (after birth only) */}
+      {phase === "after" && profile.phase !== "pregnant" && <HealthSuggestions />}
+
+      {/* Category grid — rows of 2 with inline expansion */}
+      <div className="space-y-3 section-fade-in" style={{ animationDelay: "100ms" }}>
+        {rows.map((row, rowIdx) => {
+          const openCat = row.find(c => c.name === selectedCat) ?? null;
           return (
-            <div key={cat.name}>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg">{cat.emoji}</span>
-                <h2 className="text-[0.92rem] font-semibold">{cat.name}</h2>
-                <span className="text-[0.65rem] text-muted-foreground">{catChecked}/{cat.items.length}</span>
-              </div>
-              <div className="rounded-2xl border border-[hsl(var(--stone-lighter))] overflow-hidden">
-                {cat.items.map((item, i) => {
-                  const isDone = checked.includes(item.id);
+            <div key={rowIdx} className="space-y-3">
+              {/* Row of 2 cards */}
+              <div className="grid grid-cols-2 gap-3">
+                {row.map(cat => {
+                  const catChecked = cat.items.filter(i => checked.includes(i.id)).length;
+                  const catPct = cat.items.length > 0 ? catChecked / cat.items.length : 0;
+                  const isComplete = catChecked === cat.items.length && cat.items.length > 0;
+                  const isOpen = selectedCat === cat.name;
                   return (
-                    <div
-                      key={item.id}
-                      className={cn(
-                        "flex items-center gap-3 px-4 py-3.5 transition-all",
-                        i > 0 && "border-t border-[hsl(var(--stone-lighter))]",
-                        isDone ? "bg-[hsl(var(--sage-light))]/20" : "bg-[hsl(var(--cream))]/30 hover:bg-[hsl(var(--cream))]"
+                    <button key={cat.name}
+                      onClick={() => { setSelectedCat(isOpen ? null : cat.name); setAddingTo(null); }}
+                      className="relative rounded-2xl p-4 flex flex-col items-center gap-2 transition-all active:scale-[0.97]"
+                      style={{
+                        background: isComplete ? "hsl(var(--sage-light))" : isOpen ? "hsl(var(--cream))" : "hsl(var(--warm-white))",
+                        border: `1.5px solid ${isComplete ? "hsl(var(--sage))" : isOpen ? "hsl(var(--clay-light))" : "hsl(var(--stone-light))"}`,
+                      }}>
+                      {isComplete && (
+                        <span className="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "hsl(var(--sage))" }}>
+                          <Check className="w-3 h-3 text-white" />
+                        </span>
                       )}
-                    >
-                      <button
-                        onClick={() => toggle(item.id)}
-                        className={cn(
-                          "w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-90 border-[1.5px]",
-                          isDone
-                            ? "bg-[hsl(var(--sage))] border-[hsl(var(--sage))]"
-                            : "border-[hsl(var(--stone-light))] hover:border-[hsl(var(--sage))]"
-                        )}
-                      >
-                        {isDone && <Check className="w-3.5 h-3.5 text-white" />}
-                      </button>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className={cn("text-[0.85rem]", isDone && "line-through text-muted-foreground")}>{item.title}</span>
-                          <span className={cn(
-                            "text-[0.55rem] tracking-[0.1em] uppercase px-2 py-0.5 rounded-full font-medium",
-                            item.priority === "nødvendig"
-                              ? "bg-[hsl(var(--clay-light))] text-[hsl(var(--bark))]"
-                              : "border border-[hsl(var(--stone-light))] text-muted-foreground"
-                          )}>
-                            {item.priority}
-                          </span>
-                        </div>
-                        <p className={cn("text-[0.72rem] text-muted-foreground mt-0.5 leading-snug", isDone && "line-through")}>{item.hint}</p>
+                      <div className="relative">
+                        <CircularProgress pct={catPct} size={52} />
+                        <span className="absolute inset-0 flex items-center justify-center text-lg">{cat.emoji}</span>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-muted-foreground/40 flex-shrink-0" />
-                    </div>
+                      <p className="text-[0.72rem] font-semibold text-center leading-tight">{cat.name}</p>
+                      <p className="text-[0.6rem] text-muted-foreground">{catChecked}/{cat.items.length}</p>
+                      {isOpen ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
+                    </button>
                   );
                 })}
+                {/* Empty cell if odd number of cats */}
+                {row.length === 1 && <div />}
               </div>
+
+              {/* Inline expanded list — appears directly below this row */}
+              {openCat && (
+                <div className="rounded-2xl border border-[hsl(var(--stone-lighter))] overflow-hidden">
+                  <div className="px-4 py-3 border-b border-[hsl(var(--stone-lighter))]" style={{ background: "hsl(var(--cream))" }}>
+                    <p className="text-[0.78rem] font-semibold">{openCat.emoji} {openCat.name}</p>
+                  </div>
+
+                  {openCat.items.map((item, i) => {
+                    const isDone = checked.includes(item.id);
+                    const isCustom = item.id.startsWith("custom-");
+                    const assignee = (item as CustomItem).assignee;
+                    const assigneeLabel = assignee === "mor" ? morName : assignee === "far" ? farName : null;
+                    return (
+                      <div key={item.id}
+                        className={cn("flex items-center gap-3 px-4 py-3.5 transition-all",
+                          i > 0 && "border-t border-[hsl(var(--stone-lighter))]",
+                          isDone ? "bg-[hsl(var(--sage-light))]/30" : "bg-background"
+                        )}>
+                        <button onClick={() => toggle(item.id)}
+                          className={cn("w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-90 border-[1.5px]",
+                            isDone ? "bg-[hsl(var(--sage))] border-[hsl(var(--sage))]" : "border-[hsl(var(--stone-light))]"
+                          )}>
+                          {isDone && <Check className="w-3.5 h-3.5 text-white" />}
+                        </button>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className={cn("text-[0.85rem]", isDone && "line-through text-muted-foreground")}>{item.title}</span>
+                            {assigneeLabel && (
+                              <span className="text-[0.55rem] tracking-[0.08em] uppercase px-2 py-0.5 rounded-full font-medium"
+                                style={{ background: assignee === "mor" ? "hsl(var(--clay-light))" : "hsl(var(--sage-light))", color: assignee === "mor" ? "hsl(var(--bark))" : "hsl(var(--sage-dark))" }}>
+                                {assigneeLabel}
+                              </span>
+                            )}
+                            {!isCustom && (item as ChecklistItem).priority === "nødvendig" && (
+                              <span className="text-[0.55rem] tracking-[0.1em] uppercase px-2 py-0.5 rounded-full font-medium bg-[hsl(var(--clay-light))] text-[hsl(var(--bark))]">
+                                vigtig
+                              </span>
+                            )}
+                          </div>
+                          {!isCustom && (item as ChecklistItem).hint && (
+                            <p className={cn("text-[0.72rem] text-muted-foreground mt-0.5 leading-snug", isDone && "line-through")}>
+                              {(item as ChecklistItem).hint}
+                            </p>
+                          )}
+                        </div>
+                        {isCustom && (
+                          <button onClick={() => removeCustom(item.id)} className="text-muted-foreground/40 hover:text-muted-foreground transition-colors">
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  {/* Add item row */}
+                  {addingTo === openCat.name ? (
+                    <div className="border-t border-[hsl(var(--stone-lighter))] px-4 py-3 space-y-2 bg-[hsl(var(--cream))]">
+                      <input
+                        autoFocus
+                        value={newTitle}
+                        onChange={e => setNewTitle(e.target.value)}
+                        onKeyDown={e => { if (e.key === "Enter") handleAddItem(openCat.name); if (e.key === "Escape") setAddingTo(null); }}
+                        placeholder="Tilføj punkt..."
+                        className="w-full rounded-xl border px-3 py-2 text-[0.82rem] focus:outline-none"
+                        style={{ borderColor: "hsl(var(--stone-light))", fontSize: "16px", background: "white" }}
+                      />
+                      <div className="flex gap-2 items-center">
+                        <div className="flex gap-1.5 flex-1">
+                          {(["mor", "far", "fælles"] as const).map(a => (
+                            <button key={a} onClick={() => setNewAssignee(a)}
+                              className="flex-1 py-1.5 rounded-lg text-[0.62rem] font-medium transition-all"
+                              style={{
+                                background: newAssignee === a ? (a === "mor" ? "hsl(var(--clay))" : a === "far" ? "hsl(var(--sage))" : "hsl(var(--stone))") : "hsl(var(--stone-lighter))",
+                                color: newAssignee === a ? "white" : "hsl(var(--muted-foreground))",
+                              }}>
+                              {a === "mor" ? morName : a === "far" ? farName : "Fælles"}
+                            </button>
+                          ))}
+                        </div>
+                        <button onClick={() => handleAddItem(openCat.name)}
+                          disabled={!newTitle.trim()}
+                          className="px-3 py-1.5 rounded-lg text-[0.72rem] font-medium transition-all disabled:opacity-40"
+                          style={{ background: "hsl(var(--sage))", color: "white" }}>
+                          Tilføj
+                        </button>
+                        <button onClick={() => setAddingTo(null)} className="text-muted-foreground">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button onClick={() => setAddingTo(openCat.name)}
+                      className="w-full border-t border-[hsl(var(--stone-lighter))] px-4 py-3 flex items-center gap-2 text-[0.75rem] text-muted-foreground hover:text-foreground transition-colors"
+                      style={{ background: "hsl(var(--cream))" }}>
+                      <Plus className="w-3.5 h-3.5" />
+                      Tilføj eget punkt
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           );
         })}
       </div>
 
-      <div className="h-20 md:h-0" />
+
+    </div>
+  );
+}
+
+function HealthSuggestions() {
+  const { babyAgeWeeks, addTask, tasks } = useFamily();
+  const suggestions = getHealthSuggestions(babyAgeWeeks);
+  const [dismissed, setDismissed] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem("melo-health-dismissed") || "[]"); } catch { return []; }
+  });
+
+  const existingTitles = tasks.map(t => t.title.toLowerCase());
+  const visible = suggestions.filter(s =>
+    !dismissed.includes(s.id) &&
+    !existingTitles.some(t => t.includes(s.title.toLowerCase().slice(0, 20)))
+  );
+
+  if (visible.length === 0) return null;
+
+  const dismiss = (id: string) => {
+    const next = [...dismissed, id];
+    setDismissed(next);
+    localStorage.setItem("melo-health-dismissed", JSON.stringify(next));
+  };
+
+  const addAndDismiss = (s: typeof visible[0]) => {
+    addTask(s.title, s.assignee, "never");
+    dismiss(s.id);
+  };
+
+  return (
+    <div className="section-fade-in space-y-2" style={{ animationDelay: "80ms" }}>
+      <p className="text-[0.58rem] tracking-[0.18em] uppercase text-muted-foreground flex items-center gap-1.5">
+        <span>🏥</span> Relevant nu
+      </p>
+      {visible.map(s => (
+        <div key={s.id} className="rounded-xl px-3 py-3 flex items-center gap-3"
+          style={{ background: "hsl(var(--cream))", border: "1px solid hsl(var(--stone-light))" }}>
+          <div className="flex-1 min-w-0">
+            <p className="text-[0.8rem] leading-snug" style={{ color: "hsl(var(--bark))" }}>{s.title}</p>
+          </div>
+          <button
+            onClick={() => addAndDismiss(s)}
+            className="flex-shrink-0 px-3 py-1.5 rounded-lg text-[0.72rem] font-medium transition-all active:scale-95"
+            style={{ background: "hsl(var(--sage))", color: "white" }}
+          >
+            + Tilføj
+          </button>
+          <button onClick={() => dismiss(s.id)} className="flex-shrink-0 p-1 rounded opacity-50 hover:opacity-80 transition-opacity">
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      ))}
     </div>
   );
 }

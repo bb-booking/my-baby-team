@@ -3,7 +3,7 @@ import { useFamily, type BirthType, type FeedingMethod } from "@/context/FamilyC
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Settings, User, Bell, HelpCircle, RotateCcw, Baby, Plus, Trash2, Users, Heart, LogOut } from "lucide-react";
+import { Settings, User, Bell, HelpCircle, RotateCcw, Baby, Plus, Trash2, Users, Heart, LogOut, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function MerePage() {
@@ -27,6 +27,7 @@ export default function MerePage() {
   };
 
   const menuItems = [
+    { icon: BookOpen, label: t("nav.diary"), desc: t("settings.diaryDesc"), path: "/dagbog" },
     { icon: User, label: t("settings.profile"), desc: `${profile.parentName} — ${profile.role === "mor" ? t("settings.mom") : t("settings.dad")}`, path: "" },
     { icon: Bell, label: t("settings.notifications"), desc: t("settings.quietReminders"), path: "" },
     { icon: Settings, label: t("settings.settingsMenu"), desc: t("settings.languageThemeData"), path: "/indstillinger" },
@@ -168,7 +169,7 @@ export default function MerePage() {
       <div className="card-soft text-center section-fade-in" style={{ animationDelay: "560ms" }}>
         <p className="text-[0.68rem] text-muted-foreground">{t("settings.footer")}</p>
       </div>
-      <div className="h-20 md:h-0" />
+
     </div>
   );
 }
@@ -239,7 +240,7 @@ function MorHealthEditor({ onSave }: { onSave?: () => void }) {
 
       <button
         onClick={onSave}
-        className="w-full py-2.5 rounded-xl text-[0.82rem] font-medium transition-all active:scale-[0.97]"
+        className="w-full py-2.5 rounded-full text-[0.82rem] font-medium transition-all active:scale-[0.97]"
         style={{ background: "hsl(var(--moss))", color: "white" }}
       >
         {t("settings.saveChanges")}

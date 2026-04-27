@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" style="stop-color:#3a5036"/>
+      <stop offset="100%" style="stop-color:#5c7a50"/>
+    </linearGradient>
+    <!-- Arc A: sage/cream — left parent -->
+    <linearGradient id="arcA" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f0ede6"/>
+      <stop offset="100%" style="stop-color:#cddac6"/>
+    </linearGradient>
+    <!-- Arc B: warm clay — right parent -->
+    <linearGradient id="arcB" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8cfa8"/>
+      <stop offset="100%" style="stop-color:#c49a70"/>
+    </linearGradient>
+    <!-- Child dot -->
+    <radialGradient id="child" cx="38%" cy="32%" r="68%">
+      <stop offset="0%" style="stop-color:#f5e0c0"/>
+      <stop offset="100%" style="stop-color:#c48a58"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+
+  <!--
+    CONCEPT A: "ORBIT"
+    Two arcs on the same circle (r=270), each covering ~160°.
+    Arc A runs from top-right (40°) counterclockwise to bottom-right (320°) — the left/larger sweep
+    Arc B runs from bottom-left (200°) counterclockwise to top-left (100°) — the right/larger sweep
+    They leave a gap of ~20° at top and ~20° at bottom.
+    Together they almost complete the circle — two halves that need each other.
+    Center: child dot.
+
+    In SVG arc notation (angles from positive x-axis, clockwise):
+    Center: 512,512  r=270
+
+    Arc A (cream/sage): from 40° to 320° clockwise = 280° sweep
+    Start: 512+270*cos(40°), 512+270*sin(40°) = 512+206.8, 512+173.6 = 719, 686
+    Wait, let me recalculate properly.
+
+    Actually let me use a cleaner approach:
+    Arc A: starts at top (270° from x-axis = 12 o'clock), sweeps clockwise 160°, ends at about 4 o'clock
+    Arc B: starts at bottom (90° from x-axis = 6 o'clock), sweeps clockwise 160°, ends at about 10 o'clock
+
+    Top (270°): x=512, y=512-270=242
+    After 160° clockwise from top (= 270+160=430° = 70°): x=512+270*cos(70°)=512+92=604, y=512+270*sin(70°)=512+254=766
+
+    Bottom (90°): x=512, y=512+270=782
+    After 160° clockwise from bottom (= 90+160=250°): x=512+270*cos(250°)=512-92=420, y=512+270*sin(250°)=512-254=258
+
+    So:
+    Arc A: M 512 242 A 270 270 0 0 1 604 766  (large-arc=0, clockwise=1, 160° — wait, 160° is less than 180° so large-arc=0)
+    Arc B: M 512 782 A 270 270 0 0 1 420 258
+
+    The gap at right between Arc A end (604,766) and Arc B start (512,782): visible
+    The gap at left between Arc B end (420,258) and Arc A start (512,242): visible
+
+    This gives two arcs with gaps at roughly 5 o'clock and 11 o'clock positions.
+    Let me try bigger sweeps for more coverage.
+
+    Let's do 170° each, gap of 10° each side:
+    Arc A: from top (512,242), 170° clockwise:
+      end at 270+170=440°=80°: x=512+270*cos(80°)=512+46.9=559, y=512+270*sin(80°)=512+265.9=778
+    Arc B: from bottom (512,782), 170° clockwise:
+      end at 90+170=260°: x=512+270*cos(260°)=512+(-46.9)=465, y=512+270*sin(260°)=512+(-265.9)=246
+    Gaps at 80° (≈4-5 o'clock) and 260° (≈10-11 o'clock).
+  -->
+
+  <!-- Arc A — sage/cream, top half going right and down -->
+  <path d="M 512 242 A 270 270 0 0 1 559 778"
+    fill="none" stroke="url(#arcA)" stroke-width="58" stroke-linecap="round"/>
+
+  <!-- Arc B — clay/warm, bottom half going left and up -->
+  <path d="M 512 782 A 270 270 0 0 1 465 246"
+    fill="none" stroke="url(#arcB)" stroke-width="58" stroke-linecap="round"/>
+
+  <!-- Child dot — center -->
+  <circle cx="512" cy="512" r="52" fill="#c4966a" opacity="0.18"/>
+  <circle cx="512" cy="512" r="38" fill="url(#child)"/>
+  <ellipse cx="501" cy="499" rx="14" ry="10" fill="#f5e0c0" opacity="0.55"/>
+
+</svg>

@@ -61,6 +61,8 @@ export function QuickLog() {
   const { STOOL_COLORS, STOOL_CONSISTENCIES } = useStoolLabels(t);
 
   const [showNursingPicker, setShowNursingPicker] = useState(false);
+  const [feedingStep, setFeedingStep] = useState<"type" | "nursing" | "bottle">("type");
+  const [bottleMl, setBottleMl] = useState<string>("");
   const [showDiaperPicker, setShowDiaperPicker] = useState(false);
   const [diaperStep, setDiaperStep] = useState<"type" | "details">("type");
   const [selectedColor, setSelectedColor] = useState<StoolColor | null>(null);
@@ -72,7 +74,7 @@ export function QuickLog() {
   const todayDirty = diaperLogs.filter(l => new Date(l.timestamp).toDateString() === today && (l.type === "dirty" || l.type === "both")).length;
 
   const expected = getExpectedStool(ageDays, t);
-  const lastNursing = nursingLogs.find(l => new Date(l.timestamp).toDateString() === today);
+  const lastNursing = nursingLogs.find(l => new Date(l.timestamp).toDateString() === today && l.side !== "bottle");
   const suggestedSide: "left" | "right" = lastNursing ? (lastNursing.side === "left" ? "right" : "left") : "left";
   const lastSideHint = lastNursing
     ? t("quickLog.lastSide", { side: lastNursing.side === "left" ? t("quickLog.sideLeft") : t("quickLog.sideRight"), suggested: suggestedSide === "left" ? t("quickLog.sideLeft") : t("quickLog.sideRight") })
@@ -85,7 +87,17 @@ export function QuickLog() {
     fireConfetti();
     flash(t("quickLog.mealLogged"));
     setShowNursingPicker(false);
+    setFeedingStep("type");
   }, [addNursing, t]);
+
+  const handleBottle = useCallback((ml: number) => {
+    addNursing("bottle", ml);
+    fireConfetti();
+    flash(`${ml} ml logget`);
+    setShowNursingPicker(false);
+    setFeedingStep("type");
+    setBottleMl("");
+  }, [addNursing]);
 
   const handleWet = useCallback(() => {
     addDiaper("wet");
@@ -129,16 +141,15 @@ export function QuickLog() {
       <div className="grid grid-cols-3 gap-2.5">
         {/* Nursing / Bottle */}
         <button onClick={() => {
-          if (feedingMethod === "flaske") { handleNursing("left"); return; }
-          setShowNursingPicker(!showNursingPicker); setShowDiaperPicker(false);
+          if (feedingMethod === "flaske") { handleBottle(0); return; }
+          const next = !showNursingPicker;
+          setShowNursingPicker(next);
+          if (next) setFeedingStep(feedingMethod === "begge" ? "type" : "nursing");
+          setShowDiaperPicker(false);
         }}
           className="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl border transition-all active:scale-95 hover:-translate-y-0.5 hover:shadow-md relative"
           style={{ borderColor: showNursingPicker ? "hsl(var(--sage))" : "hsl(var(--stone-light))", background: showNursingPicker ? "hsl(var(--sage-light))" : "hsl(var(--warm-white))" }}>
-          {feedingMethod === "flaske" ? (
-            <span className="text-2xl">🍼</span>
-          ) : (
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="14" r="9" stroke="hsl(var(--clay))" strokeWidth="1.3" fill="hsl(var(--clay-light))"/><circle cx="16" cy="14" r="2.5" fill="hsl(var(--clay))"/></svg>
-          )}
+          <span className="text-2xl">🍼</span>
           <span className="text-[0.62rem] tracking-[0.06em] uppercase text-muted-foreground">{feedingLabel}</span>
           <span className="absolute -top-1 -right-1 text-[0.6rem] font-bold w-5 h-5 rounded-full flex items-center justify-center"
             style={{ background: nursingDone ? "hsl(var(--sage))" : "hsl(var(--clay-light))", color: nursingDone ? "white" : "hsl(var(--bark))" }}>
@@ -150,7 +161,7 @@ export function QuickLog() {
         <button onClick={() => { setShowDiaperPicker(!showDiaperPicker); setShowNursingPicker(false); setDiaperStep("type"); }}
           className="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl border transition-all active:scale-95 hover:-translate-y-0.5 hover:shadow-md relative"
           style={{ borderColor: showDiaperPicker ? "hsl(var(--clay))" : "hsl(var(--stone-light))", background: showDiaperPicker ? "hsl(var(--cream))" : "hsl(var(--warm-white))" }}>
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M9 11h14v3c0 5-3 9-7 9s-7-4-7-9V11z" fill="hsl(var(--cream))" stroke="hsl(var(--stone))" strokeWidth="1.2"/><path d="M11 11c2-2 3.5-3 5-3s3 1 5 3" stroke="hsl(var(--stone))" strokeWidth="1.2" strokeLinecap="round"/><circle cx="14" cy="17" r="1.2" fill="hsl(var(--sage))"/><circle cx="18" cy="16.5" r="1.2" fill="hsl(var(--sage))"/></svg>
+          <img src="/diaper.png" alt="ble" style={{ width: 36, height: 36, objectFit: "contain" }} />
           <span className="text-[0.62rem] tracking-[0.06em] uppercase text-muted-foreground">{t("quickLog.diaper")}</span>
           <span className="absolute -top-1 -right-1 text-[0.6rem] font-bold w-5 h-5 rounded-full flex items-center justify-center"
             style={{ background: "hsl(var(--clay-light))", color: "hsl(var(--bark))" }}>
@@ -162,7 +173,7 @@ export function QuickLog() {
         <button onClick={handleSleep}
           className="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl border transition-all active:scale-95 hover:-translate-y-0.5 hover:shadow-md relative"
           style={{ borderColor: activeSleep ? "hsl(var(--sage))" : "hsl(var(--stone-light))", background: activeSleep ? "hsl(var(--sage-light))" : "hsl(var(--warm-white))" }}>
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M22 8c-5.5 0-10 4.5-10 10s4.5 10 10 10" stroke="hsl(var(--sage))" strokeWidth="1.2" strokeLinecap="round"/><path d="M18 6c-6 1-10 6-10 12s5 10 10 10" fill="hsl(var(--sage-light))" stroke="hsl(var(--sage))" strokeWidth="1.2"/><circle cx="14" cy="14" r="1" fill="hsl(var(--sage))"/><circle cx="11" cy="18" r="0.8" fill="hsl(var(--sage))"/><circle cx="16" cy="20" r="0.6" fill="hsl(var(--sage))"/></svg>
+          <span className="text-2xl">🌙</span>
           <span className="text-[0.62rem] tracking-[0.06em] uppercase text-muted-foreground">{activeSleep ? t("quickLog.stopSleep") : t("quickLog.sleep")}</span>
           {activeSleep && (
             <span className="absolute -top-1 -right-1"><span className="relative flex h-3 w-3">
@@ -173,39 +184,85 @@ export function QuickLog() {
         </button>
       </div>
 
-      {/* ── Nursing side picker (not shown for bottle-only) ── */}
+      {/* ── Feeding picker ── */}
       {showNursingPicker && feedingMethod !== "flaske" && (
         <div className="card-soft animate-fade-in space-y-3">
-          {feedingMethod === "begge" && (
-            <div className="flex gap-2 mb-2">
-              <button onClick={() => { handleNursing("left"); }}
+
+          {/* Step 1 (begge only): choose nursing or bottle */}
+          {feedingStep === "type" && feedingMethod === "begge" && (
+            <div className="flex gap-2">
+              <button onClick={() => setFeedingStep("nursing")}
+                className="flex-1 py-3 rounded-2xl text-[0.82rem] font-medium border transition-all active:scale-[0.97]"
+                style={{ background: "hsl(var(--sage-light))", borderColor: "hsl(var(--sage))", color: "hsl(var(--sage-dark))" }}>
+                🤱 {t("quickLog.nursing")}
+              </button>
+              <button onClick={() => setFeedingStep("bottle")}
                 className="flex-1 py-3 rounded-2xl text-[0.82rem] font-medium border transition-all active:scale-[0.97]"
                 style={{ background: "hsl(var(--cream))", borderColor: "hsl(var(--clay))", color: "hsl(var(--bark))" }}>
                 🍼 {t("quickLog.bottle")}
               </button>
             </div>
           )}
-          {lastSideHint && <p className="text-[0.72rem] text-muted-foreground">💡 {lastSideHint}</p>}
-          <div className="flex gap-2">
-            <button onClick={() => handleNursing("left")}
-              className="flex-1 py-3 rounded-2xl text-[0.82rem] font-medium border transition-all active:scale-[0.97]"
-              style={{
-                background: suggestedSide === "left" ? "hsl(var(--sage))" : "hsl(var(--sage-light))",
-                borderColor: "hsl(var(--sage))",
-                color: suggestedSide === "left" ? "white" : "hsl(var(--sage-dark))",
-              }}>
-              ← {t("quickLog.left")} {suggestedSide === "left" && "✦"}
-            </button>
-            <button onClick={() => handleNursing("right")}
-              className="flex-1 py-3 rounded-2xl text-[0.82rem] font-medium border transition-all active:scale-[0.97]"
-              style={{
-                background: suggestedSide === "right" ? "hsl(var(--sage))" : "hsl(var(--sage-light))",
-                borderColor: "hsl(var(--sage))",
-                color: suggestedSide === "right" ? "white" : "hsl(var(--sage-dark))",
-              }}>
-              {t("quickLog.right")} → {suggestedSide === "right" && "✦"}
-            </button>
-          </div>
+
+          {/* Step 2a: choose breast side */}
+          {(feedingStep === "nursing" || (feedingStep === "type" && feedingMethod === "amning")) && (
+            <>
+              {lastSideHint && <p className="text-[0.72rem] text-muted-foreground">💡 {lastSideHint}</p>}
+              <div className="flex gap-2">
+                <button onClick={() => handleNursing("left")}
+                  className="flex-1 py-3 rounded-2xl text-[0.82rem] font-medium border transition-all active:scale-[0.97]"
+                  style={{
+                    background: suggestedSide === "left" ? "hsl(var(--sage))" : "hsl(var(--sage-light))",
+                    borderColor: "hsl(var(--sage))",
+                    color: suggestedSide === "left" ? "white" : "hsl(var(--sage-dark))",
+                  }}>
+                  ← {t("quickLog.left")} {suggestedSide === "left" && "✦"}
+                </button>
+                <button onClick={() => handleNursing("right")}
+                  className="flex-1 py-3 rounded-2xl text-[0.82rem] font-medium border transition-all active:scale-[0.97]"
+                  style={{
+                    background: suggestedSide === "right" ? "hsl(var(--sage))" : "hsl(var(--sage-light))",
+                    borderColor: "hsl(var(--sage))",
+                    color: suggestedSide === "right" ? "white" : "hsl(var(--sage-dark))",
+                  }}>
+                  {t("quickLog.right")} → {suggestedSide === "right" && "✦"}
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* Step 2b: enter ml */}
+          {feedingStep === "bottle" && (
+            <div className="space-y-3">
+              <p className="text-[0.72rem] text-muted-foreground">Hvor mange ml?</p>
+              <div className="flex gap-2 flex-wrap">
+                {[60, 80, 100, 120, 150, 180].map(ml => (
+                  <button key={ml} onClick={() => handleBottle(ml)}
+                    className="px-4 py-2.5 rounded-xl text-[0.82rem] font-medium border transition-all active:scale-95"
+                    style={{ background: "hsl(var(--cream))", borderColor: "hsl(var(--clay-light))", color: "hsl(var(--bark))" }}>
+                    {ml} ml
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  value={bottleMl}
+                  onChange={e => setBottleMl(e.target.value)}
+                  placeholder="Andet ml"
+                  className="flex-1 rounded-xl border px-3 py-2.5 text-[0.82rem] focus:outline-none"
+                  style={{ borderColor: "hsl(var(--stone-light))", fontSize: "16px" }}
+                />
+                <button
+                  onClick={() => { const ml = parseInt(bottleMl); if (ml > 0) handleBottle(ml); }}
+                  disabled={!bottleMl || parseInt(bottleMl) <= 0}
+                  className="px-4 py-2.5 rounded-xl text-[0.82rem] font-medium transition-all active:scale-95 disabled:opacity-40"
+                  style={{ background: "hsl(var(--sage))", color: "white" }}>
+                  Log
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

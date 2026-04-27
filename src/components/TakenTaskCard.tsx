@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useFamily } from "@/context/FamilyContext";
 import { Heart } from "lucide-react";
 import confetti from "canvas-confetti";
+import { useTranslation } from "react-i18next";
 
 const REACTIONS = ["❤️", "🥹", "😮"] as const;
 
@@ -43,6 +44,7 @@ function TakenTaskNotification({
   takerName: string;
   onReact: (id: string, reaction: string) => void;
 }) {
+  const { t } = useTranslation();
   const [reacted, setReacted] = useState(false);
   const [chosenReaction, setChosenReaction] = useState<string | null>(null);
 
@@ -77,7 +79,7 @@ function TakenTaskNotification({
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-[0.82rem] font-semibold leading-snug">
-            {takerName} har taget en opgave fra dig 💚
+            {t("takenTask.took", { name: takerName })}
           </p>
           <p className="text-[0.72rem] text-muted-foreground mt-0.5 leading-relaxed">
             &ldquo;{taskTitle}&rdquo;
@@ -99,7 +101,7 @@ function TakenTaskNotification({
           ) : (
             <div className="mt-2 flex items-center gap-1.5">
               <span className="text-lg">{chosenReaction}</span>
-              <p className="text-[0.72rem] text-muted-foreground">Sendt til {takerName}</p>
+              <p className="text-[0.72rem] text-muted-foreground">{t("takenTask.sent", { name: takerName })}</p>
             </div>
           )}
         </div>

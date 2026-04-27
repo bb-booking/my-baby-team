@@ -1,9 +1,11 @@
 import { useFamily } from "@/context/FamilyContext";
 import { getWeekInsight } from "@/lib/phaseData";
 import { Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function WeekInsight() {
   const { currentWeek } = useFamily();
+  const { t } = useTranslation();
   const data = getWeekInsight(currentWeek);
 
   return (
@@ -13,7 +15,7 @@ export function WeekInsight() {
           <Sparkles className="w-4 h-4 text-clay" />
         </div>
         <div>
-          <h3 className="font-serif text-lg mb-1">Denne uge</h3>
+          <h3 className="font-serif text-lg mb-1">{t("weekInsight.title")}</h3>
           <p className="text-sm text-muted-foreground leading-relaxed">{data.insight}</p>
         </div>
       </div>

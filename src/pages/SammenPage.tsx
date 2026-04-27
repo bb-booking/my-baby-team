@@ -60,7 +60,7 @@ export default function SammenPage() {
         </div>
         <button
           onClick={() => setShowAddTask(!showAddTask)}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[0.72rem] font-medium transition-all active:scale-95 bg-[hsl(var(--moss))] text-white hover:opacity-90 mt-1"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[0.72rem] font-medium transition-all active:scale-95 bg-[hsl(var(--moss))] text-white hover:opacity-90 mt-1"
         >
           <Plus className="w-3.5 h-3.5" />
           {t("together.addTask")}
@@ -278,7 +278,7 @@ export default function SammenPage() {
         </p>
       </div>
 
-      <div className="h-20 md:h-0" />
+
     </div>
   );
 }

@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" style="stop-color:#3a5036"/>
+      <stop offset="100%" style="stop-color:#5c7a50"/>
+    </linearGradient>
+    <!-- Drop A: sage/cream -->
+    <linearGradient id="dropA" x1="10%" y1="0%" x2="90%" y2="100%">
+      <stop offset="0%" style="stop-color:#f2ede5"/>
+      <stop offset="100%" style="stop-color:#c8d8c0"/>
+    </linearGradient>
+    <!-- Drop B: warm clay -->
+    <linearGradient id="dropB" x1="90%" y1="0%" x2="10%" y2="100%">
+      <stop offset="0%" style="stop-color:#edd8b8"/>
+      <stop offset="100%" style="stop-color:#b88a56"/>
+    </linearGradient>
+    <!-- Child -->
+    <radialGradient id="child" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" style="stop-color:#f5e0c0"/>
+      <stop offset="100%" style="stop-color:#c48a58"/>
+    </radialGradient>
+    <filter id="ds">
+      <feDropShadow dx="0" dy="12" stdDeviation="20" flood-color="#1a2e16" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+
+  <!--
+    CONCEPT B: "EMBRACE"
+    Two teardrop/comma shapes facing each other horizontally.
+    Left drop: wide at left, tapers to a point on the right (pointing inward)
+    Right drop: mirror — wide at right, tapers to a point on the left (pointing inward)
+    The points almost touch at center. A child dot sits between the tips.
+
+    Left drop: centered at ~(350, 512), rotated so wide end is at left
+    Right drop: mirror of left
+
+    Actually: let's make them like two paisley/comma shapes.
+    Each is an elongated teardrop.
+
+    Left teardrop:
+    - Circle part: center (340, 512), radius 155
+    - Tapers to a point at (640, 512) — reaching toward center
+
+    Right teardrop (mirror):
+    - Circle part: center (684, 512), radius 155
+    - Tapers to a point at (384, 512) — reaching toward center
+
+    They overlap slightly in the center creating a layered effect.
+    Child dot at (512, 512).
+
+    Let me draw with paths:
+    Left teardrop - wide left circle, narrows to tip at right:
+    M 340 357  (top of circle: 512-155=357... wait center 340, r=155: top y = 512-155=357, but x=340)
+    Actually let me recenter.
+
+    Left teardrop: circle center at (360, 512), r=150. Tip at (660, 512).
+    M 360 362  (top of circle)
+    C ... curve out to tip at right
+
+    Let me use a simpler approach with a path:
+    Left teardrop:
+    Start at (360, 362) = top of the circle portion
+    Curve left and around to (360, 662) = bottom of circle portion (going counterclockwise/left side)
+    Then curve both ends up to the tip at (640, 512)
+
+    path: M 360 362
+          A 150 150 0 1 0 360 662   (full left arc, counterclockwise would be wrong...)
+
+    Let me use this approach:
+    M tip_x tip_y C ... circle_top C ... circle_bottom Z
+
+    Left drop: tip at (640, 512)
+    Circle: center (350, 512), r=160
+    Top of circle: (350, 352)
+    Bottom: (350, 672)
+    Leftmost: (190, 512)
+
+    Path: M 640 512
+          C 580 420, 490 352, 350 352   (curve from tip down to circle top)
+          A 160 160 0 1 0 350 672       (full circle arc, sweeping left and down)
+          C 490 672, 580 604, 640 512 Z (curve from circle bottom back to tip)
+
+    Right drop (mirror around x=512):
+    tip at (384, 512)
+    Circle: center (674, 512), r=160
+    path: M 384 512
+          C 444 420, 534 352, 674 352
+          A 160 160 0 1 1 674 672
+          C 534 672, 444 604, 384 512 Z
+  -->
+
+  <!-- Left drop (sage) — points right toward center -->
+  <g filter="url(#ds)">
+    <path d="
+      M 645 512
+      C 590 415, 496 350, 350 350
+      A 162 162 0 1 0 350 674
+      C 496 674, 590 609, 645 512 Z
+    " fill="url(#dropA)" opacity="0.93"/>
+  </g>
+
+  <!-- Right drop (clay) — points left toward center, layered on top -->
+  <g filter="url(#ds)">
+    <path d="
+      M 379 512
+      C 434 415, 528 350, 674 350
+      A 162 162 0 1 1 674 674
+      C 528 674, 434 609, 379 512 Z
+    " fill="url(#dropB)" opacity="0.82"/>
+  </g>
+
+  <!-- Child dot — where the two tips nearly meet -->
+  <circle cx="512" cy="512" r="48" fill="#3a5036" opacity="0.15"/>
+  <circle cx="512" cy="512" r="34" fill="url(#child)"/>
+  <ellipse cx="502" cy="501" rx="12" ry="9" fill="#f8ead8" opacity="0.6"/>
+
+</svg>

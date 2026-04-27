@@ -255,7 +255,7 @@ export default function KalenderPage() {
             );
           })}
         </div>
-        <div className="h-20 md:h-0" />
+  
       </div>
     );
   }
@@ -465,7 +465,7 @@ export default function KalenderPage() {
         </button>
       )}
 
-      <div className="h-20 md:h-0" />
+
 
       {/* Level-up overlay */}
       {levelUpInfo && (

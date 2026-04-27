@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Nunito:wght@200;300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -17,8 +17,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 24 16% 18%;
 
-    /* Moss green primary */
-    --primary: 108 18% 32%;
+    /* Forest green primary */
+    --primary: 154 27% 20%;
     --primary-foreground: 38 30% 96%;
 
     /* Sand secondary */
@@ -38,30 +38,30 @@
 
     --border: 34 16% 82%;
     --input: 34 16% 82%;
-    --ring: 108 18% 32%;
+    --ring: 154 27% 20%;
 
     --radius: 1rem;
 
     /* Sidebar */
     --sidebar-background: 38 22% 93%;
     --sidebar-foreground: 24 16% 18%;
-    --sidebar-primary: 108 18% 32%;
+    --sidebar-primary: 154 27% 20%;
     --sidebar-primary-foreground: 38 30% 96%;
     --sidebar-accent: 36 20% 88%;
     --sidebar-accent-foreground: 24 16% 18%;
     --sidebar-border: 34 16% 82%;
-    --sidebar-ring: 108 18% 32%;
+    --sidebar-ring: 154 27% 20%;
 
     /* Custom tokens */
-    --sage: 98 18% 56%;
-    --sage-light: 98 18% 88%;
-    --sage-dark: 104 22% 34%;
+    --sage: 140 18% 54%;
+    --sage-light: 140 20% 88%;
+    --sage-dark: 150 26% 30%;
     --sand: 33 42% 80%;
     --sand-light: 36 20% 92%;
     --clay: 30 35% 64%;
     --clay-light: 30 35% 84%;
     --bark: 32 24% 37%;
-    --moss: 108 18% 32%;
+    --moss: 154 27% 20%;
     --stone: 30 6% 58%;
     --stone-light: 30 10% 78%;
     --stone-lighter: 34 12% 88%;
@@ -84,7 +84,7 @@
     --popover: 24 10% 14%;
     --popover-foreground: 38 20% 88%;
 
-    --primary: 108 18% 48%;
+    --primary: 154 22% 42%;
     --primary-foreground: 24 12% 12%;
 
     --secondary: 33 20% 28%;
@@ -101,26 +101,26 @@
 
     --border: 24 8% 24%;
     --input: 24 8% 24%;
-    --ring: 108 18% 48%;
+    --ring: 154 22% 42%;
 
     --sidebar-background: 24 10% 14%;
     --sidebar-foreground: 38 20% 88%;
-    --sidebar-primary: 108 18% 48%;
+    --sidebar-primary: 154 22% 42%;
     --sidebar-primary-foreground: 24 12% 12%;
     --sidebar-accent: 24 8% 20%;
     --sidebar-accent-foreground: 38 20% 88%;
     --sidebar-border: 24 8% 24%;
-    --sidebar-ring: 108 18% 48%;
+    --sidebar-ring: 154 22% 42%;
 
-    --sage: 98 14% 40%;
-    --sage-light: 98 10% 22%;
-    --sage-dark: 104 18% 52%;
+    --sage: 140 14% 40%;
+    --sage-light: 140 10% 22%;
+    --sage-dark: 150 18% 52%;
     --sand: 33 20% 30%;
     --sand-light: 36 12% 20%;
     --clay: 30 25% 45%;
     --clay-light: 30 20% 28%;
     --bark: 32 16% 60%;
-    --moss: 108 18% 42%;
+    --moss: 154 22% 42%;
     --stone: 30 6% 45%;
     --stone-light: 30 6% 30%;
     --stone-lighter: 24 6% 20%;
@@ -138,17 +138,28 @@
     @apply border-border;
   }
 
+  html, body, #root {
+    overflow-x: hidden;
+    max-width: 100vw;
+    overscroll-behavior-x: none;
+  }
+
+  #root {
+    width: 100%;
+    position: relative;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Nunito', system-ui, sans-serif;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
     font-weight: 300;
     overflow-wrap: break-word;
   }
 
   h1, h2, h3, h4 {
-    font-family: 'Nunito', system-ui, sans-serif;
-    font-weight: 400;
-    line-height: 1.2;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-weight: 700;
+    line-height: 1.15;
   }
 }
 
@@ -185,7 +196,7 @@
     border: none;
     border-radius: 100px;
     padding: 9px 18px;
-    font-family: 'Nunito', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 300;
     font-size: 0.73rem;
     letter-spacing: 0.13em;

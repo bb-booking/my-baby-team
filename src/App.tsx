@@ -1,11 +1,14 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { useState } from "react";
+import { SplashScreen } from "@/components/SplashScreen";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { FamilyProvider } from "@/context/FamilyContext";
 import { DiaryProvider } from "@/context/DiaryContext";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import AppLayout from "@/components/AppLayout";
 import Dashboard from "@/pages/Dashboard";
 import BarnPage from "@/pages/BarnPage";
@@ -28,32 +31,60 @@ import PrivacyPage from "@/pages/PrivacyPage";
 
 const queryClient = new QueryClient();
 
+function Spinner() {
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="text-center space-y-3">
+        <div className="w-8 h-8 border-2 border-[hsl(var(--moss))] border-t-transparent rounded-full animate-spin mx-auto" />
+        <p className="text-[0.72rem] tracking-[0.14em] uppercase text-muted-foreground">Indlæser...</p>
+      </div>
+    </div>
+  );
+}
+
+function getIsOnboarded() {
+  try {
+    const stored = localStorage.getItem("lille-family");
+    return stored ? JSON.parse(stored)?.onboarded === true : false;
+  } catch {
+    return false;
+  }
+}
+
+function PushRegistrar() {
+  usePushNotifications();
+  return null;
+}
+
 function AuthenticatedApp() {
   const { user, loading } = useAuth();
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-3">
-          <div className="w-8 h-8 border-2 border-[hsl(var(--moss))] border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-[0.72rem] tracking-[0.14em] uppercase text-muted-foreground">Indlæser...</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <Spinner />;
 
   if (!user) {
+    // New user: go through onboarding first (account created at the end)
+    // Returning user (has local profile): show login
+    if (getIsOnboarded()) {
+      return (
+        <Routes>
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="*" element={<AuthPage />} />
+        </Routes>
+      );
+    }
     return (
-      <Routes>
-        <Route path="/privacy" element={<PrivacyPage />} />
-        <Route path="*" element={<AuthPage />} />
-      </Routes>
+      <FamilyProvider>
+        <Routes>
+          <Route path="*" element={<OnboardingPage />} />
+        </Routes>
+      </FamilyProvider>
     );
   }
 
   return (
     <FamilyProvider>
       <DiaryProvider>
+        <PushRegistrar />
         <Routes>
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route element={<AppLayout />}>
@@ -80,18 +111,23 @@ function AuthenticatedApp() {
   );
 }
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AuthenticatedApp />
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  const [splashDone, setSplashDone] = useState(false);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          {!splashDone && <SplashScreen onDone={() => setSplashDone(true)} />}
+          <BrowserRouter>
+            <AuthenticatedApp />
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

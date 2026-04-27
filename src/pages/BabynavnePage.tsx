@@ -88,7 +88,7 @@ export default function BabynavnePage() {
         </div>
       )}
 
-      <div className="h-20 md:h-0" />
+
     </div>
   );
 }

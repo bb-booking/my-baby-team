@@ -541,6 +541,13 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
           >
             <ChevronRight className="w-4 h-4" />
           </button>
+          <button
+            onClick={() => setShowAdd(true)}
+            className="p-2 rounded-xl hover:bg-[hsl(var(--stone-lighter))] transition-colors active:scale-95"
+            title={t("tasks.add")}
+          >
+            <Plus className="w-4 h-4" />
+          </button>
         </div>
       </div>
 

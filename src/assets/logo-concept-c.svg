@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" style="stop-color:#3a5036"/>
+      <stop offset="100%" style="stop-color:#5c7a50"/>
+    </linearGradient>
+    <!-- Wave A: cream/sage — upper, curves upward -->
+    <linearGradient id="waveA" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f2ede5;stop-opacity:0.96"/>
+      <stop offset="100%" style="stop-color:#c8d8c0;stop-opacity:0.88"/>
+    </linearGradient>
+    <!-- Wave B: clay/warm — lower, curves downward -->
+    <linearGradient id="waveB" x1="100%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#edd8b8;stop-opacity:0.96"/>
+      <stop offset="100%" style="stop-color:#c49a70;stop-opacity:0.88"/>
+    </linearGradient>
+    <!-- Child -->
+    <radialGradient id="child" cx="38%" cy="32%" r="68%">
+      <stop offset="0%" style="stop-color:#f5e0c0"/>
+      <stop offset="100%" style="stop-color:#c48a58"/>
+    </radialGradient>
+    <filter id="ds">
+      <feDropShadow dx="0" dy="10" stdDeviation="18" flood-color="#1a2e16" flood-opacity="0.22"/>
+    </filter>
+    <filter id="ds2">
+      <feDropShadow dx="0" dy="5" stdDeviation="10" flood-color="#1a2e16" flood-opacity="0.20"/>
+    </filter>
+    <!-- Clip to circle so waves stay contained -->
+    <clipPath id="circle-clip">
+      <circle cx="512" cy="512" r="340"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+
+  <!-- Subtle outer ring -->
+  <circle cx="512" cy="512" r="342" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3"/>
+
+  <!--
+    CONCEPT C: "TIDE"
+    Two bold wave/ribbon shapes that mirror each other vertically inside a circle.
+    Like a yin-yang but without the dividing line — instead two distinct colored strokes
+    that flow in opposite directions and meet at the center.
+
+    Wave A (cream/sage): starts at left edge (172, 512), curves UP through center
+    and exits at right edge (852, 512). It bows upward — big arc.
+
+    Wave B (clay): starts at left edge (172, 512), curves DOWN through center
+    and exits at right edge (852, 512). Mirror of wave A.
+
+    But instead of lines, we make them FAT filled shapes — each one is a thick ribbon.
+
+    Wave A shape:
+    Top edge: left(172,512) → curves up to peak at (512, 280) → right(852,512)
+    Bottom edge of ribbon: offset ~100px below the top edge curve
+    Top edge: M 172 512 C 300 260, 724 260, 852 512
+    Bottom edge (closing): C 724 380, 300 380, 172 512
+    → This creates a lens/petal shape that curves upward
+
+    Wave B (mirror):
+    M 172 512 C 300 644, 724 644, 852 512
+    C 724 764, 300 764, 172 512
+
+    Actually let me make proper crescent shapes that don't look like eyes:
+    The S-curve yin-yang division: instead of that, two C-shapes.
+
+    New approach: Two bold C-shapes facing each other
+    Left C (sage): opens to the right — (
+    Right C (clay): opens to the left — )
+    They face each other at center distance ~120px apart
+    Together: ( )  with a child dot in the middle
+
+    Left C: arc from top-right to bottom-right of a circle, going left
+    Center of left C's circle: (430, 512), r=230
+    Arc from (430, 282) going clockwise-left to (430, 742) — 180° arc going left
+
+    Right C (mirror): center (594, 512), r=230
+    Arc from (594, 282) going counterclockwise-right to (594, 742)
+
+    As thick strokes:
+  -->
+
+  <!-- C-shape Left (sage/cream) — opens right, bold stroke -->
+  <g filter="url(#ds)">
+    <path d="M 440 260 A 260 260 0 0 0 440 764"
+      fill="none" stroke="url(#waveA)" stroke-width="76" stroke-linecap="round"/>
+  </g>
+
+  <!-- C-shape Right (clay/warm) — opens left (mirror), bold stroke -->
+  <g filter="url(#ds)">
+    <path d="M 584 260 A 260 260 0 0 1 584 764"
+      fill="none" stroke="url(#waveB)" stroke-width="76" stroke-linecap="round"/>
+  </g>
+
+  <!-- Child dot — center between the two open mouths -->
+  <g filter="url(#ds2)">
+    <circle cx="512" cy="512" r="52" fill="#3a5036" opacity="0.12"/>
+    <circle cx="512" cy="512" r="38" fill="url(#child)"/>
+    <ellipse cx="501" cy="500" rx="14" ry="10" fill="#f8ead8" opacity="0.58"/>
+    <circle cx="504" cy="497" r="5" fill="#fff8f0" opacity="0.40"/>
+  </g>
+
+</svg>

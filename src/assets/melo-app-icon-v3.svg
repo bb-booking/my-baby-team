@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- Light sage green background -->
+    <linearGradient id="bg" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" style="stop-color:#dff2d4"/>
+      <stop offset="100%" style="stop-color:#c4e2b0"/>
+    </linearGradient>
+    <!-- Arc A: sage/cream — left parent -->
+    <linearGradient id="arcA" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f0ede6"/>
+      <stop offset="100%" style="stop-color:#cddac6"/>
+    </linearGradient>
+    <!-- Arc B: warm clay — right parent -->
+    <linearGradient id="arcB" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8cfa8"/>
+      <stop offset="100%" style="stop-color:#c49a70"/>
+    </linearGradient>
+    <!-- Child dot -->
+    <radialGradient id="child" cx="38%" cy="32%" r="68%">
+      <stop offset="0%" style="stop-color:#f5e0c0"/>
+      <stop offset="100%" style="stop-color:#c48a58"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <!-- Subtle drop shadow for arcs on light bg -->
+    <filter id="ds" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#2a5020" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+
+  <!-- Arc A — sage/cream, top half going right and down -->
+  <g filter="url(#ds)">
+    <path d="M 512 242 A 270 270 0 0 1 559 778"
+      fill="none" stroke="url(#arcA)" stroke-width="58" stroke-linecap="round"/>
+  </g>
+
+  <!-- Arc B — clay/warm, bottom half going left and up -->
+  <g filter="url(#ds)">
+    <path d="M 512 782 A 270 270 0 0 1 465 246"
+      fill="none" stroke="url(#arcB)" stroke-width="58" stroke-linecap="round"/>
+  </g>
+
+  <!-- Child dot — center -->
+  <circle cx="512" cy="512" r="52" fill="#c4966a" opacity="0.18"/>
+  <circle cx="512" cy="512" r="38" fill="url(#child)"/>
+  <ellipse cx="501" cy="499" rx="14" ry="10" fill="#f5e0c0" opacity="0.55"/>
+
+</svg>

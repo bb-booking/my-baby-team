@@ -29,7 +29,7 @@ export default function LegPage() {
             {t("play.playAheadDesc")}
           </p>
         </div>
-        <div className="h-20 md:h-0" />
+  
       </div>
     );
   }
@@ -82,7 +82,7 @@ export default function LegPage() {
         />
       </div>
 
-      <div className="h-20 md:h-0" />
+
     </div>
   );
 }

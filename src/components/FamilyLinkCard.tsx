@@ -2,9 +2,11 @@ import { useState } from "react";
 import { useFamily } from "@/context/FamilyContext";
 import { Link2, Copy, Check, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 export function FamilyLinkCard() {
   const { profile, joinFamilyByCode } = useFamily();
+  const { t } = useTranslation();
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
@@ -32,8 +34,8 @@ export function FamilyLinkCard() {
     setResult({
       success: res.success,
       message: res.success
-        ? `Forbundet med ${res.partnerName} 💚 I er nu et team.`
-        : res.error ?? "Noget gik galt",
+        ? t("familyLink.connectedWith", { name: res.partnerName })
+        : res.error ?? t("familyLink.error"),
     });
   };
 
@@ -41,26 +43,26 @@ export function FamilyLinkCard() {
     <div className="card-soft space-y-4 section-fade-in">
       <div className="flex items-center gap-2">
         <Link2 className="w-4 h-4" style={{ color: "hsl(var(--moss))" }} />
-        <p className="text-[1rem] font-semibold">Forbind med din partner</p>
+        <p className="text-[1rem] font-semibold">{t("familyLink.title")}</p>
       </div>
 
       {isLinked ? (
         <div className="rounded-xl px-4 py-3 flex items-center gap-2" style={{ background: "hsl(var(--sage-light))" }}>
           <Check className="w-4 h-4" style={{ color: "hsl(var(--moss))" }} />
           <div>
-            <p className="text-[0.82rem] font-medium">I er forbundet</p>
-            <p className="text-[0.7rem] text-muted-foreground">{profile.partnerName || "Din partner"} bruger appen på sin enhed</p>
+            <p className="text-[0.82rem] font-medium">{t("familyLink.connected")}</p>
+            <p className="text-[0.7rem] text-muted-foreground">{t("familyLink.connectedDesc", { name: profile.partnerName || "" })}</p>
           </div>
         </div>
       ) : (
         <>
           <p className="text-[0.75rem] text-muted-foreground leading-relaxed">
-            Hver person opretter sin egen konto og får sit eget tilpassede dashboard. Del din kode med din partner — så er I forbundet.
+            {t("familyLink.desc")}
           </p>
 
           {/* Your invite code */}
           <div>
-            <p className="text-[0.62rem] tracking-[0.14em] uppercase text-muted-foreground mb-2">Din invitationskode</p>
+            <p className="text-[0.62rem] tracking-[0.14em] uppercase text-muted-foreground mb-2">{t("familyLink.yourCode")}</p>
             <div className="flex items-center gap-2">
               <div
                 className="flex-1 rounded-xl px-4 py-3 text-center"
@@ -82,13 +84,13 @@ export function FamilyLinkCard() {
               </button>
             </div>
             <p className="text-[0.62rem] text-muted-foreground mt-1.5 text-center">
-              {copied ? "Kopieret!" : "Tryk for at kopiere"}
+              {copied ? t("familyLink.copied") : t("familyLink.tapToCopy")}
             </p>
           </div>
 
           {/* Enter partner's code */}
           <div>
-            <p className="text-[0.62rem] tracking-[0.14em] uppercase text-muted-foreground mb-2">Indtast din partners kode</p>
+            <p className="text-[0.62rem] tracking-[0.14em] uppercase text-muted-foreground mb-2">{t("familyLink.enterCode")}</p>
             <div className="flex gap-2">
               <input
                 value={code}
@@ -109,7 +111,7 @@ export function FamilyLinkCard() {
                 style={code.length === 6 && !loading ? { background: "hsl(var(--moss))" } : {}}
               >
                 <UserPlus className="w-3.5 h-3.5" />
-                {loading ? "..." : "Forbind"}
+                {loading ? "..." : t("familyLink.connect")}
               </button>
             </div>
 

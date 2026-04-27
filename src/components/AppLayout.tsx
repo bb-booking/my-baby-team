@@ -1,13 +1,10 @@
-import { useState } from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import { BottomNav } from "@/components/BottomNav";
 import { DesktopSidebar } from "@/components/DesktopSidebar";
-import { AppHeader } from "@/components/AppHeader";
 import { useFamily } from "@/context/FamilyContext";
 
 export default function AppLayout() {
   const { profile, profileLoading } = useFamily();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   if (profileLoading) {
     return (
@@ -22,26 +19,21 @@ export default function AppLayout() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col w-full bg-background">
-      <AppHeader onBurgerClick={() => setSidebarOpen(!sidebarOpen)} />
+    <div className="min-h-screen flex flex-col w-full bg-background overflow-x-hidden">
+      {/* Desktop sidebar — hidden on mobile */}
+      <DesktopSidebar open={false} onClose={() => {}} />
 
-      <div className="flex flex-1 pt-16">
-        <DesktopSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-        {/* Mobile overlay */}
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 top-16 z-40 bg-night/30 backdrop-blur-sm md:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-
-        <main className="flex-1 min-w-0">
-          <div className="max-w-lg mx-auto px-4 py-6 md:max-w-2xl md:py-10">
-            <Outlet />
-          </div>
-        </main>
-      </div>
+      <main className="flex-1 min-w-0 overflow-x-hidden">
+        <div
+          className="max-w-lg mx-auto px-4 md:max-w-2xl md:pt-10 md:pb-10"
+          style={{
+            paddingTop: "calc(1.5rem + env(safe-area-inset-top, 0px))",
+            paddingBottom: "calc(5.5rem + env(safe-area-inset-bottom, 0px))",
+          }}
+        >
+          <Outlet />
+        </div>
+      </main>
 
       <BottomNav />
     </div>

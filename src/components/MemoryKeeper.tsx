@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useFamily } from "@/context/FamilyContext";
 import { Sparkles } from "lucide-react";
 import { format } from "date-fns";
-import { da } from "date-fns/locale";
+import { da, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 
 // Shows a prompt twice a week — Wednesday and Sunday evenings
 function shouldShowPrompt(): boolean {
@@ -16,6 +17,8 @@ function shouldShowPrompt(): boolean {
 
 export function MemoryKeeper() {
   const { memories, addMemory } = useFamily();
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language === "en" ? enUS : da;
   const [text, setText] = useState("");
   const [saved, setSaved] = useState(false);
   const [showAll, setShowAll] = useState(false);
@@ -37,17 +40,17 @@ export function MemoryKeeper() {
     <div className="card-soft section-fade-in space-y-3">
       <div className="flex items-center gap-2">
         <Sparkles className="w-4 h-4" style={{ color: "hsl(var(--clay))" }} />
-        <p className="text-[0.6rem] tracking-[0.16em] uppercase text-muted-foreground">Jeres øjeblikke</p>
+        <p className="text-[0.6rem] tracking-[0.16em] uppercase text-muted-foreground">{t("memory.title")}</p>
       </div>
 
       {showPrompt && (
         <div className="space-y-2">
-          <p className="text-[0.85rem] font-medium">Én ting der fik dig til at smile denne uge?</p>
-          <p className="text-[0.7rem] text-muted-foreground">10 sekunder. Det er nok.</p>
+          <p className="text-[0.85rem] font-medium">{t("memory.prompt")}</p>
+          <p className="text-[0.7rem] text-muted-foreground">{t("memory.promptSub")}</p>
           <textarea
             value={text}
             onChange={e => setText(e.target.value)}
-            placeholder={"F.eks. \u201cHan holdt om min finger og ville ikke slippe\u201d"}
+            placeholder={t("memory.placeholder")}
             rows={2}
             maxLength={300}
             className="w-full rounded-xl border-[1.5px] border-[hsl(var(--stone-light))] bg-background px-3 py-2.5 text-[0.82rem] focus:outline-none focus:border-[hsl(var(--clay))] transition-colors resize-none"
@@ -55,17 +58,17 @@ export function MemoryKeeper() {
           <button
             onClick={handleSave}
             disabled={!text.trim()}
-            className="w-full py-2.5 rounded-xl text-[0.78rem] font-medium transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed text-white"
+            className="w-full py-2.5 rounded-full text-[0.78rem] font-medium transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed text-white"
             style={{ background: "hsl(var(--clay))" }}
           >
-            Gem øjeblik ✨
+            {t("memory.save")}
           </button>
         </div>
       )}
 
       {saved && (
         <div className="rounded-xl px-3 py-2.5 text-center" style={{ background: "hsl(var(--sage-light))" }}>
-          <p className="text-[0.82rem]">Gemt 💛 Du vil se det igen når det er sværest.</p>
+          <p className="text-[0.82rem]">{t("memory.saved")}</p>
         </div>
       )}
 
@@ -75,7 +78,7 @@ export function MemoryKeeper() {
           {recent.map(m => (
             <div key={m.id} className="rounded-xl px-3 py-2.5" style={{ background: "hsl(var(--cream))" }}>
               <p className="text-[0.7rem] text-muted-foreground mb-0.5">
-                {format(new Date(m.date), "d. MMM", { locale: da })}
+                {format(new Date(m.date), "d. MMM", { locale })}
               </p>
               <p className="text-[0.82rem] italic">"{m.text}"</p>
             </div>
@@ -85,7 +88,7 @@ export function MemoryKeeper() {
               onClick={() => setShowAll(!showAll)}
               className="text-[0.68rem] text-muted-foreground hover:text-foreground transition-colors w-full text-center pt-1"
             >
-              {showAll ? "Vis færre" : `Se alle ${memories.length} øjeblikke`}
+              {showAll ? t("memory.showFewer") : t("memory.showAll", { count: memories.length })}
             </button>
           )}
         </div>

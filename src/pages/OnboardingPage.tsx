@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useFamily, type ParentRole, type BirthType, type FeedingMethod } from "@/context/FamilyContext";
 import { useAuth } from "@/context/AuthContext";
-import { ArrowRight, ArrowLeft, Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { ArrowRight, ArrowLeft, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { format, addDays } from "date-fns";
 import { da } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import meloLogoImg from "@/assets/melo-logo.png";
+import { upsertProfile } from "@/hooks/useSupabaseSync";
+import { MeloWordmark } from "@/components/MeloWordmark";
 
 // Calculate due date from LMP (last menstrual period): LMP + 280 days
 function lmpToDueDate(lmp: Date): Date {
@@ -26,7 +26,7 @@ type Step =
   | "birthtype"   // Fødselstype [spring over]
   | "feeding"     // Amning / flaske [spring over]
   | "leave"       // Hvem er på barsel
-  | "account";    // Email + adgangskode (sidst)
+  | "account";    // Opret konto (email + adgangskode) — altid sidst
 
 const complications = [
   { id: "rift", label: "Bristning / klip", emoji: "🩹" },
@@ -39,8 +39,7 @@ const complications = [
 
 export default function OnboardingPage() {
   const { setProfile } = useFamily();
-  const { signUp, signIn } = useAuth();
-  const navigate = useNavigate();
+  const { signUp, signIn, user } = useAuth();
 
   const [step, setStep] = useState<Step>("phase");
   const [phase, setPhase] = useState<"pregnant" | "born" | null>(null);
@@ -57,12 +56,16 @@ export default function OnboardingPage() {
   const [morLeave, setMorLeave] = useState(true);
   const [farLeave, setFarLeave] = useState(false);
 
-  // Account step
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  // Account step state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [authLoading, setAuthLoading] = useState(false);
+
+  // Sensitive steps that can be skipped
+  const skippable: Step[] = ["birthtype", "feeding", "leave"];
 
   const steps: Step[] = [
     "phase",
@@ -79,9 +82,6 @@ export default function OnboardingPage() {
   const stepIndex = steps.indexOf(step);
   const progress = ((stepIndex + 1) / steps.length) * 100;
 
-  // Sensitive steps that can be skipped
-  const skippable: Step[] = ["birthtype", "feeding", "leave"];
-
   const canNext = () => {
     if (step === "phase") return phase !== null;
     if (step === "lmp") return lmpDate !== undefined;
@@ -94,7 +94,7 @@ export default function OnboardingPage() {
     if (step === "feeding") return true;
     if (step === "leave") return true;
     if (step === "account") return email.trim().length > 0 && password.length >= 6;
-    return false;
+    return true;
   };
 
   const toggleComplication = (id: string) => {
@@ -114,27 +114,15 @@ export default function OnboardingPage() {
   };
 
   const finish = async () => {
-    setAuthError(null);
-    setAuthLoading(true);
+    setSaving(true);
+    setSaveError(null);
 
     const dueOrBirthDate = phase === "pregnant"
       ? lmpToDueDate(lmpDate!).toISOString()
       : birthDate!.toISOString();
 
-    // Try sign up first, fall back to sign in if already exists
-    const { error: signUpError } = await signUp(email.trim(), password);
-
-    if (signUpError && signUpError.toLowerCase().includes("already")) {
-      const { error: signInError } = await signIn(email.trim(), password);
-      if (signInError) { setAuthError(signInError); setAuthLoading(false); return; }
-    } else if (signUpError) {
-      setAuthError(signUpError);
-      setAuthLoading(false);
-      return;
-    }
-
-    setProfile({
-      phase: phase === "pregnant" ? "pregnant" : "newborn",
+    const newProfile = {
+      phase: phase === "pregnant" ? "pregnant" : "newborn" as const,
       role,
       dueOrBirthDate,
       parentName: yourName.trim(),
@@ -149,10 +137,46 @@ export default function OnboardingPage() {
       hasPartner,
       inviteCode: Math.random().toString(36).substring(2, 8).toUpperCase(),
       familyId: Math.random().toString(36).substring(2, 18),
-    });
+    };
 
-    setAuthLoading(false);
-    navigate("/");
+    // Try to create account
+    const { error: signUpError, needsConfirmation, userId } = await signUp(email.trim(), password);
+
+    if (signUpError) {
+      // If email already exists, try signing in instead
+      if (signUpError.toLowerCase().includes("already") || signUpError.toLowerCase().includes("registered")) {
+        const { error: signInError } = await signIn(email.trim(), password);
+        if (signInError) {
+          setSaveError("Denne e-mail er allerede i brug. Kontrollér din adgangskode og prøv igen.");
+          setSaving(false);
+          return;
+        }
+        // signIn succeeded — onAuthStateChange will re-render the app.
+        // Save profile to localStorage so the new FamilyProvider picks it up.
+        setProfile(newProfile);
+        // Save to Supabase using user from auth (will be set by onAuthStateChange shortly)
+        // We do this optimistically — the debounced sync will handle it too.
+        if (user) await upsertProfile(user.id, newProfile);
+        setSaving(false);
+        return;
+      }
+      setSaveError(signUpError);
+      setSaving(false);
+      return;
+    }
+
+    if (needsConfirmation) {
+      setSaveError("Tjek din e-mail for et bekræftelseslink, og kom tilbage for at logge ind.");
+      setSaving(false);
+      return;
+    }
+
+    // Signup succeeded and session is active — save profile
+    setProfile(newProfile);
+    if (userId) await upsertProfile(userId, newProfile);
+
+    setSaving(false);
+    // onAuthStateChange will fire and re-render App.tsx → user is authenticated → Dashboard shown
   };
 
   const handleNext = () => {
@@ -164,7 +188,9 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col"
+      style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
+    >
       {/* Progress bar */}
       <div className="h-0.5" style={{ background: "hsl(var(--stone-lighter))" }}>
         <div className="h-full transition-all duration-500 ease-out" style={{ width: `${progress}%`, background: "hsl(var(--moss))" }} />
@@ -176,11 +202,8 @@ export default function OnboardingPage() {
           {/* Logo — only on first step */}
           {step === "phase" && (
             <div className="flex flex-col items-center mb-12 section-fade-in">
-              <div className="flex items-center gap-2 mb-1">
-                <img src={meloLogoImg} alt="" className="w-7 h-7" />
-                <span className="font-sans font-extrabold text-[2.6rem] tracking-[0.28em] uppercase leading-none" style={{ color: "hsl(var(--moss))" }}>MELO</span>
-              </div>
-              <span className="text-[0.58rem] tracking-[0.28em] uppercase text-muted-foreground font-light">for nye forældre</span>
+              <MeloWordmark size="2.6rem" />
+              <span className="text-[0.58rem] tracking-[0.28em] uppercase text-muted-foreground font-light mt-1">for nye forældre</span>
             </div>
           )}
 
@@ -416,6 +439,56 @@ export default function OnboardingPage() {
             </div>
           )}
 
+          {/* STEP: Account — always last */}
+          {step === "account" && (
+            <div className="space-y-5 section-fade-in" key="account">
+              <div className="flex flex-col items-center mb-2">
+                <MeloWordmark size="2.2rem" />
+              </div>
+              <StepHeader
+                title="Næsten der!"
+                sub="Opret din konto for at gemme dine indstillinger og tilgå Melo fra alle dine enheder."
+              />
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <label className="text-[0.62rem] tracking-[0.16em] uppercase text-muted-foreground">E-mail</label>
+                  <div className="relative">
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      placeholder="din@email.dk"
+                      required
+                      className="w-full rounded-xl border-[1.5px] border-[hsl(var(--stone-light))] bg-background pl-10 pr-4 py-3 text-[0.88rem] focus:outline-none focus:border-[hsl(var(--moss))] transition-colors"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[0.62rem] tracking-[0.16em] uppercase text-muted-foreground">Adgangskode</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      placeholder="Min. 6 tegn"
+                      minLength={6}
+                      className="w-full rounded-xl border-[1.5px] border-[hsl(var(--stone-light))] bg-background pl-10 pr-11 py-3 text-[0.88rem] focus:outline-none focus:border-[hsl(var(--moss))] transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* STEP: Leave [skippable] */}
           {step === "leave" && (
             <div className="space-y-5 section-fade-in" key="leave">
@@ -455,52 +528,6 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* STEP: Account (last) */}
-          {step === "account" && (
-            <div className="space-y-5 section-fade-in" key="account">
-              <StepHeader
-                title="Gem din konto"
-                sub="Opret en gratis konto så dine data er sikre og tilgængelige på alle dine enheder."
-              />
-              <div className="space-y-3">
-                <div className="space-y-1.5">
-                  <label className="text-[0.62rem] tracking-[0.16em] uppercase text-muted-foreground">E-mail</label>
-                  <div className="relative">
-                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <input
-                      type="email" value={email} onChange={e => setEmail(e.target.value)}
-                      placeholder="din@email.dk" required
-                      className="w-full rounded-xl border-[1.5px] border-[hsl(var(--stone-light))] bg-background pl-10 pr-4 py-3 text-[0.88rem] focus:outline-none focus:border-[hsl(var(--moss))] transition-colors"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[0.62rem] tracking-[0.16em] uppercase text-muted-foreground">Adgangskode</label>
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <input
-                      type={showPassword ? "text" : "password"} value={password}
-                      onChange={e => setPassword(e.target.value)}
-                      placeholder="Min. 6 tegn" minLength={6}
-                      className="w-full rounded-xl border-[1.5px] border-[hsl(var(--stone-light))] bg-background pl-10 pr-11 py-3 text-[0.88rem] focus:outline-none focus:border-[hsl(var(--moss))] transition-colors"
-                    />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-                {authError && (
-                  <div className="rounded-xl px-4 py-3 text-[0.78rem]" style={{ background: "hsl(0 70% 95%)", color: "hsl(0 60% 40%)" }}>
-                    {authError}
-                  </div>
-                )}
-              </div>
-              <p className="text-[0.65rem] text-muted-foreground text-center">
-                Har du allerede en konto? Log ind med din e-mail og adgangskode ovenfor.
-              </p>
-            </div>
-          )}
         </div>
       </div>
 
@@ -515,21 +542,27 @@ export default function OnboardingPage() {
           )}
           <button
             onClick={handleNext}
-            disabled={!canNext() || authLoading}
+            disabled={!canNext() || saving}
             className={cn(
               "flex-1 h-12 rounded-full font-semibold text-[0.74rem] tracking-[0.16em] uppercase flex items-center justify-center gap-2 transition-all active:scale-[0.98]",
-              canNext() && !authLoading
+              canNext() && !saving
                 ? "bg-[hsl(var(--moss))] text-white hover:bg-[hsl(var(--sage-dark))]"
                 : "bg-muted text-muted-foreground cursor-not-allowed"
             )}
           >
-            {authLoading ? "Opretter konto..." : step === "account" ? "Kom i gang" : "Næste"}
-            {!authLoading && <ArrowRight className="w-4 h-4" />}
+            {saving ? "Opretter konto..." : step === "account" ? "Opret konto" : "Næste"}
+            {!saving && <ArrowRight className="w-4 h-4" />}
           </button>
         </div>
 
+        {saveError && (
+          <div className="rounded-xl px-4 py-3 text-[0.78rem] text-center" style={{ background: "hsl(0 70% 95%)", color: "hsl(0 60% 40%)" }}>
+            {saveError}
+          </div>
+        )}
+
         {/* Skip button for sensitive steps */}
-        {skippable.includes(step) && (
+        {skippable.includes(step) && step !== "leave" && step !== "account" && (
           <button onClick={goNext}
             className="text-center text-[0.72rem] text-muted-foreground hover:text-foreground transition-colors py-1">
             Spring over

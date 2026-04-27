@@ -31,10 +31,12 @@ export function WhatMattersNow() {
     t,
   });
 
+  const bg = isMor
+    ? "linear-gradient(145deg, hsl(var(--clay)), hsl(var(--bark)))"
+    : "linear-gradient(145deg, hsl(var(--moss)), hsl(var(--sage-dark)))";
+
   return (
-    <div className="rounded-2xl overflow-hidden section-fade-in" style={{
-      background: "linear-gradient(145deg, hsl(var(--moss)), hsl(var(--sage-dark)))",
-    }}>
+    <div className="rounded-2xl overflow-hidden section-fade-in" style={{ background: bg }}>
       <div className="px-5 py-5">
         <p className="text-[0.55rem] tracking-[0.2em] uppercase text-white/50 mb-2">{t("commandCenter.rightNow")}</p>
         <p className="text-[1.15rem] font-medium text-white leading-snug mb-1">
@@ -304,8 +306,13 @@ function getTimeBasedFallback(hour: number, isMor: boolean, childName: string, p
 export function TodaysFlow() {
   const { profile, morName, farName, isOnLeave } = useFamily();
   const { t } = useTranslation();
+  const isMor = profile.role === "mor";
   const hour = new Date().getHours();
   const childName = profile.children?.[0]?.name || "baby";
+
+  const accentLight = isMor ? "hsl(var(--clay-light))" : "hsl(var(--sage-light))";
+  const accentBorder = isMor ? "hsl(var(--clay) / 0.2)" : "hsl(var(--sage) / 0.2)";
+  const accentSolid = isMor ? "hsl(var(--clay))" : "hsl(var(--moss))";
 
   const morLeave = isOnLeave("mor");
   const farLeave = isOnLeave("far");
@@ -322,8 +329,8 @@ export function TodaysFlow() {
           const isCurrent = i === currentSlotIndex;
           return (
             <div key={i} className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all" style={{
-              background: isCurrent ? "hsl(var(--sage-light))" : "transparent",
-              border: isCurrent ? "1px solid hsl(var(--sage) / 0.2)" : "1px solid transparent",
+              background: isCurrent ? accentLight : "transparent",
+              border: isCurrent ? `1px solid ${accentBorder}` : "1px solid transparent",
             }}>
               <div className="w-6 text-center">
                 {slot.icon}
@@ -338,7 +345,7 @@ export function TodaysFlow() {
               </span>
               {isCurrent && (
                 <span className="text-[0.55rem] tracking-[0.1em] uppercase px-2 py-0.5 rounded-full" style={{
-                  background: "hsl(var(--moss))",
+                  background: accentSolid,
                   color: "white",
                 }}>{t("flow.now")}</span>
               )}
@@ -445,7 +452,7 @@ export function SupportInsight() {
         <div className="flex-1">
           <p className="text-[0.78rem] text-foreground/70 leading-relaxed">{insight.text}</p>
           {insight.action && insight.actionLink && (
-            <Link to={insight.actionLink} className="inline-flex items-center gap-1 mt-1.5 text-[0.68rem] font-medium transition-colors" style={{ color: "hsl(var(--moss))" }}>
+            <Link to={insight.actionLink} className="inline-flex items-center gap-1 mt-1.5 text-[0.68rem] font-medium transition-colors" style={{ color: isMor ? "hsl(var(--clay))" : "hsl(var(--moss))" }}>
               {insight.action} <ArrowRight className="w-3 h-3" />
             </Link>
           )}

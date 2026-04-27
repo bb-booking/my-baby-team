@@ -281,7 +281,9 @@ export default function ChatPage() {
   const accentColor = `hsl(var(${cfg.accentVar}))`;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-12rem)] md:h-[calc(100vh-5rem)]">
+    <div className="flex flex-col md:h-[calc(100dvh-5rem)]"
+      style={{ height: "calc(100dvh - 12rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))" }}
+    >
 
       {/* Header */}
       <div className="section-fade-in px-1 pb-3">
@@ -302,7 +304,7 @@ export default function ChatPage() {
               style={mode === m ? { color: `hsl(var(${MODE_CONFIG[m].accentVar}))` } : {}}
             >
               {MODE_CONFIG[m].icon}
-              <span className="hidden sm:inline">{MODE_CONFIG[m].label}</span>
+              <span className="text-[0.65rem]">{MODE_CONFIG[m].label}</span>
             </button>
           ))}
         </div>
@@ -311,6 +313,18 @@ export default function ChatPage() {
         <p className="text-[0.6rem] tracking-[0.12em] uppercase mt-2" style={{ color: accentColor }}>
           {cfg.subtitle}
         </p>
+
+        {/* AI disclaimer */}
+        {mode !== "rage" && (
+          <div className="mt-2 flex items-center gap-1.5">
+            <AlertTriangle className="w-3 h-3 shrink-0 text-muted-foreground/60" />
+            <p className="text-[0.58rem] text-muted-foreground/60 leading-snug">
+              {en
+                ? "AI-generated guidance only — not medical advice. Always consult your healthcare provider."
+                : "AI-genereret vejledning — ikke medicinsk rådgivning. Kontakt altid din læge eller jordemoder ved tvivl."}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Rage room privacy banner */}

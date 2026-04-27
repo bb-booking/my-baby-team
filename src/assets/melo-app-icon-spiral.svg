@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- Background: rich moss -->
+    <linearGradient id="bg" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" style="stop-color:#3a5036"/>
+      <stop offset="50%" style="stop-color:#496043"/>
+      <stop offset="100%" style="stop-color:#5c7a50"/>
+    </linearGradient>
+    <!-- Warm center glow -->
+    <radialGradient id="centerglow" cx="50%" cy="50%" r="48%">
+      <stop offset="0%" style="stop-color:#c4a060;stop-opacity:0.18"/>
+      <stop offset="60%" style="stop-color:#7a9e6a;stop-opacity:0.08"/>
+      <stop offset="100%" style="stop-color:#2e4428;stop-opacity:0"/>
+    </radialGradient>
+    <!-- Spiral arcs: cream to sage -->
+    <linearGradient id="arc1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f2ede5;stop-opacity:0.92"/>
+      <stop offset="100%" style="stop-color:#c8d8c0;stop-opacity:0.70"/>
+    </linearGradient>
+    <linearGradient id="arc2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8f0e4;stop-opacity:0.78"/>
+      <stop offset="100%" style="stop-color:#b8ccb0;stop-opacity:0.55"/>
+    </linearGradient>
+    <linearGradient id="arc3" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#dce8d8;stop-opacity:0.62"/>
+      <stop offset="100%" style="stop-color:#a8bca0;stop-opacity:0.40"/>
+    </linearGradient>
+    <linearGradient id="arc4" x1="100%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#ccdec6;stop-opacity:0.48"/>
+      <stop offset="100%" style="stop-color:#98ac90;stop-opacity:0.28"/>
+    </linearGradient>
+    <!-- Child dot: warm clay -->
+    <radialGradient id="child" cx="38%" cy="32%" r="68%">
+      <stop offset="0%" style="stop-color:#f0d4b0"/>
+      <stop offset="50%" style="stop-color:#c9996e"/>
+      <stop offset="100%" style="stop-color:#a07242"/>
+    </radialGradient>
+    <!-- Drop shadow for arcs -->
+    <filter id="arcshadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#1a2e16" flood-opacity="0.20"/>
+    </filter>
+    <!-- Child bud shadow -->
+    <filter id="budshadow" x="-60%" y="-60%" width="220%" height="220%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#1a2e16" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <rect width="1024" height="1024" fill="url(#centerglow)"/>
+
+  <!--
+    SPIRAL MOTIF
+    Inspired by the swirling concentric arcs from the Melo logo.
+    Each arc is a thick stroke that starts where the previous ended,
+    rotating ~270° and spiraling outward. The gap between arc end
+    and next arc start creates the "opening" — giving a sense of
+    dynamic balance/motion (forældreskab i balance).
+
+    Center: 512, 512
+    Arc stroke-width: 52px (outermost) down to 30px (innermost)
+    Gaps are at the bottom-right (≈315°) — the "opening" of the spiral
+  -->
+
+  <g filter="url(#arcshadow)">
+    <!-- Arc 4 — outermost, radius 310 -->
+    <!-- Starts at ~330° (bottom-right gap), sweeps 285° counterclockwise to ~45° (top-right) -->
+    <!-- Then gap until next arc. In SVG: we use path arc commands -->
+    <!-- 330° in radians from center: x = 512 + 310*cos(330°), y = 512 + 310*sin(330°) -->
+    <!-- cos(330°)=0.866, sin(330°)=-0.5 → start: 781, 357 -->
+    <!-- end at 45°: cos(45°)=0.707, sin(45°)=0.707 → end: 731, 731 — but we want to sweep MOST of the circle -->
+    <!-- Actually let's do: starts at top (270°=top), sweeps clockwise 285°, ends just before top on right side -->
+
+    <!-- Arc 4: r=310, start at top-center (512, 202), sweep clockwise 288° -->
+    <!-- 288° in radians = 5.026. End point: 270°+288° = 558° = 198° from positive x -->
+    <!-- x = 512 + 310*cos(198°) = 512 + 310*(-0.951) = 512 - 294.8 = 217 -->
+    <!-- y = 512 + 310*sin(198°) = 512 + 310*(-0.309) = 512 - 95.8 = 416 -->
+    <path d="M 512 202 A 310 310 0 1 1 217 416"
+      fill="none" stroke="url(#arc4)" stroke-width="44" stroke-linecap="round"/>
+
+    <!-- Arc 3: r=240, start at top-center (512, 272), sweep clockwise 285° -->
+    <!-- End: 270°+285°=555°=195° → x=512+240*cos(195°)=512+240*(-0.966)=512-231.8=280 -->
+    <!-- y=512+240*sin(195°)=512+240*(-0.259)=512-62.1=450 -->
+    <path d="M 512 272 A 240 240 0 1 1 280 450"
+      fill="none" stroke="url(#arc3)" stroke-width="40" stroke-linecap="round"/>
+
+    <!-- Arc 2: r=172, start shifted ~15° clockwise from top (285°=top-right) -->
+    <!-- Start: 512+172*cos(285°), 512+172*sin(285°) = 512+44.5, 512-166.2 = 556, 346 -->
+    <!-- Sweep clockwise 282° → end at 285°+282°=567°=207° -->
+    <!-- x=512+172*cos(207°)=512+172*(-0.891)=512-153.2=359 -->
+    <!-- y=512+172*sin(207°)=512+172*(-0.454)=512-78.1=434 -->
+    <path d="M 556 346 A 172 172 0 1 1 359 434"
+      fill="none" stroke="url(#arc2)" stroke-width="36" stroke-linecap="round"/>
+
+    <!-- Arc 1: r=108, start shifted ~30° from top (300°) -->
+    <!-- Start: 512+108*cos(300°), 512+108*sin(300°) = 512+54, 512-93.5 = 566, 419 -->
+    <!-- Sweep clockwise 278° → end at 300°+278°=578°=218° -->
+    <!-- x=512+108*cos(218°)=512+108*(-0.788)=512-85.1=427 -->
+    <!-- y=512+108*sin(218°)=512+108*(-0.616)=512-66.5=446 -->
+    <path d="M 566 419 A 108 108 0 1 1 427 446"
+      fill="none" stroke="url(#arc1)" stroke-width="32" stroke-linecap="round"/>
+  </g>
+
+  <!-- Center child bud — the heart of the family -->
+  <circle cx="512" cy="512" r="56" fill="#c4966a" opacity="0.14"/>
+  <g filter="url(#budshadow)">
+    <circle cx="512" cy="512" r="42" fill="url(#child)"/>
+    <!-- Shine on bud -->
+    <ellipse cx="500" cy="499" rx="16" ry="11" fill="#f5e0c0" opacity="0.55"/>
+    <circle cx="504" cy="496" r="6" fill="#fff8f0" opacity="0.38"/>
+  </g>
+
+</svg>

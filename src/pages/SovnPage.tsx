@@ -116,7 +116,7 @@ export default function SovnPage() {
             {t("sleep.sleepWaitingDesc")}
           </p>
         </div>
-        <div className="h-20 md:h-0" />
+  
       </div>
     );
   }
@@ -383,7 +383,7 @@ export default function SovnPage() {
         </div>
       )}
 
-      <div className="h-20 md:h-0" />
+
     </div>
   );
 }

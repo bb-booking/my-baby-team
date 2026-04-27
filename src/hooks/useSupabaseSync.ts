@@ -4,8 +4,10 @@ import { useAuth } from "@/context/AuthContext";
 import type { FamilyProfile } from "@/context/FamilyContext";
 import type { NursingLog, DiaperLog, SleepLog, NightShift } from "@/context/DiaryContext";
 
-export async function upsertProfile(userId: string, profile: FamilyProfile) {
-  await supabase.from("profiles").upsert({
+// ── Profile ──────────────────────────────────────────────────────────────────
+
+export async function upsertProfile(userId: string, profile: FamilyProfile): Promise<string | null> {
+  const coreFields = {
     user_id: userId,
     phase: profile.phase,
     role: profile.role,
@@ -17,13 +19,26 @@ export async function upsertProfile(userId: string, profile: FamilyProfile) {
     mor_health: profile.morHealth as any,
     parental_leave: profile.parentalLeave as any,
     languages: profile.languages as any,
-    // family linking fields — require migration: 20260416_family_linking.sql
+    updated_at: new Date().toISOString(),
+  };
+
+  const { error } = await supabase.from("profiles").upsert({
+    ...coreFields,
     ...(profile.hasPartner !== undefined && { has_partner: profile.hasPartner }),
     ...(profile.familyId && { family_id: profile.familyId }),
     ...(profile.inviteCode && { invite_code: profile.inviteCode }),
     ...(profile.partnerUserId && { partner_user_id: profile.partnerUserId }),
-    updated_at: new Date().toISOString(),
   }, { onConflict: "user_id" });
+
+  if (error) {
+    if (error.message?.includes("column")) {
+      const { error: fallbackError } = await supabase
+        .from("profiles").upsert(coreFields, { onConflict: "user_id" });
+      return fallbackError?.message ?? null;
+    }
+    return error.message;
+  }
+  return null;
 }
 
 export async function fetchProfile(userId: string): Promise<FamilyProfile | null> {
@@ -47,6 +62,8 @@ export async function fetchProfile(userId: string): Promise<FamilyProfile | null
   };
 }
 
+// ── Tasks ─────────────────────────────────────────────────────────────────────
+
 export async function syncTasks(userId: string, tasks: any[]) {
   await supabase.from("tasks").delete().eq("user_id", userId);
   if (tasks.length > 0) {
@@ -55,8 +72,7 @@ export async function syncTasks(userId: string, tasks: any[]) {
       category: t.category, completed: t.completed, recurrence: t.recurrence,
       due_date: t.dueDate, created_at: t.createdAt,
     }));
-    const { error } = await supabase.from("tasks").insert(rows);
-    // sync errors handled silently
+    await supabase.from("tasks").insert(rows);
   }
 }
 
@@ -68,6 +84,8 @@ export async function fetchTasks(userId: string) {
     completed: t.completed, createdAt: t.created_at, recurrence: t.recurrence as any, dueDate: t.due_date,
   }));
 }
+
+// ── Check-ins ─────────────────────────────────────────────────────────────────
 
 export async function syncCheckIns(userId: string, checkIns: any[]) {
   await supabase.from("check_ins").delete().eq("user_id", userId);
@@ -82,25 +100,48 @@ export async function fetchCheckIns(userId: string) {
   return data?.map(c => ({ date: c.date, mood: c.mood, role: c.role as any })) || null;
 }
 
+// ── Nursing logs ──────────────────────────────────────────────────────────────
+
 export async function syncNursingLogs(userId: string, logs: NursingLog[]) {
   await supabase.from("nursing_logs").delete().eq("user_id", userId);
   if (logs.length > 0) {
-    const rows = logs.map(l => ({ id: l.id, user_id: userId, side: l.side, timestamp: l.timestamp }));
+    const rows = logs.map(l => ({
+      id: l.id,
+      user_id: userId,
+      side: l.side,
+      ml: l.ml ?? null,
+      reactions: l.reactions ?? {},
+      timestamp: l.timestamp,
+    }));
     await supabase.from("nursing_logs").insert(rows);
   }
 }
 
 export async function fetchNursingLogs(userId: string): Promise<NursingLog[] | null> {
   const { data } = await supabase.from("nursing_logs").select("*").eq("user_id", userId).order("timestamp", { ascending: false });
-  return data?.map(l => ({ id: l.id, side: l.side as any, timestamp: l.timestamp })) || null;
+  if (!data) return null;
+  return data.map(l => ({
+    id: l.id,
+    side: l.side as any,
+    ml: (l as any).ml ?? undefined,
+    reactions: (l as any).reactions ?? {},
+    timestamp: l.timestamp,
+  }));
 }
+
+// ── Diaper logs ───────────────────────────────────────────────────────────────
 
 export async function syncDiaperLogs(userId: string, logs: DiaperLog[]) {
   await supabase.from("diaper_logs").delete().eq("user_id", userId);
   if (logs.length > 0) {
     const rows = logs.map(l => ({
-      id: l.id, user_id: userId, type: l.type,
-      stool_color: l.stoolColor, stool_consistency: l.stoolConsistency, timestamp: l.timestamp,
+      id: l.id,
+      user_id: userId,
+      type: l.type,
+      stool_color: l.stoolColor ?? null,
+      stool_consistency: l.stoolConsistency ?? null,
+      reactions: l.reactions ?? {},
+      timestamp: l.timestamp,
     }));
     await supabase.from("diaper_logs").insert(rows);
   }
@@ -108,18 +149,30 @@ export async function syncDiaperLogs(userId: string, logs: DiaperLog[]) {
 
 export async function fetchDiaperLogs(userId: string): Promise<DiaperLog[] | null> {
   const { data } = await supabase.from("diaper_logs").select("*").eq("user_id", userId).order("timestamp", { ascending: false });
-  return data?.map(l => ({
-    id: l.id, type: l.type as any,
-    stoolColor: l.stool_color as any, stoolConsistency: l.stool_consistency as any, timestamp: l.timestamp,
-  })) || null;
+  if (!data) return null;
+  return data.map(l => ({
+    id: l.id,
+    type: l.type as any,
+    stoolColor: l.stool_color as any,
+    stoolConsistency: l.stool_consistency as any,
+    reactions: (l as any).reactions ?? {},
+    timestamp: l.timestamp,
+  }));
 }
+
+// ── Sleep logs ────────────────────────────────────────────────────────────────
 
 export async function syncSleepLogs(userId: string, logs: SleepLog[]) {
   await supabase.from("sleep_logs").delete().eq("user_id", userId);
   if (logs.length > 0) {
     const rows = logs.map(l => ({
-      id: l.id, user_id: userId, type: l.type,
-      start_time: l.startTime, end_time: l.endTime || null, source: l.source,
+      id: l.id,
+      user_id: userId,
+      type: l.type,
+      start_time: l.startTime,
+      end_time: l.endTime || null,
+      source: l.source,
+      reactions: l.reactions ?? {},
     }));
     await supabase.from("sleep_logs").insert(rows);
   }
@@ -127,11 +180,18 @@ export async function syncSleepLogs(userId: string, logs: SleepLog[]) {
 
 export async function fetchSleepLogs(userId: string): Promise<SleepLog[] | null> {
   const { data } = await supabase.from("sleep_logs").select("*").eq("user_id", userId).order("start_time", { ascending: false });
-  return data?.map(l => ({
-    id: l.id, type: l.type as any,
-    startTime: l.start_time, endTime: l.end_time || undefined, source: l.source as any,
-  })) || null;
+  if (!data) return null;
+  return data.map(l => ({
+    id: l.id,
+    type: l.type as any,
+    startTime: l.start_time,
+    endTime: l.end_time || undefined,
+    source: l.source as any,
+    reactions: (l as any).reactions ?? {},
+  }));
 }
+
+// ── Night shifts ──────────────────────────────────────────────────────────────
 
 export async function syncNightShifts(userId: string, shifts: NightShift[]) {
   await supabase.from("night_shifts").delete().eq("user_id", userId);
@@ -146,7 +206,60 @@ export async function fetchNightShifts(userId: string): Promise<NightShift[] | n
   return data?.map(s => ({ date: s.date, assignee: s.assignee as any })) || null;
 }
 
-export function useDebouncedSync(data: any, syncFn: (userId: string, data: any) => Promise<void>, delay = 1000) {
+// ── Daily questions ───────────────────────────────────────────────────────────
+
+export interface DailyQuestionRow {
+  family_id: string;
+  date: string;
+  question_index: number;
+  mor_answer?: string | null;
+  far_answer?: string | null;
+}
+
+export async function upsertDailyQuestion(row: DailyQuestionRow): Promise<void> {
+  await supabase.from("daily_questions" as any).upsert(row, { onConflict: "family_id,date" });
+}
+
+export async function fetchDailyQuestion(familyId: string, date: string): Promise<DailyQuestionRow | null> {
+  const { data } = await supabase
+    .from("daily_questions" as any)
+    .select("*")
+    .eq("family_id", familyId)
+    .eq("date", date)
+    .maybeSingle();
+  return data as DailyQuestionRow | null;
+}
+
+// ── Weekly rituals ────────────────────────────────────────────────────────────
+
+export interface WeeklyRitualRow {
+  family_id: string;
+  week_start: string;
+  mor_good?: string | null;
+  mor_hard?: string | null;
+  mor_next?: string | null;
+  far_good?: string | null;
+  far_hard?: string | null;
+  far_next?: string | null;
+}
+
+export async function upsertWeeklyRitual(row: WeeklyRitualRow): Promise<void> {
+  await supabase.from("weekly_rituals" as any).upsert(row, { onConflict: "family_id,week_start" });
+}
+
+export async function fetchWeeklyRitual(familyId: string, weekStart: string): Promise<WeeklyRitualRow | null> {
+  const { data } = await supabase
+    .from("weekly_rituals" as any)
+    .select("*")
+    .eq("family_id", familyId)
+    .eq("week_start", weekStart)
+    .maybeSingle();
+  return data as WeeklyRitualRow | null;
+}
+
+// ── Debounced sync hook ───────────────────────────────────────────────────────
+
+export function useDebouncedSync(data: any, syncFn: (userId: string, data: any) => Promise<void>, delay = 1500) {
   const { user } = useAuth();
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const isInitialLoad = useRef(true);

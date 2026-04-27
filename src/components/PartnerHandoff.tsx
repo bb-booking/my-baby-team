@@ -1,13 +1,16 @@
 import { useFamily } from "@/context/FamilyContext";
 import { useDiary } from "@/context/DiaryContext";
 import { formatDistanceToNow } from "date-fns";
-import { da } from "date-fns/locale";
+import { da, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 
 // Visible to the partner when they open the app — shows the other person's current state
 export function PartnerHandoff() {
   const { profile, morName, farName, checkIns } = useFamily();
+  const { t, i18n } = useTranslation();
   if (profile.hasPartner === false) return null;
   const { nursingLogs, diaperLogs, sleepLogs, getTonightShift } = useDiary();
+  const locale = i18n.language === "en" ? enUS : da;
 
   const { role } = profile;
   const partnerRole = role === "mor" ? "far" : "mor";
@@ -42,7 +45,7 @@ export function PartnerHandoff() {
   return (
     <div className="card-soft section-fade-in space-y-3">
       <p className="text-[0.6rem] tracking-[0.16em] uppercase text-muted-foreground">
-        {partnerName ? `${partnerName}s dag` : "Din partners dag"}
+        {partnerName ? t("handoff.partnerDay", { name: partnerName }) : t("handoff.partnerDayFallback")}
       </p>
 
       <div className="space-y-2">
@@ -50,8 +53,8 @@ export function PartnerHandoff() {
         {partnerMood && (
           <Row
             emoji={moodEmoji[partnerMood.mood] ?? "💭"}
-            label="Stemning i dag"
-            value={moodLabel(partnerMood.mood)}
+            label={t("handoff.mood")}
+            value={moodLabel(partnerMood.mood, t)}
           />
         )}
 
@@ -59,7 +62,7 @@ export function PartnerHandoff() {
         {partnerNeed && (
           <Row
             emoji={partnerNeed.emoji}
-            label="Har brug for"
+            label={t("handoff.needs")}
             value={partnerNeed.label}
             highlight
           />
@@ -69,8 +72,8 @@ export function PartnerHandoff() {
         {lastNursing && (
           <Row
             emoji="🍼"
-            label="Sidst ammet"
-            value={formatDistanceToNow(new Date(lastNursing.timestamp), { locale: da, addSuffix: true })}
+            label={t("handoff.lastNursing")}
+            value={formatDistanceToNow(new Date(lastNursing.timestamp), { locale, addSuffix: true })}
           />
         )}
 
@@ -78,8 +81,8 @@ export function PartnerHandoff() {
         {lastDiaper && (
           <Row
             emoji="🧷"
-            label="Sidst skiftet ble"
-            value={formatDistanceToNow(new Date(lastDiaper.timestamp), { locale: da, addSuffix: true })}
+            label={t("handoff.lastDiaper")}
+            value={formatDistanceToNow(new Date(lastDiaper.timestamp), { locale, addSuffix: true })}
           />
         )}
 
@@ -87,8 +90,8 @@ export function PartnerHandoff() {
         {tonightShift && (
           <Row
             emoji="🌙"
-            label="Nattevagt i aften"
-            value={tonightShift.assignee === role ? `${myName} (dig)` : `${partnerName || "Din partner"}`}
+            label={t("handoff.nightShift")}
+            value={tonightShift.assignee === role ? `${myName} ${t("handoff.you")}` : `${partnerName || t("handoff.partnerDayFallback")}`}
           />
         )}
       </div>
@@ -108,10 +111,12 @@ function Row({ emoji, label, value, highlight }: { emoji: string; label: string;
   );
 }
 
-function moodLabel(mood: string): string {
+function moodLabel(mood: string, t: (key: string) => string): string {
   const map: Record<string, string> = {
-    great: "Super", good: "Godt", okay: "Okay", tired: "Træt", hard: "Hård dag",
-    super: "Super", godt: "Godt", okay2: "Okay", træt: "Træt", hård: "Hård dag",
+    great: t("handoff.moodGreat"), good: t("handoff.moodGood"), okay: t("handoff.moodOkay"),
+    tired: t("handoff.moodTired"), hard: t("handoff.moodHard"),
+    super: t("handoff.moodGreat"), godt: t("handoff.moodGood"),
+    træt: t("handoff.moodTired"), hård: t("handoff.moodHard"),
   };
   return map[mood] ?? mood;
 }

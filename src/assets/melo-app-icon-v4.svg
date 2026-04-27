@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#dff2d4"/>
+      <stop offset="100%" stop-color="#c4e2b0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+
+  <!--
+    Profile silhouette (right-facing, local coords 0,0 → 462,528)
+    Nose tip at local x=462, crown at local y=0
+    Back of head at local x≈0
+
+    Left profile:  translate(0,   248) — nose lands at x=462, y=413
+    Right profile: translate(1024,248) scale(-1,1) — nose at x=562, y=413
+    Heart gap between noses: x=462–562, center x=512
+  -->
+
+  <!-- LEFT profile (facing right) -->
+  <path
+    transform="translate(0, 248)"
+    fill="#2d4a30"
+    d="
+      M 132,528
+      L 119,409
+      Q  26,389   7,317
+      Q  -7,257   7,191
+      Q  20,106  79, 46
+      Q 132,  7 211,  0
+      Q 304,  0 383, 40
+      Q 436, 79 442,125
+      Q 455,145 462,165
+      Q 451,191 433,198
+      Q 438,218 436,235
+      Q 422,251 406,264
+      Q 376,288 341,317
+      Q 314,343 306,376
+      L 301,528
+      Z
+    "
+  />
+
+  <!-- RIGHT profile (mirror, facing left) -->
+  <path
+    transform="translate(1024, 248) scale(-1,1)"
+    fill="#2d4a30"
+    d="
+      M 132,528
+      L 119,409
+      Q  26,389   7,317
+      Q  -7,257   7,191
+      Q  20,106  79, 46
+      Q 132,  7 211,  0
+      Q 304,  0 383, 40
+      Q 436, 79 442,125
+      Q 455,145 462,165
+      Q 451,191 433,198
+      Q 438,218 436,235
+      Q 422,251 406,264
+      Q 376,288 341,317
+      Q 314,343 306,376
+      L 301,528
+      Z
+    "
+  />
+
+  <!-- Heart between the two noses, centered at (512, 418) -->
+  <!-- Width ≈ 96px, height ≈ 84px -->
+  <path
+    fill="#ffffff"
+    d="
+      M 512,458
+      C 512,458 464,428 464,398
+      C 464,380 478,369 495,377
+      C 503,380 509,388 512,396
+      C 515,388 521,380 529,377
+      C 546,369 560,380 560,398
+      C 560,428 512,458 512,458
+      Z
+    "
+  />
+</svg>

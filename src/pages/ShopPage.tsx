@@ -144,7 +144,7 @@ export default function ShopPage() {
       {/* Smart reorder banner */}
       <div className="rounded-2xl p-5 section-fade-in" style={{
         animationDelay: "60ms",
-        background: "linear-gradient(135deg, hsl(var(--moss)), hsl(108 22% 28%))",
+        background: "linear-gradient(135deg, hsl(var(--moss)), hsl(154 32% 14%))",
         color: "hsl(var(--warm-white))",
       }}>
         <div className="flex items-start justify-between">
@@ -323,7 +323,7 @@ export default function ShopPage() {
         </div>
       </div>
 
-      <div className="h-20 md:h-0" />
+
     </div>
   );
 }

@@ -2,22 +2,30 @@ import { useFamily } from "@/context/FamilyContext";
 import { useDiary } from "@/context/DiaryContext";
 import { useTranslation } from "react-i18next";
 import { PregnancyWeekBar, BabySizeCard, PregnancyInsight } from "@/components/PregnancyWidgets";
+import { PregnancyWeekDetail } from "@/components/PregnancyWeekDetail";
+import { SymptomLogger } from "@/components/SymptomLogger";
+import { PregnancyAppointments } from "@/components/PregnancyAppointments";
+import { BirthPrepCard } from "@/components/BirthPrepCard";
+import { PregnancyDiary } from "@/components/PregnancyDiary";
 import { QuickLog } from "@/components/QuickLog";
 import { TaskList } from "@/components/TaskList";
 import { PartnerNudge } from "@/components/PartnerNudge";
 import { MilestoneTimeline } from "@/components/MilestoneTimeline";
-import { MorRecoveryCard, MorAutoSupport, MorFeedingCard, MorMicroSupport } from "@/components/MorDashboardCards";
 import { VidsteDuCard } from "@/components/FarDashboardCards";
 import { WhatMattersNow } from "@/components/CommandCenter";
 import { NeedsCard } from "@/components/NeedsCard";
-import { PartnerHandoff } from "@/components/PartnerHandoff";
 import { AppreciationCard } from "@/components/AppreciationCard";
 import { MemoryKeeper } from "@/components/MemoryKeeper";
-import { TakenTaskCard } from "@/components/TakenTaskCard";
+import { JordemoderCard } from "@/components/JordemoderCard";
+import { NatteplanCard } from "@/components/NatteplanCard";
+import { DagensSpørgsmål } from "@/components/DagensSpørgsmål";
+import { UgensRecap } from "@/components/UgensRecap";
+import { BabyDevCard } from "@/components/BabyDevCard";
+import { NattenKort } from "@/components/NattenKort";
+import { TeamStreak } from "@/components/TeamStreak";
 import { MessageCircle, Heart, Gamepad2, Square } from "lucide-react";
 import { format } from "date-fns";
 import { da, enUS } from "date-fns/locale";
-import { getBabyInsight } from "@/lib/phaseData";
 import { useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSleepNotifications } from "@/hooks/useSleepNotifications";
@@ -63,29 +71,33 @@ export default function Dashboard() {
         <>
           <PregnancyWeekBar />
           <BabySizeCard />
+          <PregnancyWeekDetail />
+          <SymptomLogger />
+          <PregnancyAppointments />
           <TaskList />
+          <BirthPrepCard />
           <PregnancyInsight />
+          <PregnancyDiary />
           <PartnerNudge />
           <MilestoneTimeline />
         </>
       ) : (
         <>
+          <NattenKort />
           <LiveSleepTracker childName={childName || "Baby"} />
-          <TakenTaskCard />
+          <TeamStreak />
+          <DagensSpørgsmål />
           <WhatMattersNow />
-          <PartnerHandoff />
-          <NeedsCard />
-          <NotificationPrompt childName={childName || "Baby"} />
           <QuickLog />
+          <NatteplanCard />
           <TaskList />
+          <NeedsCardConditional />
+          <UgensRecap />
+          <JordemoderCard />
+          <BabyDevCard />
+          <NotificationPrompt childName={childName || "Baby"} />
 
-          {isMor ? (
-            <>
-              <MorRecoveryCard />
-              <MorAutoSupport />
-              <MorFeedingCard />
-            </>
-          ) : (
+          {!isMor && (
             <VidsteDuCard ageWeeks={babyAgeWeeks} morName={morName} />
           )}
 
@@ -110,16 +122,52 @@ export default function Dashboard() {
               </Link>
             )}
           </div>
-
-          <BabyInsightCard ageWeeks={babyAgeWeeks} ageMonths={babyAgeMonths} childName={childName || "Baby"} />
-          {isMor && <MorMicroSupport />}
-          <MilestoneTimeline />
         </>
       )}
 
-      <div className="h-20 md:h-0" />
+
     </div>
   );
+}
+
+/**
+ * NeedsCard visibility logic:
+ * - No partner → never show
+ * - Person on leave, partner at work (07–15) → show to fill in needs
+ * - Working partner (15–19) → show so they see partner's needs before coming home
+ * - Both on leave → show to both all day (mutual check-in)
+ * - Stale need (>24h old) → auto-clear
+ */
+function NeedsCardConditional() {
+  const { profile, isOnLeave, setNeed } = useFamily();
+  const { role } = profile;
+  const hasPartner = profile.hasPartner !== false;
+  if (!hasPartner) return null;
+
+  const hour = new Date().getHours();
+  const myOnLeave = isOnLeave(role);
+  const partnerOnLeave = isOnLeave(role === "mor" ? "far" : "mor");
+
+  // Auto-clear stale need (>24h)
+  const myNeed = profile.activeNeed?.[role];
+  if (myNeed) {
+    const ageHours = (Date.now() - new Date(myNeed.setAt).getTime()) / 3600000;
+    if (ageHours > 24) {
+      setNeed(null);
+      return null;
+    }
+  }
+
+  // Both on leave → show all day
+  if (myOnLeave && partnerOnLeave) return <NeedsCard />;
+
+  // I'm on leave, partner at work → show 07–15 to fill in needs
+  if (myOnLeave && !partnerOnLeave && hour >= 7 && hour < 15) return <NeedsCard />;
+
+  // I'm at work → show 15–19 so I can see partner's needs before coming home
+  if (!myOnLeave && partnerOnLeave && hour >= 15 && hour < 19) return <NeedsCard />;
+
+  return null;
 }
 
 function NotificationPrompt({ childName }: { childName: string }) {
@@ -173,6 +221,8 @@ function NotificationPrompt({ childName }: { childName: string }) {
 
 function LiveSleepTracker({ childName }: { childName: string }) {
   const { activeSleep, endSleep } = useDiary();
+  const { profile } = useFamily();
+  const isMor = profile.role === "mor";
   const { t } = useTranslation();
   const [now, setNow] = useState(Date.now());
 
@@ -196,13 +246,15 @@ function LiveSleepTracker({ childName }: { childName: string }) {
 
   return (
     <div className="rounded-2xl overflow-hidden section-fade-in" style={{
-      background: "linear-gradient(145deg, hsl(var(--moss)), hsl(var(--sage-dark)))",
-      border: "1px solid hsl(var(--moss) / 0.3)",
+      background: isMor
+        ? "linear-gradient(145deg, hsl(var(--clay)), hsl(var(--bark)))"
+        : "linear-gradient(145deg, hsl(var(--moss)), hsl(var(--sage-dark)))",
+      border: isMor ? "1px solid hsl(var(--clay) / 0.3)" : "1px solid hsl(var(--moss) / 0.3)",
     }}>
       <div className="px-5 py-5 flex flex-col items-center gap-3">
         <div className="flex items-center gap-2">
           <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg font-semibold"
-            style={{ background: "hsl(var(--sage))", color: "white" }}>
+            style={{ background: isMor ? "hsl(var(--clay-light))" : "hsl(var(--sage))", color: isMor ? "hsl(var(--bark))" : "white" }}>
             {childName.charAt(0)}
           </div>
           <div>
@@ -230,9 +282,12 @@ function LiveSleepTracker({ childName }: { childName: string }) {
         <button
           onClick={() => endSleep(activeSleep.id)}
           className="mt-1 w-14 h-14 rounded-full flex items-center justify-center transition-all active:scale-90"
-          style={{ background: "hsl(var(--sage-light))", boxShadow: "0 0 20px hsl(var(--sage) / 0.3)" }}
+          style={{
+            background: isMor ? "hsl(var(--clay-light))" : "hsl(var(--sage-light))",
+            boxShadow: isMor ? "0 0 20px hsl(var(--clay) / 0.3)" : "0 0 20px hsl(var(--sage) / 0.3)",
+          }}
         >
-          <Square className="w-5 h-5" style={{ color: "hsl(var(--moss))", fill: "hsl(var(--moss))" }} />
+          <Square className="w-5 h-5" style={{ color: isMor ? "hsl(var(--bark))" : "hsl(var(--moss))", fill: isMor ? "hsl(var(--bark))" : "hsl(var(--moss))" }} />
         </button>
         <p className="text-[0.6rem] text-white/40 uppercase tracking-wider">{t("liveTracker.stopSleep")}</p>
       </div>
