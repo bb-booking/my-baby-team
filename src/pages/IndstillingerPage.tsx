@@ -42,6 +42,7 @@ export default function IndstillingerPage() {
   const [namesSaved, setNamesSaved] = useState(false);
   const [dateValue, setDateValue] = useState(profile.dueOrBirthDate || "");
   const [dateSaved, setDateSaved] = useState(false);
+  const [phaseSwitched, setPhaseSwitched] = useState<"pregnant" | "baby" | null>(null);
 
   const currentLang = profile.languages?.[profile.role] || "da";
 
@@ -64,9 +65,14 @@ export default function IndstillingerPage() {
       ? [{ ...profile.children[0], birthDate: dateValue }]
       : profile.children;
 
+    const prevPhase = profile.phase;
     setProfile({ ...profile, dueOrBirthDate: dateValue, phase: newPhase, children: updatedChildren });
     setDateSaved(true);
     setTimeout(() => setDateSaved(false), 2000);
+    if (prevPhase !== newPhase) {
+      setPhaseSwitched(newPhase === "pregnant" ? "pregnant" : "baby");
+      setTimeout(() => setPhaseSwitched(null), 4000);
+    }
   };
 
   const saveNames = () => {
@@ -130,6 +136,27 @@ export default function IndstillingerPage() {
           {dateSaved ? "✓ Gemt" : "Gem dato"}
         </button>
       </div>
+
+      {/* Phase switch confirmation */}
+      {phaseSwitched && (
+        <div
+          className="rounded-2xl px-4 py-3.5 flex items-center gap-3 section-fade-in"
+          style={{
+            background: phaseSwitched === "pregnant" ? "hsl(var(--clay-light))" : "hsl(var(--sage-light))",
+            border: `1px solid ${phaseSwitched === "pregnant" ? "hsl(var(--clay))" : "hsl(var(--sage))"}`,
+          }}
+        >
+          <span className="text-2xl">{phaseSwitched === "pregnant" ? "🤰" : "👶"}</span>
+          <div>
+            <p className="text-[0.85rem] font-semibold" style={{ color: "hsl(var(--bark))" }}>
+              {phaseSwitched === "pregnant" ? "Skiftet til gravid-interface" : "Skiftet til baby-interface"}
+            </p>
+            <p className="text-[0.7rem] text-muted-foreground">
+              {phaseSwitched === "pregnant" ? "Gå til forsiden for at se ændringen" : "Gå til forsiden for at se ændringen"}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Names */}
       <div className="card-soft section-fade-in">
