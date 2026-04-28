@@ -24,7 +24,7 @@ function loadLocal(): LocalData {
       if (parsed.date === getTodayStr()) return parsed;
     }
   } catch {}
-  return { date: getTodayStr(), questionIndex: getDayOfYear() % QUESTIONS.length };
+  return { date: getTodayStr(), questionIndex: getDayOfYear() % 30 };
 }
 
 export function DagensSpørgsmål() {
