@@ -214,7 +214,7 @@ function BornBarnPage({ ageWeeks, ageMonths }: { ageWeeks: number; ageMonths: nu
                       className={cn(
                         "w-full mt-2 py-2.5 rounded-xl text-[0.72rem] tracking-[0.08em] uppercase font-medium transition-all active:scale-[0.98]",
                         completedLeaps.includes(leap.id)
-                          ? "bg-[hsl(var(--sage))] text-white"
+                          ? "bg-[hsl(var(--moss))] text-white"
                           : "border border-[hsl(var(--stone-light))] hover:border-[hsl(var(--sage))] text-foreground/70"
                       )}
                     >

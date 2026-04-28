@@ -121,6 +121,7 @@ export function DagensSpørgsmål() {
   const accentBg = isMor ? "hsl(var(--clay-light))" : "hsl(var(--sage-light))";
   const accentText = isMor ? "hsl(var(--bark))" : "hsl(var(--moss))";
   const accentSolid = isMor ? "hsl(var(--clay))" : "hsl(var(--moss))";
+  const accentSolidText = isMor ? "hsl(var(--bark))" : "white";
 
   if (loading) return null;
 
@@ -161,7 +162,7 @@ export function DagensSpørgsmål() {
             onClick={handleSubmit}
             disabled={!inputValue.trim()}
             className="w-full py-2.5 rounded-xl text-[0.82rem] font-medium transition-all active:scale-95 disabled:opacity-40"
-            style={{ background: accentSolid, color: "white" }}
+            style={{ background: accentSolid, color: accentSolidText }}
           >
             {t("dagensQ.send")}
           </button>

@@ -126,7 +126,7 @@ export default function MerePage() {
                   <span className="text-lg">{p.emoji}</span>
                   <span className="text-[0.85rem] flex-1 text-left">{p.name}</span>
                   <span className={cn("text-[0.68rem] px-2.5 py-1 rounded-full",
-                    isOn ? "bg-[hsl(var(--sage))] text-white" : "text-muted-foreground")}>
+                    isOn ? "bg-[hsl(var(--moss))] text-white" : "text-muted-foreground")}>
                     {isOn ? t("settings.onLeave") : t("settings.notOnLeave")}
                   </span>
                 </button>

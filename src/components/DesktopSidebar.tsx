@@ -139,18 +139,18 @@ export function DesktopSidebar({ open, onClose }: DesktopSidebarProps) {
         <div className="flex items-center gap-2.5 mb-3">
           <div className="flex -space-x-2">
             <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs border-2 border-cream"
-              style={{ background: "linear-gradient(135deg, hsl(var(--clay-light)), hsl(var(--clay)))", color: "white" }}>
+              style={{ background: "linear-gradient(135deg, hsl(var(--clay-light)), hsl(var(--clay)))", color: "hsl(var(--bark))" }}>
               {profile.parentName?.[0] || "?"}
             </div>
             {profile.partnerName && (
               <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs border-2 border-cream"
-                style={{ background: "linear-gradient(135deg, hsl(var(--sage-light)), hsl(var(--sage)))", color: "white" }}>
+                style={{ background: "linear-gradient(135deg, hsl(var(--sage-light)), hsl(var(--sage)))", color: "hsl(var(--moss))" }}>
                 {profile.partnerName[0]}
               </div>
             )}
             {profile.children.map(c => (
               <div key={c.id} className="w-8 h-8 rounded-full flex items-center justify-center text-xs border-2 border-cream"
-                style={{ background: "linear-gradient(135deg, hsl(var(--sand-light)), hsl(var(--sand)))", color: "white" }}>
+                style={{ background: "linear-gradient(135deg, hsl(var(--sand-light)), hsl(var(--sand)))", color: "hsl(var(--bark))" }}>
                 {c.name[0]}
               </div>
             ))}

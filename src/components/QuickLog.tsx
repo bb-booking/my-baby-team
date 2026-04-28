@@ -152,7 +152,7 @@ export function QuickLog() {
           <span className="text-2xl">🍼</span>
           <span className="text-[0.62rem] tracking-[0.06em] uppercase text-muted-foreground">{feedingLabel}</span>
           <span className="absolute -top-1 -right-1 text-[0.6rem] font-bold w-5 h-5 rounded-full flex items-center justify-center"
-            style={{ background: nursingDone ? "hsl(var(--sage))" : "hsl(var(--clay-light))", color: nursingDone ? "white" : "hsl(var(--bark))" }}>
+            style={{ background: nursingDone ? "hsl(var(--sage))" : "hsl(var(--clay-light))", color: nursingDone ? "hsl(var(--moss))" : "hsl(var(--bark))" }}>
             {todayNursingCount}
           </span>
         </button>
@@ -257,7 +257,7 @@ export function QuickLog() {
                   onClick={() => { const ml = parseInt(bottleMl); if (ml > 0) handleBottle(ml); }}
                   disabled={!bottleMl || parseInt(bottleMl) <= 0}
                   className="px-4 py-2.5 rounded-xl text-[0.82rem] font-medium transition-all active:scale-95 disabled:opacity-40"
-                  style={{ background: "hsl(var(--sage))", color: "white" }}>
+                  style={{ background: "hsl(var(--moss))", color: "white" }}>
                   Log
                 </button>
               </div>
@@ -338,7 +338,7 @@ export function QuickLog() {
             </button>
             <button onClick={handleDirtyConfirm}
               className="flex-1 py-2.5 rounded-xl text-[0.78rem] font-medium transition-all active:scale-95"
-              style={{ background: "hsl(var(--sage))", color: "white" }}>
+              style={{ background: "hsl(var(--moss))", color: "white" }}>
               {t("quickLog.registerStool")}
             </button>
           </div>

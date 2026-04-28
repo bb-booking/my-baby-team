@@ -346,7 +346,7 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
             className={cn(
               "w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 transition-all active:scale-90",
               isCompleted
-                ? "bg-[hsl(var(--sage))]"
+                ? "bg-[hsl(var(--moss))]"
                 : "border-[1.5px] border-[hsl(var(--stone-light))] hover:border-[hsl(var(--sage))]"
             )}
           >
@@ -436,7 +436,7 @@ export function TaskList({ externalShowAdd, onExternalShowAddChange }: { externa
               <button
                 key={opt.offset}
                 onClick={() => handleMoveTask(task.id, opt.offset)}
-                className="px-2.5 py-1 rounded-full text-[0.62rem] bg-[hsl(var(--sage-light))] text-[hsl(var(--sage-dark))] hover:bg-[hsl(var(--sage))] hover:text-white transition-all active:scale-95"
+                className="px-2.5 py-1 rounded-full text-[0.62rem] bg-[hsl(var(--sage-light))] text-[hsl(var(--sage-dark))] hover:bg-[hsl(var(--sage-dark))] hover:text-white transition-all active:scale-95"
               >
                 {opt.label}
               </button>

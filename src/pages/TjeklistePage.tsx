@@ -299,7 +299,7 @@ export default function TjeklistePage() {
                         )}>
                         <button onClick={() => toggle(item.id)}
                           className={cn("w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-90 border-[1.5px]",
-                            isDone ? "bg-[hsl(var(--sage))] border-[hsl(var(--sage))]" : "border-[hsl(var(--stone-light))]"
+                            isDone ? "bg-[hsl(var(--moss))] border-[hsl(var(--moss))]" : "border-[hsl(var(--stone-light))]"
                           )}>
                           {isDone && <Check className="w-3.5 h-3.5 text-white" />}
                         </button>
@@ -361,7 +361,7 @@ export default function TjeklistePage() {
                         <button onClick={() => handleAddItem(openCat.name)}
                           disabled={!newTitle.trim()}
                           className="px-3 py-1.5 rounded-lg text-[0.72rem] font-medium transition-all disabled:opacity-40"
-                          style={{ background: "hsl(var(--sage))", color: "white" }}>
+                          style={{ background: "hsl(var(--moss))", color: "white" }}>
                           Tilføj
                         </button>
                         <button onClick={() => setAddingTo(null)} className="text-muted-foreground">
@@ -429,7 +429,7 @@ function HealthSuggestions() {
           <button
             onClick={() => addAndDismiss(s)}
             className="flex-shrink-0 px-3 py-1.5 rounded-lg text-[0.72rem] font-medium transition-all active:scale-95"
-            style={{ background: "hsl(var(--sage))", color: "white" }}
+            style={{ background: "hsl(var(--moss))", color: "white" }}
           >
             + Tilføj
           </button>

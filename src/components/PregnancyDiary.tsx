@@ -92,8 +92,8 @@ export function PregnancyDiary() {
           />
           <div className="flex gap-2">
             <button onClick={save} disabled={!text.trim()}
-              className="flex-1 py-2 rounded-xl text-[0.78rem] font-medium text-white transition-all active:scale-[0.98]"
-              style={{ background: text.trim() ? "hsl(var(--clay))" : "hsl(var(--stone-light))" }}>
+              className="flex-1 py-2 rounded-xl text-[0.78rem] font-medium transition-all active:scale-[0.98]"
+              style={{ background: text.trim() ? "hsl(var(--clay))" : "hsl(var(--stone-light))", color: "hsl(var(--bark))" }}>
               {t("pregDiary.save")}
             </button>
             <button onClick={() => setOpen(false)}

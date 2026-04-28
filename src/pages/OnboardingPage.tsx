@@ -520,7 +520,7 @@ export default function OnboardingPage() {
                     <p className="text-[0.95rem] font-semibold">{role === "far" ? "Dig" : partnerName || "Far"}</p>
                     <p className="text-[0.62rem] tracking-[0.12em] uppercase text-muted-foreground">{farLeave ? "På barsel" : "Ikke på barsel"}</p>
                   </div>
-                  <div className={cn("w-5 h-5 rounded-md flex items-center justify-center", farLeave ? "bg-[hsl(var(--sage))]" : "border-[1.5px] border-[hsl(var(--stone-light))]")}>
+                  <div className={cn("w-5 h-5 rounded-md flex items-center justify-center", farLeave ? "bg-[hsl(var(--moss))]" : "border-[1.5px] border-[hsl(var(--stone-light))]")}>
                     {farLeave && <span className="text-white text-[0.7rem]">✓</span>}
                   </div>
                 </button>

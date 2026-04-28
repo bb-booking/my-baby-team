@@ -148,6 +148,7 @@ function RitualSection() {
   const accentBg = isMor ? "hsl(var(--clay-light))" : "hsl(var(--sage-light))";
   const accentText = isMor ? "hsl(var(--bark))" : "hsl(var(--moss))";
   const accentSolid = isMor ? "hsl(var(--clay))" : "hsl(var(--moss))";
+  const accentSolidText = isMor ? "hsl(var(--bark))" : "white";
   const today = isSunday();
 
   const RITUAL_QUESTIONS = RITUAL_QUESTION_KEYS.map(q => ({ key: q.key, label: t(q.tKey) }));
@@ -215,7 +216,7 @@ function RitualSection() {
                 onClick={handleAnswer}
                 disabled={!inputs[step as RitualKey]?.trim()}
                 className="w-full py-2.5 rounded-full text-[0.82rem] font-medium transition-all active:scale-95 disabled:opacity-40"
-                style={{ background: accentSolid, color: "white" }}
+                style={{ background: accentSolid, color: accentSolidText }}
               >
                 {step === "next" ? t("recap.finish") : t("recap.next")}
               </button>

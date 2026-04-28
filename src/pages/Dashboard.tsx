@@ -254,7 +254,7 @@ function LiveSleepTracker({ childName }: { childName: string }) {
       <div className="px-5 py-5 flex flex-col items-center gap-3">
         <div className="flex items-center gap-2">
           <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg font-semibold"
-            style={{ background: isMor ? "hsl(var(--clay-light))" : "hsl(var(--sage))", color: isMor ? "hsl(var(--bark))" : "white" }}>
+            style={{ background: isMor ? "hsl(var(--clay-light))" : "hsl(var(--sage))", color: isMor ? "hsl(var(--bark))" : "hsl(var(--moss))" }}>
             {childName.charAt(0)}
           </div>
           <div>
