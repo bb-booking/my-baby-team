@@ -22,7 +22,6 @@ import { DagensSpørgsmål } from "@/components/DagensSpørgsmål";
 import { UgensRecap } from "@/components/UgensRecap";
 import { BabyDevCard } from "@/components/BabyDevCard";
 import { NattenKort } from "@/components/NattenKort";
-import { TeamStreak } from "@/components/TeamStreak";
 import { MessageCircle, Heart, Gamepad2, Square } from "lucide-react";
 import { format } from "date-fns";
 import { da, enUS } from "date-fns/locale";
@@ -85,8 +84,7 @@ export default function Dashboard() {
         <>
           <NattenKort />
           <LiveSleepTracker childName={childName || "Baby"} />
-          <TeamStreak />
-          <DagensSpørgsmål />
+<DagensSpørgsmål />
           <WhatMattersNow />
           <QuickLog />
           <NatteplanCard />
