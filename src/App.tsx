@@ -1,6 +1,25 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { useState } from "react";
+import { useState, Component, type ReactNode, type ErrorInfo } from "react";
+
+class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null };
+  static getDerivedStateFromError(error: Error) { return { error }; }
+  componentDidCatch(error: Error, info: ErrorInfo) { console.error("App crash:", error, info); }
+  render() {
+    if (this.state.error) {
+      return (
+        <div style={{ padding: 32, fontFamily: "monospace", background: "#fff", minHeight: "100vh" }}>
+          <h2 style={{ color: "#c00", marginBottom: 12 }}>App-fejl — vis dette til udvikleren</h2>
+          <pre style={{ whiteSpace: "pre-wrap", fontSize: 13, color: "#333" }}>
+            {(this.state.error as Error).message}{"\n\n"}{(this.state.error as Error).stack}
+          </pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 import { SplashScreen } from "@/components/SplashScreen";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
@@ -115,18 +134,22 @@ const App = () => {
   const [splashDone, setSplashDone] = useState(false);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          {!splashDone && <SplashScreen onDone={() => setSplashDone(true)} />}
-          <BrowserRouter>
-            <AuthenticatedApp />
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            {!splashDone && <SplashScreen onDone={() => setSplashDone(true)} />}
+            <BrowserRouter>
+              <ErrorBoundary>
+                <AuthenticatedApp />
+              </ErrorBoundary>
+            </BrowserRouter>
+          </TooltipProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 };
 
