@@ -16,7 +16,10 @@ export function PregnancyWeekBar() {
         <span className="label-upper mt-1">{t("pregnancy.weekLabel")}</span>
       </div>
       <div className="flex-1">
-        <p className="text-[0.95rem] mb-2">{t("pregnancy.trimesterLabel", { num: trimester })}</p>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-[0.95rem]">{t("pregnancy.trimesterLabel", { num: trimester })}</p>
+          <p className="text-[0.72rem] font-medium text-muted-foreground">{Math.round(progress)}%</p>
+        </div>
         <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "hsl(var(--stone-lighter))" }}>
           <div
             className="h-full rounded-full transition-all duration-700"
@@ -51,11 +54,18 @@ export function BabySizeCard() {
       }}
     >
       <span className="text-5xl flex-shrink-0 w-16 text-center drop-shadow-sm">{size.emoji}</span>
-      <div>
+      <div className="flex-1">
         <p className="text-[1.3rem] font-normal">{size.label}</p>
-        <p className="text-[0.78rem] text-muted-foreground mt-1 leading-relaxed">
-          {t("pregnancy.babyGrowing")}
-        </p>
+        <div className="flex gap-3 mt-1.5">
+          <span className="text-[0.72rem] px-2 py-0.5 rounded-full font-medium"
+            style={{ background: "hsl(var(--sage-light))", color: "hsl(var(--moss))" }}>
+            {size.lengthCm} cm
+          </span>
+          <span className="text-[0.72rem] px-2 py-0.5 rounded-full font-medium"
+            style={{ background: "hsl(var(--clay-light))", color: "hsl(var(--bark))" }}>
+            {size.weightG} g
+          </span>
+        </div>
       </div>
     </div>
   );
