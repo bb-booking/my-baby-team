@@ -16,7 +16,17 @@
     "babyNames": "Baby names",
     "subscription": "Subscription",
     "play": "Play",
-    "more": "More"
+    "more": "More",
+    "sleepDesc": "Sleep log, patterns and night shifts",
+    "calendarDesc": "Weekly overview and appointments",
+    "checklistDesc": "To-do lists for parents",
+    "adviceDesc": "Expert content and articles",
+    "babyNamesDesc": "Save and vote on names",
+    "subscriptionDesc": "Your subscription and purchases",
+    "playDesc": "Activities and play ideas",
+    "diaryDesc": "Log feeds, nappies and sleep",
+    "togetherDesc": "Tasks and weekly recap",
+    "childDesc": "Milestones and development"
   },
   "greeting": {
     "morning": "Good morning",
@@ -130,54 +140,54 @@
     "dad": "Dad"
   },
   "settings": {
-    "title": "Settings",
+    "diaryDesc": "Logs, sleep & notes",
+    "title": "More",
+    "yourPages": "Your pages",
+    "discoverMore": "Discover more",
+    "account": "Account",
+    "settingsMenu": "Settings",
+    "languageThemeData": "Language, theme and data",
+    "notifications": "Notifications",
+    "quietReminders": "Quiet reminders and alerts",
+    "help": "Help",
+    "faqSupport": "FAQ and support",
     "family": "Family",
-    "you": "you",
-    "partner": "partner",
     "mom": "Mom",
     "dad": "Dad",
+    "you": "You",
+    "partner": "Partner",
     "children": "Children",
-    "noChildren": "No children added yet.",
-    "born": "Born {{date}}",
+    "noChildren": "No children added yet",
     "childName": "Child's name",
-    "birthDate": "Date of birth",
-    "addChild": "Add child",
     "cancelBtn": "Cancel",
     "addBtn": "Add",
+    "addChild": "Add child",
     "parentalLeave": "Parental leave",
     "onLeave": "On leave",
     "notOnLeave": "Not on leave",
     "momRecovery": "Mom's recovery",
+    "reset": "Reset and start over",
+    "resetDesc": "Deletes all your data and takes you to onboarding",
+    "footer": "Melo · For parents, by parents 💛",
+    "born": "Born: {{date}}",
     "birthType": "Birth type",
-    "vaginal": "👶 Vaginal",
-    "cSection": "🏥 C-section",
+    "vaginal": "Vaginal",
+    "cSection": "C-section",
     "nutrition": "Nutrition",
-    "breastfeeding": "🤱 Breastfeeding",
-    "bottleFeeding": "🍼 Bottle",
+    "breastfeeding": "Breastfeeding",
+    "bottleFeeding": "Bottle",
     "both": "Both",
     "complications": "Complications",
-    "saveChanges": "Save changes",
-    "diaryDesc": "Logs, sleep & notes",
-    "profile": "Profile",
-    "notifications": "Notifications",
-    "quietReminders": "Quiet reminders",
-    "settingsMenu": "Settings",
-    "languageThemeData": "Language, theme, data",
-    "help": "Help",
-    "faqSupport": "FAQ and support",
-    "reset": "Start over",
-    "resetDesc": "Reset profile and choose again",
-    "footer": "Melo v1.0 — made with love 🌿",
-    "language": "Language",
-    "danish": "Dansk",
-    "english": "English",
-    "languageDesc": "Choose your preferred language",
-    "complication_tear": "Tear / episiotomy",
-    "complication_bleeding": "Heavy bleeding",
+    "complication_tear": "Tears",
+    "complication_bleeding": "Bleeding",
     "complication_infection": "Infection",
     "complication_preeclampsia": "Preeclampsia",
-    "complication_breastfeeding": "Breastfeeding problems",
-    "complication_depression": "Low mood"
+    "complication_breastfeeding": "Breastfeeding issues",
+    "complication_depression": "Postnatal depression",
+    "saveChanges": "Save changes",
+    "language": "Language",
+    "danish": "Danish",
+    "english": "English"
   },
   "onboarding": {
     "forNewParents": "for new parents",
@@ -619,23 +629,45 @@
     "connection": "Connection"
   },
   "nearnessTips": {
-    "kiss": "10-second kiss", "kissDesc": "A long kiss releases oxytocin and breaks the autopilot.",
-    "eyeContact": "Eye contact at handover", "eyeContactDesc": "When you switch 'shifts' — stop, look each other in the eyes, and say thanks.",
-    "message": "Send a message midday", "messageDesc": "Not about logistics. Just 'I'm thinking of you'.",
-    "touch": "Touch each other in passing", "touchDesc": "A hand on the back. Physical contact keeps the connection alive.",
-    "sofaDebrief": "Sofa debrief after bedtime", "sofaDebriefDesc": "Sit down for 10 min. No screens. Just 'How are you?'",
-    "morningCoffee": "Morning coffee together", "morningCoffeeDesc": "Get up 5 min before baby — it's your moment.",
-    "eveningRoutine": "Shared evening routine", "eveningRoutineDesc": "Pick one thing you do together every evening. Routine creates connection.",
-    "highLow": "High & low point", "highLowDesc": "Share the best and hardest moment of your day.",
-    "sofaDate": "Sofa date after 8 PM", "sofaDateDesc": "Light candles, share a snack. Just be intentional.",
-    "walkTalk": "Walk & talk with the stroller", "walkTalkDesc": "A walk together is a date in disguise.",
-    "takeaway": "Order takeaway and eat late", "takeawayDesc": "When baby sleeps: order something nice. Just the two of you.",
-    "needYou": "Say 'I need you'", "needYouDesc": "Showing need is strength — and it invites closeness.",
-    "acknowledge": "Acknowledge the invisible work", "acknowledgeDesc": "Say specifically what you see.",
-    "freeTime": "Give free time without being asked", "freeTimeDesc": "Say 'Take an hour for yourself — I've got this.'",
-    "10sec": "10 sec", "3sec": "3 sec", "30sec": "30 sec", "2sec": "2 sec",
-    "10min": "10 min", "5min": "5 min", "15min": "15 min", "1min": "1 min",
-    "30plus": "30+ min", "20plus": "20+ min", "45min": "45 min"
+    "kiss": "10-second kiss",
+    "kissDesc": "A long kiss releases oxytocin and breaks the autopilot.",
+    "eyeContact": "Eye contact at handover",
+    "eyeContactDesc": "When you switch 'shifts' — stop, look each other in the eyes, and say thanks.",
+    "message": "Send a message midday",
+    "messageDesc": "Not about logistics. Just 'I'm thinking of you'.",
+    "touch": "Touch each other in passing",
+    "touchDesc": "A hand on the back. Physical contact keeps the connection alive.",
+    "sofaDebrief": "Sofa debrief after bedtime",
+    "sofaDebriefDesc": "Sit down for 10 min. No screens. Just 'How are you?'",
+    "morningCoffee": "Morning coffee together",
+    "morningCoffeeDesc": "Get up 5 min before baby — it's your moment.",
+    "eveningRoutine": "Shared evening routine",
+    "eveningRoutineDesc": "Pick one thing you do together every evening. Routine creates connection.",
+    "highLow": "High & low point",
+    "highLowDesc": "Share the best and hardest moment of your day.",
+    "sofaDate": "Sofa date after 8 PM",
+    "sofaDateDesc": "Light candles, share a snack. Just be intentional.",
+    "walkTalk": "Walk & talk with the stroller",
+    "walkTalkDesc": "A walk together is a date in disguise.",
+    "takeaway": "Order takeaway and eat late",
+    "takeawayDesc": "When baby sleeps: order something nice. Just the two of you.",
+    "needYou": "Say 'I need you'",
+    "needYouDesc": "Showing need is strength — and it invites closeness.",
+    "acknowledge": "Acknowledge the invisible work",
+    "acknowledgeDesc": "Say specifically what you see.",
+    "freeTime": "Give free time without being asked",
+    "freeTimeDesc": "Say 'Take an hour for yourself — I've got this.'",
+    "10sec": "10 sec",
+    "3sec": "3 sec",
+    "30sec": "30 sec",
+    "2sec": "2 sec",
+    "10min": "10 min",
+    "5min": "5 min",
+    "15min": "15 min",
+    "1min": "1 min",
+    "30plus": "30+ min",
+    "20plus": "20+ min",
+    "45min": "45 min"
   },
   "conversation": {
     "starters": [
@@ -704,7 +736,15 @@
     "Small steps count. You're an amazing mom.",
     "Accepting help is strength, not weakness."
   ],
-  "dayLabels": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  "dayLabels": [
+    "Sun",
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat"
+  ],
   "weekProgress": {
     "ofWeeks": "of {{total}} weeks",
     "babyIsNowLike": "Baby is now like a",
@@ -722,19 +762,63 @@
   },
   "nudge": {
     "momNudges": [
-      {"emoji": "☕", "text": "Take 15 minutes for yourself", "detail": "You don't need a reason. Just do it."},
-      {"emoji": "🚶‍♀️", "text": "Go for a walk — alone", "detail": "Fresh air and silence work wonders."},
-      {"emoji": "💬", "text": "Tell {{partnerName}} what you need", "detail": "Asking for help is strength, not weakness."},
-      {"emoji": "🛁", "text": "A bath or warm drink", "detail": "Small things that feel big right now."},
-      {"emoji": "📝", "text": "Write one thing you're grateful for", "detail": "It shifts your perspective."}
+      {
+        "emoji": "☕",
+        "text": "Take 15 minutes for yourself",
+        "detail": "You don't need a reason. Just do it."
+      },
+      {
+        "emoji": "🚶‍♀️",
+        "text": "Go for a walk — alone",
+        "detail": "Fresh air and silence work wonders."
+      },
+      {
+        "emoji": "💬",
+        "text": "Tell {{partnerName}} what you need",
+        "detail": "Asking for help is strength, not weakness."
+      },
+      {
+        "emoji": "🛁",
+        "text": "A bath or warm drink",
+        "detail": "Small things that feel big right now."
+      },
+      {
+        "emoji": "📝",
+        "text": "Write one thing you're grateful for",
+        "detail": "It shifts your perspective."
+      }
     ],
     "dadNudges": [
-      {"emoji": "🏃", "text": "Take {{childName}} for a short walk", "detail": "{{partnerName}} gets a break — you get fresh air."},
-      {"emoji": "💬", "text": "Say something nice to {{partnerName}}", "detail": "'I see everything you do' always works."},
-      {"emoji": "🍳", "text": "Make dinner today", "detail": "Practical help > big words."},
-      {"emoji": "🌙", "text": "Take the bedtime routine tonight", "detail": "Bath, diaper, pajamas — you've got this, {{childName}} loves it."},
-      {"emoji": "🫂", "text": "Give {{partnerName}} a full break", "detail": "Just 30 minutes without responsibility makes a huge difference."},
-      {"emoji": "👀", "text": "See what needs doing — and do it", "detail": "No checklist needed. Just do it."}
+      {
+        "emoji": "🏃",
+        "text": "Take {{childName}} for a short walk",
+        "detail": "{{partnerName}} gets a break — you get fresh air."
+      },
+      {
+        "emoji": "💬",
+        "text": "Say something nice to {{partnerName}}",
+        "detail": "'I see everything you do' always works."
+      },
+      {
+        "emoji": "🍳",
+        "text": "Make dinner today",
+        "detail": "Practical help > big words."
+      },
+      {
+        "emoji": "🌙",
+        "text": "Take the bedtime routine tonight",
+        "detail": "Bath, diaper, pajamas — you've got this, {{childName}} loves it."
+      },
+      {
+        "emoji": "🫂",
+        "text": "Give {{partnerName}} a full break",
+        "detail": "Just 30 minutes without responsibility makes a huge difference."
+      },
+      {
+        "emoji": "👀",
+        "text": "See what needs doing — and do it",
+        "detail": "No checklist needed. Just do it."
+      }
     ]
   },
   "pregnancyDetail": {
@@ -918,9 +1002,6 @@
     "label": "Baby development · try this week",
     "activities": "3 activities"
   },
-  "settings": {
-    "diaryDesc": "Logs, sleep & notes"
-  },
   "needs": {
     "title": "What do you need?",
     "delete": "Clear",
@@ -1004,7 +1085,7 @@
     "title": "Your moments",
     "prompt": "One thing that made you smile this week?",
     "promptSub": "10 seconds. That's enough.",
-    "placeholder": "E.g. \u201cThey held my finger and wouldn\u2019t let go\u201d",
+    "placeholder": "E.g. “They held my finger and wouldn’t let go”",
     "save": "Save moment ✨",
     "saved": "Saved 💛 You'll see it again when it's hardest.",
     "showFewer": "Show fewer",

@@ -16,7 +16,17 @@
     "babyNames": "Babynavne",
     "subscription": "Abonnement",
     "play": "Leg",
-    "more": "Mere"
+    "more": "Mere",
+    "sleepDesc": "Søvnlog, mønstre og nattevagter",
+    "calendarDesc": "Ugentlig oversigt og aftaler",
+    "checklistDesc": "Huskelister til jer som forældre",
+    "adviceDesc": "Ekspertindhold og artikler",
+    "babyNamesDesc": "Gem og stem på navne",
+    "subscriptionDesc": "Dit abonnement og køb",
+    "playDesc": "Aktiviteter og legeråd",
+    "diaryDesc": "Log mad, ble og søvn",
+    "togetherDesc": "Opgaver og ugensrecap",
+    "childDesc": "Milepæle og udvikling"
   },
   "greeting": {
     "morning": "Godmorgen",
@@ -130,54 +140,54 @@
     "dad": "Far"
   },
   "settings": {
-    "title": "Indstillinger",
+    "diaryDesc": "Log, søvn & noter",
+    "title": "Mere",
+    "yourPages": "Dine sider",
+    "discoverMore": "Opdag mere",
+    "account": "Konto",
+    "settingsMenu": "Indstillinger",
+    "languageThemeData": "Sprog, tema og data",
+    "notifications": "Notifikationer",
+    "quietReminders": "Stille påmindelser og alerts",
+    "help": "Hjælp",
+    "faqSupport": "FAQ og support",
     "family": "Familie",
-    "you": "dig",
-    "partner": "partner",
     "mom": "Mor",
     "dad": "Far",
+    "you": "Dig",
+    "partner": "Partner",
     "children": "Børn",
-    "noChildren": "Ingen børn tilføjet endnu.",
-    "born": "Født {{date}}",
+    "noChildren": "Ingen børn tilføjet endnu",
     "childName": "Barnets navn",
-    "birthDate": "Fødselsdato",
-    "addChild": "Tilføj barn",
     "cancelBtn": "Annullér",
     "addBtn": "Tilføj",
-    "parentalLeave": "Barsel",
+    "addChild": "Tilføj barn",
+    "parentalLeave": "Barselsoversigt",
     "onLeave": "På barsel",
     "notOnLeave": "Ikke på barsel",
     "momRecovery": "Mors recovery",
+    "reset": "Nulstil og start forfra",
+    "resetDesc": "Sletter alle dine data og sender dig til onboarding",
+    "footer": "Melo · For forældre, af forældre 💛",
+    "born": "Født: {{date}}",
     "birthType": "Fødselstype",
-    "vaginal": "👶 Vaginal",
-    "cSection": "🏥 Kejsersnit",
+    "vaginal": "Vaginal",
+    "cSection": "Kejsersnit",
     "nutrition": "Ernæring",
-    "breastfeeding": "🤱 Amning",
-    "bottleFeeding": "🍼 Flaske",
+    "breastfeeding": "Amning",
+    "bottleFeeding": "Flaske",
     "both": "Begge",
     "complications": "Komplikationer",
-    "saveChanges": "Gem ændringer",
-    "diaryDesc": "Log, søvn & noter",
-    "profile": "Profil",
-    "notifications": "Notifikationer",
-    "quietReminders": "Rolige påmindelser",
-    "settingsMenu": "Indstillinger",
-    "languageThemeData": "Sprog, tema, data",
-    "help": "Hjælp",
-    "faqSupport": "FAQ og support",
-    "reset": "Start forfra",
-    "resetDesc": "Nulstil profil og vælg igen",
-    "footer": "Melo v1.0 — lavet med kærlighed 🌿",
-    "language": "Sprog",
-    "danish": "Dansk",
-    "english": "English",
-    "languageDesc": "Vælg dit foretrukne sprog",
-    "complication_tear": "Bristning / klip",
-    "complication_bleeding": "Stor blødning",
+    "complication_tear": "Rifter/bristning",
+    "complication_bleeding": "Blødning",
     "complication_infection": "Infektion",
     "complication_preeclampsia": "Præeklampsi",
     "complication_breastfeeding": "Ammeproblemer",
-    "complication_depression": "Nedstemthed"
+    "complication_depression": "Fødselsdepression",
+    "saveChanges": "Gem ændringer",
+    "language": "Sprog",
+    "danish": "Dansk",
+    "english": "Engelsk"
   },
   "onboarding": {
     "forNewParents": "for nye forældre",
@@ -619,23 +629,45 @@
     "connection": "Forbindelse"
   },
   "nearnessTips": {
-    "kiss": "10-sekunders kys", "kissDesc": "Et langt kys udløser oxytocin og bryder autopiloten.",
-    "eyeContact": "Øjenkontakt ved overlevering", "eyeContactDesc": "Når I skifter 'vagt' — stop, se hinanden i øjnene, og sig tak.",
-    "message": "Send en besked midt på dagen", "messageDesc": "Ikke om logistik. Bare 'Jeg tænker på dig'.",
-    "touch": "Rør ved hinanden i forbifarten", "touchDesc": "En hånd på ryggen. Fysisk kontakt holder forbindelsen i live.",
-    "sofaDebrief": "Sofa-debrief efter putning", "sofaDebriefDesc": "Sæt jer ned i 10 min. Ingen skærme. Bare 'Hvordan har du det?'",
-    "morningCoffee": "Morgenkaffe sammen", "morningCoffeeDesc": "Stå 5 min op før baby — det er jeres stund.",
-    "eveningRoutine": "Fælles aftenrutine", "eveningRoutineDesc": "Vælg én ting I gør sammen hver aften. Rutinen skaber forbindelse.",
-    "highLow": "Højdepunkt & lavpunkt", "highLowDesc": "Del dagens bedste og sværeste øjeblik med hinanden.",
-    "sofaDate": "Sofadate efter kl. 20", "sofaDateDesc": "Tænd stearinlys, del en snack. Bare intentionelt.",
-    "walkTalk": "Walk & talk med barnevognen", "walkTalkDesc": "En gåtur sammen er en date i forklædning.",
-    "takeaway": "Bestil takeaway og spis sent", "takeawayDesc": "Når baby sover: bestil noget godt. Bare jer to.",
-    "needYou": "Sig 'Jeg har brug for dig'", "needYouDesc": "At vise behov er styrke — og det inviterer til nærhed.",
-    "acknowledge": "Anerkend det usynlige arbejde", "acknowledgeDesc": "Sig specifikt hvad du ser.",
-    "freeTime": "Giv frirum uden at blive spurgt", "freeTimeDesc": "Sig 'Tag en time for dig selv — jeg har styr på det.'",
-    "10sec": "10 sek", "3sec": "3 sek", "30sec": "30 sek", "2sec": "2 sek",
-    "10min": "10 min", "5min": "5 min", "15min": "15 min", "1min": "1 min",
-    "30plus": "30+ min", "20plus": "20+ min", "45min": "45 min"
+    "kiss": "10-sekunders kys",
+    "kissDesc": "Et langt kys udløser oxytocin og bryder autopiloten.",
+    "eyeContact": "Øjenkontakt ved overlevering",
+    "eyeContactDesc": "Når I skifter 'vagt' — stop, se hinanden i øjnene, og sig tak.",
+    "message": "Send en besked midt på dagen",
+    "messageDesc": "Ikke om logistik. Bare 'Jeg tænker på dig'.",
+    "touch": "Rør ved hinanden i forbifarten",
+    "touchDesc": "En hånd på ryggen. Fysisk kontakt holder forbindelsen i live.",
+    "sofaDebrief": "Sofa-debrief efter putning",
+    "sofaDebriefDesc": "Sæt jer ned i 10 min. Ingen skærme. Bare 'Hvordan har du det?'",
+    "morningCoffee": "Morgenkaffe sammen",
+    "morningCoffeeDesc": "Stå 5 min op før baby — det er jeres stund.",
+    "eveningRoutine": "Fælles aftenrutine",
+    "eveningRoutineDesc": "Vælg én ting I gør sammen hver aften. Rutinen skaber forbindelse.",
+    "highLow": "Højdepunkt & lavpunkt",
+    "highLowDesc": "Del dagens bedste og sværeste øjeblik med hinanden.",
+    "sofaDate": "Sofadate efter kl. 20",
+    "sofaDateDesc": "Tænd stearinlys, del en snack. Bare intentionelt.",
+    "walkTalk": "Walk & talk med barnevognen",
+    "walkTalkDesc": "En gåtur sammen er en date i forklædning.",
+    "takeaway": "Bestil takeaway og spis sent",
+    "takeawayDesc": "Når baby sover: bestil noget godt. Bare jer to.",
+    "needYou": "Sig 'Jeg har brug for dig'",
+    "needYouDesc": "At vise behov er styrke — og det inviterer til nærhed.",
+    "acknowledge": "Anerkend det usynlige arbejde",
+    "acknowledgeDesc": "Sig specifikt hvad du ser.",
+    "freeTime": "Giv frirum uden at blive spurgt",
+    "freeTimeDesc": "Sig 'Tag en time for dig selv — jeg har styr på det.'",
+    "10sec": "10 sek",
+    "3sec": "3 sek",
+    "30sec": "30 sek",
+    "2sec": "2 sek",
+    "10min": "10 min",
+    "5min": "5 min",
+    "15min": "15 min",
+    "1min": "1 min",
+    "30plus": "30+ min",
+    "20plus": "20+ min",
+    "45min": "45 min"
   },
   "conversation": {
     "starters": [
@@ -704,7 +736,15 @@
     "Små skridt tæller. Du er en fantastisk mor.",
     "Tag imod hjælp — det er styrke, ikke svaghed."
   ],
-  "dayLabels": ["Søn", "Man", "Tir", "Ons", "Tor", "Fre", "Lør"],
+  "dayLabels": [
+    "Søn",
+    "Man",
+    "Tir",
+    "Ons",
+    "Tor",
+    "Fre",
+    "Lør"
+  ],
   "weekProgress": {
     "ofWeeks": "af {{total}} uger",
     "babyIsNowLike": "Barnet er nu som",
@@ -722,19 +762,63 @@
   },
   "nudge": {
     "momNudges": [
-      {"emoji": "☕", "text": "Tag 15 minutter for dig selv", "detail": "Du behøver ikke en grund. Bare gør det."},
-      {"emoji": "🚶‍♀️", "text": "Gå en tur — alene", "detail": "Frisk luft og stilhed gør underværker."},
-      {"emoji": "💬", "text": "Fortæl {{partnerName}} hvad du har brug for", "detail": "At bede om hjælp er styrke, ikke svaghed."},
-      {"emoji": "🛁", "text": "Bad eller varm drik", "detail": "Små ting der føles store lige nu."},
-      {"emoji": "📝", "text": "Skriv én ting du er taknemmelig for", "detail": "Det ændrer perspektivet."}
+      {
+        "emoji": "☕",
+        "text": "Tag 15 minutter for dig selv",
+        "detail": "Du behøver ikke en grund. Bare gør det."
+      },
+      {
+        "emoji": "🚶‍♀️",
+        "text": "Gå en tur — alene",
+        "detail": "Frisk luft og stilhed gør underværker."
+      },
+      {
+        "emoji": "💬",
+        "text": "Fortæl {{partnerName}} hvad du har brug for",
+        "detail": "At bede om hjælp er styrke, ikke svaghed."
+      },
+      {
+        "emoji": "🛁",
+        "text": "Bad eller varm drik",
+        "detail": "Små ting der føles store lige nu."
+      },
+      {
+        "emoji": "📝",
+        "text": "Skriv én ting du er taknemmelig for",
+        "detail": "Det ændrer perspektivet."
+      }
     ],
     "dadNudges": [
-      {"emoji": "🏃", "text": "Tag {{childName}} med på en kort gåtur", "detail": "{{partnerName}} får en pause — I får frisk luft."},
-      {"emoji": "💬", "text": "Sig noget rart til {{partnerName}}", "detail": "'Jeg ser alt det du gør' virker altid."},
-      {"emoji": "🍳", "text": "Lav aftensmad i dag", "detail": "Praktisk hjælp > store ord."},
-      {"emoji": "🌙", "text": "Tag aftenrutinen i aften", "detail": "Bad, ble, nattøj — du klarer det, {{childName}} elsker det."},
-      {"emoji": "🫂", "text": "Giv {{partnerName}} en fuld pause", "detail": "Bare 30 minutter uden ansvar gør en kæmpe forskel."},
-      {"emoji": "👀", "text": "Se hvad der skal gøres — og gør det", "detail": "Ingen huskeliste. Bare gør det."}
+      {
+        "emoji": "🏃",
+        "text": "Tag {{childName}} med på en kort gåtur",
+        "detail": "{{partnerName}} får en pause — I får frisk luft."
+      },
+      {
+        "emoji": "💬",
+        "text": "Sig noget rart til {{partnerName}}",
+        "detail": "'Jeg ser alt det du gør' virker altid."
+      },
+      {
+        "emoji": "🍳",
+        "text": "Lav aftensmad i dag",
+        "detail": "Praktisk hjælp > store ord."
+      },
+      {
+        "emoji": "🌙",
+        "text": "Tag aftenrutinen i aften",
+        "detail": "Bad, ble, nattøj — du klarer det, {{childName}} elsker det."
+      },
+      {
+        "emoji": "🫂",
+        "text": "Giv {{partnerName}} en fuld pause",
+        "detail": "Bare 30 minutter uden ansvar gør en kæmpe forskel."
+      },
+      {
+        "emoji": "👀",
+        "text": "Se hvad der skal gøres — og gør det",
+        "detail": "Ingen huskeliste. Bare gør det."
+      }
     ]
   },
   "pregnancyDetail": {
@@ -918,9 +1002,6 @@
     "label": "Babyudvikling · prøv i denne uge",
     "activities": "3 aktiviteter"
   },
-  "settings": {
-    "diaryDesc": "Log, søvn & noter"
-  },
   "needs": {
     "title": "Hvad har du brug for?",
     "delete": "Slet",
@@ -1004,7 +1085,7 @@
     "title": "Jeres øjeblikke",
     "prompt": "Én ting der fik dig til at smile denne uge?",
     "promptSub": "10 sekunder. Det er nok.",
-    "placeholder": "F.eks. \u201cHan holdt om min finger og ville ikke slippe\u201d",
+    "placeholder": "F.eks. “Han holdt om min finger og ville ikke slippe”",
     "save": "Gem øjeblik ✨",
     "saved": "Gemt 💛 Du vil se det igen når det er sværest.",
     "showFewer": "Vis færre",

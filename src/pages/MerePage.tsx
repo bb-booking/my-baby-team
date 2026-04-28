@@ -3,7 +3,7 @@ import { useFamily, type BirthType, type FeedingMethod } from "@/context/FamilyC
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Settings, User, Bell, HelpCircle, RotateCcw, Baby, Plus, Trash2, Users, Heart, LogOut, BookOpen } from "lucide-react";
+import { Settings, User, Bell, HelpCircle, RotateCcw, Baby, Plus, Trash2, Users, Heart, BookOpen, Moon, CalendarDays, ClipboardList, Lightbulb, Gamepad2, CreditCard, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function MerePage() {
@@ -26,12 +26,35 @@ export default function MerePage() {
     }
   };
 
-  const menuItems = [
-    { icon: BookOpen, label: t("nav.diary"), desc: t("settings.diaryDesc"), path: "/dagbog" },
-    { icon: User, label: t("settings.profile"), desc: `${profile.parentName} — ${profile.role === "mor" ? t("settings.mom") : t("settings.dad")}`, path: "" },
-    { icon: Bell, label: t("settings.notifications"), desc: t("settings.quietReminders"), path: "" },
-    { icon: Settings, label: t("settings.settingsMenu"), desc: t("settings.languageThemeData"), path: "/indstillinger" },
-    { icon: HelpCircle, label: t("settings.help"), desc: t("settings.faqSupport"), path: "" },
+  const sections = [
+    {
+      title: t("settings.yourPages"),
+      items: [
+        { icon: BookOpen,     label: t("nav.diary"),          desc: t("sidebar.diaryDesc"),        path: "/dagbog" },
+        { icon: Moon,         label: t("sidebar.sleep"),       desc: t("sidebar.sleepDesc"),        path: "/sovn" },
+        { icon: Baby,         label: t("nav.child"),           desc: t("sidebar.childDesc"),        path: "/barn" },
+        { icon: Users,        label: t("nav.together"),        desc: t("sidebar.togetherDesc"),     path: "/sammen" },
+        { icon: CalendarDays, label: t("sidebar.calendar"),    desc: t("sidebar.calendarDesc"),     path: "/kalender" },
+        { icon: ClipboardList,label: t("sidebar.checklist"),   desc: t("sidebar.checklistDesc"),    path: "/tjekliste" },
+      ],
+    },
+    {
+      title: t("settings.discoverMore"),
+      items: [
+        { icon: Lightbulb,    label: t("sidebar.advice"),      desc: t("sidebar.adviceDesc"),       path: "/raad" },
+        { icon: Gamepad2,     label: t("sidebar.play"),        desc: t("sidebar.playDesc"),         path: "/leg" },
+        { icon: Star,         label: t("babyNames.addName"),   desc: t("sidebar.babyNamesDesc"),    path: "/babynavne" },
+      ],
+    },
+    {
+      title: t("settings.account"),
+      items: [
+        { icon: CreditCard,   label: t("sidebar.subscription"),desc: t("sidebar.subscriptionDesc"), path: "/shop" },
+        { icon: Settings,     label: t("settings.settingsMenu"),desc: t("settings.languageThemeData"), path: "/indstillinger" },
+        { icon: Bell,         label: t("settings.notifications"),desc: t("settings.quietReminders"), path: "" },
+        { icon: HelpCircle,   label: t("settings.help"),       desc: t("settings.faqSupport"),      path: "" },
+      ],
+    },
   ];
 
   return (
@@ -148,20 +171,28 @@ export default function MerePage() {
         </div>
       )}
 
-      <div className="space-y-2">
-        {menuItems.map((item, i) => (
-          <button key={item.label} onClick={() => item.path && navigate(item.path)} className="card-soft w-full flex items-center gap-4 text-left transition-all active:scale-[0.98] section-fade-in" style={{ animationDelay: `${(i + 2) * 80}ms` }}>
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--sand-light))" }}>
-              <item.icon className="w-5 h-5 text-foreground/60" />
-            </div>
-            <div>
-              <p className="text-[0.85rem] font-normal">{item.label}</p>
-              <p className="text-[0.68rem] text-muted-foreground">{item.desc}</p>
-            </div>
-          </button>
-        ))}
-        <button onClick={handleReset} className="card-soft w-full flex items-center gap-4 text-left transition-all active:scale-[0.98] section-fade-in" style={{ animationDelay: "480ms" }}>
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-destructive/10"><RotateCcw className="w-5 h-5 text-destructive" /></div>
+      {sections.map((section, si) => (
+        <div key={section.title} className="space-y-1 section-fade-in" style={{ animationDelay: `${(si + 2) * 60}ms` }}>
+          <p className="text-[0.58rem] tracking-[0.18em] uppercase text-muted-foreground px-1 mb-2">{section.title}</p>
+          {section.items.map((item) => (
+            <button key={item.label} onClick={() => item.path && navigate(item.path)}
+              className="card-soft w-full flex items-center gap-4 text-left transition-all active:scale-[0.98]">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(var(--sand-light))" }}>
+                <item.icon className="w-5 h-5" style={{ color: "hsl(var(--moss))" }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[0.85rem] font-normal">{item.label}</p>
+                <p className="text-[0.68rem] text-muted-foreground">{item.desc}</p>
+              </div>
+              {item.path && <span className="text-muted-foreground/40 text-sm">›</span>}
+            </button>
+          ))}
+        </div>
+      ))}
+
+      <div className="section-fade-in" style={{ animationDelay: "300ms" }}>
+        <button onClick={handleReset} className="card-soft w-full flex items-center gap-4 text-left transition-all active:scale-[0.98]">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-destructive/10 flex-shrink-0"><RotateCcw className="w-5 h-5 text-destructive" /></div>
           <div><p className="text-[0.85rem] font-normal">{t("settings.reset")}</p><p className="text-[0.68rem] text-muted-foreground">{t("settings.resetDesc")}</p></div>
         </button>
       </div>
