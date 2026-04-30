@@ -3,6 +3,7 @@ import { getBabySize, getWeekInsight } from "@/lib/phaseData";
 import { MeloWordmark } from "@/components/MeloWordmark";
 import { NotificationBell } from "@/components/NotificationCenter";
 import { WeekUnlockModal } from "@/components/WeekUnlockModal";
+import { CheckInCard } from "@/components/PregnancyCheckIn";
 import { User, ArrowRight, Check, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -146,7 +147,10 @@ export default function DashboardPregnant() {
         <p className="text-[0.9rem] text-muted-foreground mt-1">Ét skridt ad gangen.</p>
       </div>
 
-      {/* ── B. Pregnancy Hero Card ──────────────────────────────────────────── */}
+      {/* ── B. Daily Check-in ───────────────────────────────────────────────── */}
+      <CheckInCard />
+
+      {/* ── C. Pregnancy Hero Card ──────────────────────────────────────────── */}
       <div
         className="rounded-[20px] overflow-hidden section-fade-in"
         style={{
@@ -209,7 +213,7 @@ export default function DashboardPregnant() {
         )}
       </div>
 
-      {/* ── C. Progress Card (circular ring) ────────────────────────────────── */}
+      {/* ── D. Progress Card (circular ring) ────────────────────────────────── */}
       <div
         className="rounded-2xl px-5 py-4 section-fade-in"
         style={{
