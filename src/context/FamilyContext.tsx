@@ -185,6 +185,15 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
         if (parsed.hasPartner === undefined) parsed.hasPartner = true;
         if (!parsed.inviteCode) parsed.inviteCode = generateInviteCode();
         if (!parsed.familyId) parsed.familyId = Math.random().toString(36).substring(2, 18);
+        // Always derive phase from date so the date is the single source of truth
+        if (parsed.dueOrBirthDate) {
+          const d = new Date(parsed.dueOrBirthDate);
+          const n = new Date();
+          const isFuture = d > n;
+          const weeksOld = Math.max(0, Math.floor((n.getTime() - d.getTime()) / (1000 * 60 * 60 * 24 * 7)));
+          const monthsOld = Math.floor(weeksOld / 4.33);
+          parsed.phase = isFuture ? "pregnant" : monthsOld < 3 ? "newborn" : "baby";
+        }
         return parsed;
       }
     } catch {}
@@ -253,6 +262,15 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
       ]);
       if (cancelled) return;
       if (dbProfile) {
+        // Always derive phase from date so the date is the single source of truth
+        if (dbProfile.dueOrBirthDate) {
+          const d = new Date(dbProfile.dueOrBirthDate);
+          const n = new Date();
+          const isFuture = d > n;
+          const weeksOld = Math.max(0, Math.floor((n.getTime() - d.getTime()) / (1000 * 60 * 60 * 24 * 7)));
+          const monthsOld = Math.floor(weeksOld / 4.33);
+          dbProfile.phase = isFuture ? "pregnant" : monthsOld < 3 ? "newborn" : "baby";
+        }
         setProfileState(dbProfile);
         localStorage.setItem("lille-family", JSON.stringify(dbProfile));
       }
