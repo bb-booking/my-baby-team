@@ -315,7 +315,9 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
   };
 
   const now = new Date();
-  const date = profile.dueOrBirthDate ? new Date(profile.dueOrBirthDate) : now;
+  // If any child has a future birthdate, treat it as the due date (user added expected birth before birth)
+  const futureBabyDateStr = profile.children?.find(c => c.birthDate && new Date(c.birthDate) > now)?.birthDate;
+  const date = futureBabyDateStr ? new Date(futureBabyDateStr) : profile.dueOrBirthDate ? new Date(profile.dueOrBirthDate) : now;
 
   let currentWeek = 0;
   let totalWeeks = 40;
@@ -340,7 +342,7 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
   }
 
   const effectivePhase: LifePhase =
-    profile.phase === "pregnant" ? "pregnant" : babyAgeMonths < 3 ? "newborn" : "baby";
+    (profile.phase === "pregnant" || !!futureBabyDateStr) ? "pregnant" : babyAgeMonths < 3 ? "newborn" : "baby";
 
   const morName = profile.role === "mor" ? profile.parentName : profile.partnerName;
   const farName = profile.role === "far" ? profile.parentName : profile.partnerName;

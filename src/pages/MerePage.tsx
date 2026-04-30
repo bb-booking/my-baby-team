@@ -15,15 +15,31 @@ export default function MerePage() {
   const [newChildName, setNewChildName] = useState("");
   const [newChildDate, setNewChildDate] = useState("");
   const [showMorHealth, setShowMorHealth] = useState(false);
+  const [showFutureConfirm, setShowFutureConfirm] = useState(false);
 
   const handleReset = () => { resetProfile(); navigate("/onboarding"); };
   const handleSignOut = async () => { await signOut(); };
 
   const handleAddChild = () => {
-    if (newChildName.trim()) {
+    if (!newChildName.trim()) return;
+    const isFuture = newChildDate && new Date(newChildDate) > new Date();
+    if (isFuture) {
+      setShowFutureConfirm(true);
+    } else {
       addChild(newChildName.trim(), newChildDate || new Date().toISOString());
       setNewChildName(""); setNewChildDate(""); setShowAddChild(false);
     }
+  };
+
+  const confirmFutureDueDate = () => {
+    addChild(newChildName.trim(), newChildDate);
+    setProfile({ ...profile, dueOrBirthDate: newChildDate, phase: "pregnant" });
+    setNewChildName(""); setNewChildDate(""); setShowAddChild(false); setShowFutureConfirm(false);
+  };
+
+  const denyFutureDueDate = () => {
+    addChild(newChildName.trim(), newChildDate);
+    setNewChildName(""); setNewChildDate(""); setShowAddChild(false); setShowFutureConfirm(false);
   };
 
   const sections = [
@@ -124,6 +140,35 @@ export default function MerePage() {
           )}
         </div>
       </div>
+
+      {/* Future date confirmation dialog */}
+      {showFutureConfirm && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center px-4 pb-8" style={{ background: "rgba(0,0,0,0.4)" }}>
+          <div className="w-full max-w-sm rounded-2xl p-5 space-y-4" style={{ background: "hsl(var(--warm-white))" }}>
+            <div className="text-center">
+              <span className="text-3xl block mb-2">🤰</span>
+              <p className="text-[1rem] font-semibold mb-1">Dato i fremtiden</p>
+              <p className="text-[0.82rem] text-muted-foreground leading-relaxed">
+                Datoen du har valgt er i fremtiden. Er dette jeres forventede terminsdato?
+              </p>
+            </div>
+            <button
+              onClick={confirmFutureDueDate}
+              className="w-full py-3 rounded-full text-[0.85rem] font-semibold text-white transition-all active:scale-[0.98]"
+              style={{ background: "hsl(var(--moss))" }}
+            >
+              Ja — skift til gravid-interface
+            </button>
+            <button
+              onClick={denyFutureDueDate}
+              className="w-full py-2.5 rounded-full text-[0.82rem] text-muted-foreground border transition-all active:scale-[0.98]"
+              style={{ borderColor: "hsl(var(--stone-light))" }}
+            >
+              Nej, behold baby-interface
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Parental leave */}
       {profile.phase !== "pregnant" && (
