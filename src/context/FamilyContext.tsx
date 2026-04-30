@@ -326,7 +326,7 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
   let babyAgeMonths = 0;
   let phaseLabel = "";
 
-  if (profile.phase === "pregnant") {
+  if (profile.phase === "pregnant" || !!futureBabyDateStr) {
     const weeksUntilDue = calcWeeksBetween(now, date);
     currentWeek = Math.max(1, Math.min(40, 40 - weeksUntilDue));
     trimester = currentWeek <= 12 ? 1 : currentWeek <= 27 ? 2 : 3;
