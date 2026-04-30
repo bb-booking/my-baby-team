@@ -112,7 +112,11 @@ export default function MerePage() {
                   <Baby className="w-4 h-4" style={{ color: "hsl(var(--moss))" }} />
                   <div className="flex-1">
                     <p className="text-[0.85rem] font-medium">{child.name}</p>
-                    <p className="text-[0.6rem] text-muted-foreground">{t("settings.born", { date: new Date(child.birthDate).toLocaleDateString(t === t ? "da-DK" : "en-GB") })}</p>
+                    <p className="text-[0.6rem] text-muted-foreground">
+                      {new Date(child.birthDate) > new Date()
+                        ? `Forventet: ${new Date(child.birthDate).toLocaleDateString("da-DK")}`
+                        : t("settings.born", { date: new Date(child.birthDate).toLocaleDateString("da-DK") })}
+                    </p>
                   </div>
                   <button onClick={() => removeChild(child.id)} className="p-1 rounded hover:bg-destructive/10 transition-colors">
                     <Trash2 className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive" />
