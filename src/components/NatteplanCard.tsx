@@ -71,72 +71,50 @@ export function NatteplanCard() {
 
       {expanded && (
         <div className="mt-4 space-y-4">
-          {/* Tonight assignment */}
-          <div>
-            <p className="text-[0.68rem] tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("natteplan.tonight")}</p>
-            <div className="grid grid-cols-2 gap-2">
-              {(["mor", "far"] as const).map(role => {
-                const colors = shiftColor(role);
-                const isActive = tonightShift?.assignee === role;
-                return (
-                  <button
-                    key={role}
-                    onClick={() => setNightShift(tonightStr, role)}
-                    className="py-3 rounded-xl text-[0.82rem] font-medium transition-all active:scale-95"
-                    style={{
-                      background: isActive ? colors.bg : "hsl(var(--stone-lighter, var(--cream)))",
-                      color: isActive ? colors.text : "hsl(var(--muted-foreground))",
-                      border: isActive ? `1.5px solid ${colors.text}30` : "1.5px solid transparent",
-                    }}
-                  >
-                    {shiftLabel(role)}
-                    {isActive && " ✓"}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
           {/* Feeding suggestion */}
           <div className="rounded-xl px-3 py-2.5" style={{ background: "hsl(var(--cream))", border: "1px solid hsl(var(--stone-light))" }}>
             <p className="text-[0.68rem] tracking-[0.1em] uppercase text-muted-foreground mb-1">{t("natteplan.suggestion")}</p>
             <p className="text-[0.78rem] leading-relaxed" style={{ color: "hsl(var(--bark))" }}>💡 {getSuggestion()}</p>
           </div>
 
-          {/* 7-day balance */}
-          {totalAssigned > 0 && (
-            <div>
-              <p className="text-[0.68rem] tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("natteplan.distribution")}</p>
-              <div className="flex gap-1 mb-2">
-                {days.map((day, i) => {
-                  const shift = nightShifts.find(s => s.date === day);
-                  const isToday = day === tonightStr;
-                  const dayOfWeek = new Date(day).getDay();
-                  const label = DAY_LABELS[(dayOfWeek + 6) % 7];
-                  return (
-                    <div key={day} className="flex-1 flex flex-col items-center gap-1">
-                      <div className="w-full h-7 rounded-lg flex items-center justify-center"
-                        style={{
-                          background: shift ? shiftColor(shift.assignee).bg : "hsl(var(--stone-lighter, var(--cream)))",
-                          border: isToday ? "1.5px solid hsl(var(--moss))" : "1.5px solid transparent",
-                        }}>
-                        {shift && (
-                          <span className="text-[0.6rem] font-semibold" style={{ color: shiftColor(shift.assignee).text }}>
-                            {shift.assignee === "mor" ? "M" : "F"}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-[0.52rem] text-muted-foreground">{label}</p>
+          {/* 7-day interactive bar */}
+          <div>
+            <p className="text-[0.68rem] tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("natteplan.distribution")}</p>
+            <div className="flex gap-1 mb-2">
+              {days.map((day) => {
+                const shift = nightShifts.find(s => s.date === day);
+                const isToday = day === tonightStr;
+                const dayOfWeek = new Date(day).getDay();
+                const label = DAY_LABELS[(dayOfWeek + 6) % 7];
+                const nextAssignee: "mor" | "far" = shift?.assignee === "mor" ? "far" : "mor";
+                return (
+                  <button
+                    key={day}
+                    onClick={() => setNightShift(day, nextAssignee)}
+                    className="flex-1 flex flex-col items-center gap-1 active:scale-90 transition-transform"
+                  >
+                    <div className="w-full h-7 rounded-lg flex items-center justify-center"
+                      style={{
+                        background: shift ? shiftColor(shift.assignee).bg : "hsl(var(--stone-lighter))",
+                        border: isToday ? "1.5px solid hsl(var(--moss))" : "1.5px solid transparent",
+                      }}>
+                      {shift && (
+                        <span className="text-[0.6rem] font-semibold" style={{ color: shiftColor(shift.assignee).text }}>
+                          {shift.assignee === "mor" ? "M" : "F"}
+                        </span>
+                      )}
                     </div>
-                  );
-                })}
-              </div>
-              <div className="flex items-center justify-between text-[0.68rem] text-muted-foreground">
-                <span style={{ color: "hsl(var(--bark))" }}>{morName || (i18n.language === "en" ? "Mom" : "Mor")}: {morShifts} {t("natteplan.nights")}</span>
-                <span style={{ color: "hsl(var(--moss))" }}>{farName || (i18n.language === "en" ? "Dad" : "Far")}: {farShifts} {t("natteplan.nights")}</span>
-              </div>
+                    <p className="text-[0.52rem] text-muted-foreground">{label}</p>
+                  </button>
+                );
+              })}
             </div>
-          )}
+            <div className="flex items-center justify-between text-[0.68rem]">
+              <span style={{ color: "hsl(var(--bark))" }}>{morName || (i18n.language === "en" ? "Mom" : "Mor")}: {morShifts} {t("natteplan.nights")}</span>
+              <span style={{ color: "hsl(var(--moss))" }}>{farName || (i18n.language === "en" ? "Dad" : "Far")}: {farShifts} {t("natteplan.nights")}</span>
+            </div>
+            <p className="text-[0.6rem] text-muted-foreground mt-1.5 text-center">{t("natteplan.tapToChange")}</p>
+          </div>
         </div>
       )}
     </div>

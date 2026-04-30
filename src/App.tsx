@@ -44,6 +44,8 @@ import SovnPage from "@/pages/SovnPage";
 import ChatPage from "@/pages/ChatPage";
 import LegPage from "@/pages/LegPage";
 import IndstillingerPage from "@/pages/IndstillingerPage";
+import PregnancyWeekPage from "@/pages/PregnancyWeekPage";
+import PregnancyFruitsPage from "@/pages/PregnancyFruitsPage";
 import AuthPage from "@/pages/AuthPage";
 import NotFound from "@/pages/NotFound";
 import PrivacyPage from "@/pages/PrivacyPage";
@@ -121,6 +123,8 @@ function AuthenticatedApp() {
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/leg" element={<LegPage />} />
             <Route path="/indstillinger" element={<IndstillingerPage />} />
+            <Route path="/graviditet/uge" element={<PregnancyWeekPage />} />
+            <Route path="/graviditet/frugter" element={<PregnancyFruitsPage />} />
           </Route>
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="*" element={<NotFound />} />

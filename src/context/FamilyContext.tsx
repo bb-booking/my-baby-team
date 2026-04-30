@@ -101,6 +101,7 @@ export interface FamilyProfile {
   familyId?: string;
   inviteCode?: string;
   partnerUserId?: string;
+  dateNightIdeas?: { mor?: string; far?: string };
 }
 
 function generateInviteCode(): string {

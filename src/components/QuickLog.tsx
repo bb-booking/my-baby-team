@@ -212,7 +212,7 @@ export function QuickLog() {
                 <button onClick={() => handleNursing("left")}
                   className="flex-1 py-3 rounded-2xl text-[0.82rem] font-medium border transition-all active:scale-[0.97]"
                   style={{
-                    background: suggestedSide === "left" ? "hsl(var(--sage))" : "hsl(var(--sage-light))",
+                    background: suggestedSide === "left" ? "hsl(var(--moss))" : "hsl(var(--sage-light))",
                     borderColor: "hsl(var(--sage))",
                     color: suggestedSide === "left" ? "white" : "hsl(var(--sage-dark))",
                   }}>
@@ -221,7 +221,7 @@ export function QuickLog() {
                 <button onClick={() => handleNursing("right")}
                   className="flex-1 py-3 rounded-2xl text-[0.82rem] font-medium border transition-all active:scale-[0.97]"
                   style={{
-                    background: suggestedSide === "right" ? "hsl(var(--sage))" : "hsl(var(--sage-light))",
+                    background: suggestedSide === "right" ? "hsl(var(--moss))" : "hsl(var(--sage-light))",
                     borderColor: "hsl(var(--sage))",
                     color: suggestedSide === "right" ? "white" : "hsl(var(--sage-dark))",
                   }}>

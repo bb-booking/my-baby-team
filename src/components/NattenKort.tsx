@@ -104,7 +104,7 @@ export function NattenKort() {
         </p>
       </div>
 
-      <p className="text-[1rem] font-medium text-white leading-snug">{msg.headline}</p>
+      <p className="font-serif text-[1rem] font-medium text-white leading-snug">{msg.headline}</p>
       <p className="text-[0.8rem] text-white/70 leading-relaxed">{msg.body}</p>
 
       {msg.source && (

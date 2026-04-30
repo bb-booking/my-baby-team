@@ -58,8 +58,8 @@ export function MemoryKeeper() {
           <button
             onClick={handleSave}
             disabled={!text.trim()}
-            className="w-full py-2.5 rounded-full text-[0.78rem] font-medium transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed text-white"
-            style={{ background: "hsl(var(--clay))" }}
+            className="w-full py-2.5 rounded-full text-[0.78rem] font-medium transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ background: "hsl(var(--clay))", color: "hsl(var(--bark))" }}
           >
             {t("memory.save")}
           </button>

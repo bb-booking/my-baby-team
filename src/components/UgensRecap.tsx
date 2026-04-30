@@ -1,18 +1,10 @@
 import { useState, useEffect } from "react";
-import { useDiary } from "@/context/DiaryContext";
 import { useFamily } from "@/context/FamilyContext";
 import { supabase } from "@/integrations/supabase/client";
 import { upsertWeeklyRitual, fetchWeeklyRitual, type WeeklyRitualRow } from "@/hooks/useSupabaseSync";
 import { useTranslation } from "react-i18next";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-function getLast7DaysStart(): Date {
-  const d = new Date();
-  d.setDate(d.getDate() - 6);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
 
 function getThisWeekMonday(): string {
   const d = new Date();
@@ -26,34 +18,24 @@ function isSunday(): boolean {
   return new Date().getDay() === 0;
 }
 
-function minutesToStr(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = Math.round(minutes % 60);
-  if (h === 0) return `${m}m`;
-  if (m === 0) return `${h}t`;
-  return `${h}t ${m}m`;
+const PULSE_KEY = "melo-collab-pulse";
+const MISSING_KEY = "melo-collab-missing";
+
+type PulseValue = "great" | "ok" | "hard" | null;
+type MissingValue = "help" | "presence" | "appreciation" | null;
+
+function getWeekPulse(): { pulse: PulseValue; missing: MissingValue; week: string } {
+  try {
+    const stored = localStorage.getItem(PULSE_KEY);
+    if (!stored) return { pulse: null, missing: null, week: "" };
+    return JSON.parse(stored);
+  } catch { return { pulse: null, missing: null, week: "" }; }
 }
 
-// ── Stats ─────────────────────────────────────────────────────────────────────
-
-function useWeekStats() {
-  const { nursingLogs, diaperLogs, sleepLogs } = useDiary();
-  const start = getLast7DaysStart();
-
-  const feeds = nursingLogs.filter(l => new Date(l.timestamp) >= start).length;
-  const diapers = diaperLogs.filter(l => new Date(l.timestamp) >= start).length;
-  const sleepMin = sleepLogs
-    .filter(l => new Date(l.startTime) >= start && l.endTime)
-    .reduce((sum, l) => sum + (new Date(l.endTime!).getTime() - new Date(l.startTime).getTime()) / 60000, 0);
-
-  const allTimeMilestone = (() => {
-    if (nursingLogs.length >= 100 && nursingLogs.length < 110) return "milestone100meals";
-    if (diaperLogs.length >= 100 && diaperLogs.length < 110) return "milestone100diapers";
-    if (nursingLogs.length >= 50 && nursingLogs.length < 55) return "milestone50meals";
-    return null;
-  })();
-
-  return { feeds, diapers, sleepMin, allTimeMilestone };
+function saveWeekPulse(pulse: PulseValue, missing: MissingValue) {
+  try {
+    localStorage.setItem(PULSE_KEY, JSON.stringify({ pulse, missing, week: getThisWeekMonday() }));
+  } catch {}
 }
 
 // ── Ritual ────────────────────────────────────────────────────────────────────
@@ -86,7 +68,6 @@ function useRitual() {
     });
   }, [familyId, weekStart]);
 
-  // Real-time subscription
   useEffect(() => {
     if (!familyId) return;
     const channel = supabase
@@ -274,23 +255,109 @@ function RitualSection() {
   );
 }
 
-// ── Main component ─────────────────────────────────────────────────────────────
+// ── Collaboration pulse ───────────────────────────────────────────────────────
 
-export function UgensRecap() {
-  const { feeds, diapers, sleepMin, allTimeMilestone } = useWeekStats();
-  const { profile } = useFamily();
+function CollabPulse() {
   const { t } = useTranslation();
+  const { profile } = useFamily();
   const isMor = profile.role === "mor";
-
-  if (feeds === 0 && diapers === 0 && sleepMin === 0) return null;
-
   const accentBg = isMor ? "hsl(var(--clay-light))" : "hsl(var(--sage-light))";
   const accentText = isMor ? "hsl(var(--bark))" : "hsl(var(--moss))";
 
-  const parts: string[] = [];
-  if (feeds > 0) parts.push(t("recap.mealsCount", { count: feeds }));
-  if (diapers > 0) parts.push(t("recap.diapersCount", { count: diapers }));
-  if (sleepMin > 0) parts.push(t("recap.sleepTime", { time: minutesToStr(sleepMin) }));
+  const weekStart = getThisWeekMonday();
+  const [pulse, setPulse] = useState<PulseValue>(() => {
+    const stored = getWeekPulse();
+    return stored.week === weekStart ? stored.pulse : null;
+  });
+  const [missing, setMissing] = useState<MissingValue>(() => {
+    const stored = getWeekPulse();
+    return stored.week === weekStart ? stored.missing : null;
+  });
+
+  const selectPulse = (val: PulseValue) => {
+    const next = pulse === val ? null : val;
+    setPulse(next);
+    saveWeekPulse(next, missing);
+  };
+
+  const selectMissing = (val: MissingValue) => {
+    const next = missing === val ? null : val;
+    setMissing(next);
+    saveWeekPulse(pulse, next);
+  };
+
+  const pulseOptions = [
+    { id: "great" as const, emoji: "💚", label: t("recap.pulseGreat") },
+    { id: "ok" as const, emoji: "💛", label: t("recap.pulseOk") },
+    { id: "hard" as const, emoji: "🌧️", label: t("recap.pulseHard") },
+  ];
+
+  const missingOptions = [
+    { id: "help" as const, label: t("recap.missingHelp") },
+    { id: "presence" as const, label: t("recap.missingPresence") },
+    { id: "appreciation" as const, label: t("recap.missingAppreciation") },
+  ];
+
+  return (
+    <div className="space-y-3">
+      <p className="text-[0.6rem] tracking-[0.16em] uppercase text-muted-foreground">{t("recap.collabPulse")}</p>
+
+      {/* Pulse */}
+      <div className="flex gap-2">
+        {pulseOptions.map(opt => {
+          const isSelected = pulse === opt.id;
+          return (
+            <button
+              key={opt.id}
+              onClick={() => selectPulse(opt.id)}
+              className="flex-1 py-2.5 rounded-xl flex flex-col items-center gap-1 transition-all active:scale-95"
+              style={{
+                background: isSelected ? accentBg : "hsl(var(--cream))",
+                border: `1.5px solid ${isSelected ? accentText + "60" : "hsl(var(--stone-light))"}`,
+              }}
+            >
+              <span className="text-lg">{opt.emoji}</span>
+              <span className="text-[0.6rem]" style={{ color: isSelected ? accentText : "hsl(var(--muted-foreground))" }}>{opt.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Missing */}
+      {pulse && pulse !== "great" && (
+        <div>
+          <p className="text-[0.68rem] text-muted-foreground mb-2">{t("recap.missingPrompt")}</p>
+          <div className="flex gap-1.5 flex-wrap">
+            {missingOptions.map(opt => {
+              const isSelected = missing === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  onClick={() => selectMissing(opt.id)}
+                  className="px-3 py-1.5 rounded-full text-[0.72rem] transition-all active:scale-95"
+                  style={{
+                    background: isSelected ? accentBg : "hsl(var(--stone-lighter))",
+                    color: isSelected ? accentText : "hsl(var(--muted-foreground))",
+                    border: `1px solid ${isSelected ? accentText + "40" : "transparent"}`,
+                  }}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Main component ─────────────────────────────────────────────────────────────
+
+export function UgensRecap() {
+  const { profile } = useFamily();
+  const { t } = useTranslation();
+  const hasPartner = profile.hasPartner !== false;
 
   return (
     <div className="card-soft section-fade-in space-y-3">
@@ -299,32 +366,9 @@ export function UgensRecap() {
         <p className="text-[0.55rem] tracking-[0.14em] uppercase text-muted-foreground">{t("recap.title")}</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
-        {[
-          { labelKey: "recap.meals", value: feeds, icon: "🍼" },
-          { labelKey: "recap.diapers", value: diapers, icon: "👶" },
-          { labelKey: "recap.sleep", value: sleepMin > 0 ? minutesToStr(sleepMin) : "—", icon: "🌙" },
-        ].map(stat => (
-          <div key={stat.labelKey} className="rounded-xl py-3 px-2 flex flex-col items-center gap-1"
-            style={{ background: accentBg }}>
-            <span className="text-lg">{stat.icon}</span>
-            <p className="text-[1rem] font-semibold" style={{ color: accentText }}>{stat.value}</p>
-            <p className="text-[0.58rem] tracking-[0.08em] uppercase text-muted-foreground">{t(stat.labelKey)}</p>
-          </div>
-        ))}
-      </div>
+      <CollabPulse />
 
-      <p className="text-[0.78rem] leading-relaxed text-muted-foreground">
-        {parts.join(", ")} {t("recap.summaryEnd")}
-      </p>
-
-      {allTimeMilestone && (
-        <div className="rounded-xl px-3 py-2.5" style={{ background: accentBg }}>
-          <p className="text-[0.82rem] font-medium" style={{ color: accentText }}>{t(`recap.${allTimeMilestone}`)}</p>
-        </div>
-      )}
-
-      <RitualSection />
+      {hasPartner && <RitualSection />}
     </div>
   );
 }

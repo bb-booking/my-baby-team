@@ -98,7 +98,7 @@ export default function IndstillingerPage() {
         <button onClick={() => navigate("/mere")} className="flex items-center gap-1 text-muted-foreground text-[0.78rem] mb-2 active:scale-95 transition-transform">
           <ChevronLeft className="w-4 h-4" /> {t("settingsPage.back")}
         </button>
-        <h1 className="text-[1.9rem] font-normal">{t("settings.settingsMenu")}</h1>
+        <h1 className="text-[1.9rem]">{t("settings.settingsMenu")}</h1>
       </div>
 
       {/* Due date / birth date */}
@@ -118,7 +118,8 @@ export default function IndstillingerPage() {
           type="date"
           value={dateValue}
           onChange={e => setDateValue(e.target.value)}
-          className="w-full rounded-xl border-[1.5px] border-[hsl(var(--stone-light))] bg-background px-4 py-2.5 text-[0.88rem] focus:outline-none focus:border-[hsl(var(--moss))] transition-colors mb-3"
+          className="w-full max-w-full rounded-xl border-[1.5px] border-[hsl(var(--stone-light))] bg-background px-4 py-2.5 text-[0.88rem] focus:outline-none focus:border-[hsl(var(--moss))] transition-colors mb-3 box-border"
+          style={{ minWidth: 0 }}
         />
         {dateValue && dateValue !== profile.dueOrBirthDate && (
           <p className="text-[0.68rem] text-muted-foreground mb-3">

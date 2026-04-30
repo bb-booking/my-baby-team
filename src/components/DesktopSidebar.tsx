@@ -201,8 +201,8 @@ export function DesktopSidebar({ open, onClose }: DesktopSidebarProps) {
                   <item.icon className="w-4 h-4 opacity-70" />
                   {item.label}
                   {item.badge && (
-                    <span className="ml-auto w-5 h-5 rounded-full text-[0.6rem] flex items-center justify-center text-white"
-                      style={{ background: "hsl(var(--clay))" }}>
+                    <span className="ml-auto w-5 h-5 rounded-full text-[0.6rem] flex items-center justify-center"
+                      style={{ background: "hsl(var(--clay))", color: "hsl(var(--bark))" }}>
                       {item.badge}
                     </span>
                   )}

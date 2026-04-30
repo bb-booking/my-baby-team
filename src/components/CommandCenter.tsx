@@ -39,7 +39,7 @@ export function WhatMattersNow() {
     <div className="rounded-2xl overflow-hidden section-fade-in" style={{ background: bg }}>
       <div className="px-5 py-5">
         <p className="text-[0.55rem] tracking-[0.2em] uppercase text-white/50 mb-2">{t("commandCenter.rightNow")}</p>
-        <p className="text-[1.15rem] font-medium text-white leading-snug mb-1">
+        <p className="font-serif text-[1.15rem] font-medium text-white leading-snug mb-1">
           {message.title}
         </p>
         <p className="text-[0.78rem] text-white/70 leading-relaxed">
@@ -313,6 +313,7 @@ export function TodaysFlow() {
   const accentLight = isMor ? "hsl(var(--clay-light))" : "hsl(var(--sage-light))";
   const accentBorder = isMor ? "hsl(var(--clay) / 0.2)" : "hsl(var(--sage) / 0.2)";
   const accentSolid = isMor ? "hsl(var(--clay))" : "hsl(var(--moss))";
+  const accentSolidText = isMor ? "hsl(var(--bark))" : "white";
 
   const morLeave = isOnLeave("mor");
   const farLeave = isOnLeave("far");
@@ -346,7 +347,7 @@ export function TodaysFlow() {
               {isCurrent && (
                 <span className="text-[0.55rem] tracking-[0.1em] uppercase px-2 py-0.5 rounded-full" style={{
                   background: accentSolid,
-                  color: "white",
+                  color: accentSolidText,
                 }}>{t("flow.now")}</span>
               )}
             </div>

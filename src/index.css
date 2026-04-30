@@ -33,14 +33,14 @@
   :root {
     /* Warm white background */
     --background: 38 30% 96%;
-    --foreground: 24 16% 18%;
+    --foreground: 154 27% 16%;
 
     /* Cards */
     --card: 38 30% 96%;
-    --card-foreground: 24 16% 18%;
+    --card-foreground: 154 27% 16%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 24 16% 18%;
+    --popover-foreground: 154 27% 16%;
 
     /* Forest green primary */
     --primary: 154 27% 20%;
@@ -48,11 +48,11 @@
 
     /* Sand secondary */
     --secondary: 33 42% 80%;
-    --secondary-foreground: 24 16% 18%;
+    --secondary-foreground: 154 27% 16%;
 
     /* Muted: stone lighter */
     --muted: 36 20% 90%;
-    --muted-foreground: 28 8% 42%;
+    --muted-foreground: 28 10% 46%;
 
     /* Accent: clay */
     --accent: 30 35% 64%;
@@ -61,96 +61,106 @@
     --destructive: 10 47% 55%;
     --destructive-foreground: 38 30% 96%;
 
-    --border: 34 16% 82%;
-    --input: 34 16% 82%;
+    --border: 34 16% 84%;
+    --input: 34 16% 84%;
     --ring: 154 27% 20%;
 
     --radius: 1rem;
 
     /* Sidebar */
     --sidebar-background: 38 22% 93%;
-    --sidebar-foreground: 24 16% 18%;
+    --sidebar-foreground: 154 27% 16%;
     --sidebar-primary: 154 27% 20%;
     --sidebar-primary-foreground: 38 30% 96%;
     --sidebar-accent: 36 20% 88%;
-    --sidebar-accent-foreground: 24 16% 18%;
+    --sidebar-accent-foreground: 154 27% 16%;
     --sidebar-border: 34 16% 82%;
     --sidebar-ring: 154 27% 20%;
 
     /* Custom tokens */
     --sage: 140 18% 54%;
-    --sage-light: 140 20% 88%;
+    --sage-light: 140 22% 90%;
     --sage-dark: 150 26% 30%;
     --sand: 33 42% 80%;
     --sand-light: 36 20% 92%;
     --clay: 30 35% 64%;
-    --clay-light: 30 35% 84%;
-    --bark: 32 24% 37%;
+    --clay-light: 30 38% 88%;
+    --bark: 32 24% 34%;
     --moss: 154 27% 20%;
     --stone: 30 6% 58%;
-    --stone-light: 30 10% 78%;
-    --stone-lighter: 34 12% 88%;
-    --cream: 37 30% 93%;
-    --warm-white: 38 30% 96%;
+    --stone-light: 30 10% 80%;
+    --stone-lighter: 34 14% 90%;
+    --cream: 37 30% 94%;
+    --warm-white: 38 30% 97%;
     --night: 120 20% 10%;
 
     /* Role colors */
     --mom-color: 30 35% 64%;
     --dad-color: 140 18% 56%;
+
+    /* Typography scale */
+    --text-xs: 11px;
+    --text-sm: 13px;
+    --text-base: 15px;
+    --text-md: 15px;
+    --text-lg: 17px;
+    --text-xl: 20px;
+    --text-2xl: 24px;
+    --text-3xl: 30px;
   }
 
   .dark {
-    --background: 24 12% 12%;
-    --foreground: 38 20% 88%;
+    --background: 154 20% 10%;
+    --foreground: 38 20% 90%;
 
-    --card: 24 10% 15%;
-    --card-foreground: 38 20% 88%;
+    --card: 154 16% 13%;
+    --card-foreground: 38 20% 90%;
 
-    --popover: 24 10% 14%;
-    --popover-foreground: 38 20% 88%;
+    --popover: 154 16% 12%;
+    --popover-foreground: 38 20% 90%;
 
     --primary: 154 22% 42%;
-    --primary-foreground: 24 12% 12%;
+    --primary-foreground: 154 20% 10%;
 
     --secondary: 33 20% 28%;
-    --secondary-foreground: 38 20% 88%;
+    --secondary-foreground: 38 20% 90%;
 
-    --muted: 24 8% 22%;
+    --muted: 154 12% 18%;
     --muted-foreground: 30 10% 60%;
 
     --accent: 30 25% 40%;
-    --accent-foreground: 38 20% 88%;
+    --accent-foreground: 38 20% 90%;
 
     --destructive: 10 47% 50%;
-    --destructive-foreground: 38 20% 88%;
+    --destructive-foreground: 38 20% 90%;
 
-    --border: 24 8% 24%;
-    --input: 24 8% 24%;
+    --border: 154 10% 20%;
+    --input: 154 10% 20%;
     --ring: 154 22% 42%;
 
-    --sidebar-background: 24 10% 14%;
-    --sidebar-foreground: 38 20% 88%;
+    --sidebar-background: 154 16% 12%;
+    --sidebar-foreground: 38 20% 90%;
     --sidebar-primary: 154 22% 42%;
-    --sidebar-primary-foreground: 24 12% 12%;
-    --sidebar-accent: 24 8% 20%;
-    --sidebar-accent-foreground: 38 20% 88%;
-    --sidebar-border: 24 8% 24%;
+    --sidebar-primary-foreground: 154 20% 10%;
+    --sidebar-accent: 154 12% 18%;
+    --sidebar-accent-foreground: 38 20% 90%;
+    --sidebar-border: 154 10% 20%;
     --sidebar-ring: 154 22% 42%;
 
     --sage: 140 14% 40%;
-    --sage-light: 140 10% 22%;
+    --sage-light: 140 12% 18%;
     --sage-dark: 150 18% 52%;
     --sand: 33 20% 30%;
     --sand-light: 36 12% 20%;
     --clay: 30 25% 45%;
-    --clay-light: 30 20% 28%;
-    --bark: 32 16% 60%;
+    --clay-light: 30 20% 24%;
+    --bark: 32 16% 64%;
     --moss: 154 22% 42%;
     --stone: 30 6% 45%;
-    --stone-light: 30 6% 30%;
-    --stone-lighter: 24 6% 20%;
-    --cream: 24 10% 16%;
-    --warm-white: 24 10% 15%;
+    --stone-light: 30 6% 28%;
+    --stone-lighter: 154 8% 18%;
+    --cream: 154 12% 15%;
+    --warm-white: 154 12% 13%;
     --night: 120 20% 8%;
 
     --mom-color: 30 25% 50%;
@@ -161,6 +171,7 @@
 @layer base {
   * {
     @apply border-border;
+    box-sizing: border-box;
   }
 
   html, body, #root {
@@ -176,43 +187,123 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-    font-weight: 300;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: var(--text-base);
+    font-weight: 400;
+    line-height: 1.45;
+    color: hsl(var(--foreground));
     overflow-wrap: break-word;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  h1, h2, h3, h4 {
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-    font-weight: 700;
-    line-height: 1.15;
+  /* Fraunces for emotional headlines */
+  h1, h2, h3 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 500;
+    line-height: 1.18;
+    color: hsl(var(--foreground));
+  }
+
+  /* Inter for functional headings */
+  h4 {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  input, textarea, select, button {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  p {
+    line-height: 1.5;
   }
 }
 
 @layer components {
+  /* ── Cards ─────────────────────────────────────────────── */
   .card-soft {
-    @apply rounded-2xl p-5;
+    @apply rounded-2xl;
+    padding: 18px 20px;
     background: hsl(var(--warm-white));
     border: 1px solid hsl(var(--stone-light));
+    box-shadow: 0 1px 4px 0 hsl(0 0% 0% / 0.04), 0 2px 12px 0 hsl(0 0% 0% / 0.03);
   }
 
-  .card-soft:hover {
-    box-shadow: 0 4px 12px 0 hsl(0 0% 0% / 0.05);
+  .card-feature {
+    @apply rounded-2xl;
+    padding: 22px 24px;
+    border: none;
+    box-shadow: 0 2px 16px 0 hsl(0 0% 0% / 0.08);
   }
 
+  /* ── Animations ────────────────────────────────────────── */
   .section-fade-in {
-    animation: sectionFadeIn 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: sectionFadeIn 440ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   .task-complete {
     animation: taskComplete 400ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* Label style from prototypes */
+  /* ── Typography helpers ─────────────────────────────────── */
+  /* Small uppercase label — Inter Medium */
   .label-upper {
-    font-size: 0.62rem;
-    letter-spacing: 0.18em;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: hsl(var(--muted-foreground));
+    line-height: 1.3;
+  }
+
+  /* Fraunces title for feature cards */
+  .title-feature {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  /* Inter numeric data */
+  .data-number {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Buttons ─────────────────────────────────────────────── */
+  .btn-primary {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1;
+    min-height: 46px;
+    padding: 0 20px;
+    border-radius: 100px;
+    border: none;
+    background: hsl(var(--moss));
+    color: white;
+    cursor: pointer;
+    transition: all 0.18s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.01em;
+  }
+
+  .btn-primary:hover {
+    background: hsl(var(--sage-dark));
+  }
+
+  .btn-primary:active {
+    transform: scale(0.97);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
   }
 
   .btn-moss {
@@ -220,25 +311,31 @@
     color: white;
     border: none;
     border-radius: 100px;
-    padding: 9px 18px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-weight: 300;
-    font-size: 0.73rem;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
+    padding: 11px 20px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.02em;
     cursor: pointer;
     transition: all 0.18s;
+    min-height: 44px;
   }
+
   .btn-moss:hover {
     background: hsl(var(--sage-dark));
   }
+
+  .btn-moss:active {
+    transform: scale(0.97);
+  }
 }
 
+/* ── Keyframes ───────────────────────────────────────────── */
 @keyframes sectionFadeIn {
   from {
     opacity: 0;
-    transform: translateY(12px);
-    filter: blur(4px);
+    transform: translateY(10px);
+    filter: blur(3px);
   }
   to {
     opacity: 1;
@@ -263,7 +360,6 @@
   50% { box-shadow: 0 0 0 6px rgba(58, 138, 90, 0); }
 }
 
-/* Level-up overlay pop animation */
 @keyframes levelupPop {
   0% { opacity: 0; transform: scale(0.8) translateY(20px); }
   60% { opacity: 1; transform: scale(1.03) translateY(-4px); }
@@ -274,7 +370,6 @@
   animation: levelupPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-/* Level-up emoji bounce */
 @keyframes emojiCelebrate {
   0% { transform: scale(0.3) rotate(-15deg); opacity: 0; }
   50% { transform: scale(1.2) rotate(5deg); opacity: 1; }
@@ -286,7 +381,6 @@
   animation: emojiCelebrate 0.7s 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
-/* Next-leap teaser pulse */
 @keyframes nextLeapPulse {
   0%, 100% { opacity: 0.7; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.05); }

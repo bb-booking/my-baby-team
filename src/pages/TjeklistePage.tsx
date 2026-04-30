@@ -225,7 +225,7 @@ export default function TjeklistePage() {
       {/* Progress */}
       <div className="section-fade-in space-y-2" style={{ animationDelay: "60ms" }}>
         <div className="flex items-center justify-between text-[0.72rem] text-muted-foreground">
-          <span>{checkedInPhase} af {totalItems} punkter klar</span>
+          <span>{checkedInPhase} af {allIds.length} punkter klar</span>
           <span className="font-medium">{pct}%</span>
         </div>
         <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "hsl(var(--stone-lighter))" }}>
@@ -351,7 +351,7 @@ export default function TjeklistePage() {
                             <button key={a} onClick={() => setNewAssignee(a)}
                               className="flex-1 py-1.5 rounded-lg text-[0.62rem] font-medium transition-all"
                               style={{
-                                background: newAssignee === a ? (a === "mor" ? "hsl(var(--clay))" : a === "far" ? "hsl(var(--sage))" : "hsl(var(--stone))") : "hsl(var(--stone-lighter))",
+                                background: newAssignee === a ? (a === "mor" ? "hsl(var(--clay))" : a === "far" ? "hsl(var(--moss))" : "hsl(var(--bark))") : "hsl(var(--stone-lighter))",
                                 color: newAssignee === a ? "white" : "hsl(var(--muted-foreground))",
                               }}>
                               {a === "mor" ? morName : a === "far" ? farName : "Fælles"}
