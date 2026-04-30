@@ -1,9 +1,148 @@
 import { useState } from "react";
 import { useFamily } from "@/context/FamilyContext";
-import { Check, ChevronDown, ChevronUp, Plus, X } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Plus, X, List, LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 import { getHealthSuggestions } from "@/lib/phaseData";
+
+const TASK_CATEGORY_CONFIG: Record<string, { label: string; emoji: string; bg: string }> = {
+  health:       { label: "Helbred",      emoji: "🏥", bg: "hsl(var(--sage-light))"   },
+  preparation:  { label: "Forberedelse", emoji: "📦", bg: "hsl(var(--clay-light))"   },
+  admin:        { label: "Planlægning",  emoji: "📅", bg: "hsl(var(--sand-light))"   },
+  relationship: { label: "Relation",     emoji: "💌", bg: "hsl(var(--clay-light))"   },
+  custom:       { label: "Opgave",       emoji: "✅", bg: "hsl(var(--stone-lighter))" },
+};
+
+function fireConfetti() {
+  confetti({ particleCount: 40, spread: 50, origin: { y: 0.7 }, colors: ["#5a7a50", "#c4a97d", "#8fae7e", "#d4c4a8"], scalar: 0.7, gravity: 1.2 });
+}
+
+// ── Tasks section (list + category view) ──────────────────────────────────────
+function TasksSection() {
+  const { tasks, toggleTask, morName, farName } = useFamily();
+  const [view, setView] = useState<"liste" | "kategorier">("liste");
+  const [openCat, setOpenCat] = useState<string | null>(null);
+
+  const activeTasks = tasks.filter(t => !t.completed);
+  const completedTasks = tasks.filter(t => t.completed);
+
+  // Group by category
+  const grouped: Record<string, typeof tasks> = {};
+  activeTasks.forEach(t => {
+    const key = t.category || "custom";
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(t);
+  });
+
+  const handleToggle = (id: string) => {
+    const task = tasks.find(t => t.id === id);
+    if (task && !task.completed) fireConfetti();
+    toggleTask(id);
+  };
+
+  const TaskRow = ({ task }: { task: typeof tasks[0] }) => {
+    const isFelles = task.assignee === "fælles";
+    const ownerName = isFelles ? "Fælles" : task.assignee === "mor" ? morName : farName;
+    const cat = TASK_CATEGORY_CONFIG[task.category] || TASK_CATEGORY_CONFIG.custom;
+    return (
+      <div className={cn("flex items-center gap-3 px-4 py-3.5 transition-all", task.completed && "opacity-50")}>
+        <button
+          onClick={() => handleToggle(task.id)}
+          className={cn("w-5 h-5 rounded flex items-center justify-center flex-shrink-0 transition-all active:scale-90 border-[1.5px]",
+            task.completed ? "bg-[hsl(var(--moss))] border-[hsl(var(--moss))]" : "border-[hsl(var(--stone-light))] bg-background"
+          )}
+        >
+          {task.completed && <Check className="w-3 h-3 text-white" />}
+        </button>
+        <div className="w-8 h-8 rounded-full flex items-center justify-center text-base flex-shrink-0" style={{ background: cat.bg }}>
+          {cat.emoji}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className={cn("text-[0.85rem] font-medium truncate", task.completed && "line-through text-muted-foreground")}>{task.title}</p>
+          <p className="text-[0.65rem] text-muted-foreground">{ownerName}</p>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Toggle */}
+      <div className="flex items-center gap-2">
+        <div className="flex p-1 rounded-xl gap-1" style={{ background: "hsl(var(--stone-lighter))" }}>
+          <button
+            onClick={() => setView("liste")}
+            className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[0.72rem] font-medium transition-all", view === "liste" ? "bg-background shadow-sm" : "text-muted-foreground")}
+          >
+            <List className="w-3.5 h-3.5" /> Liste
+          </button>
+          <button
+            onClick={() => setView("kategorier")}
+            className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[0.72rem] font-medium transition-all", view === "kategorier" ? "bg-background shadow-sm" : "text-muted-foreground")}
+          >
+            <LayoutGrid className="w-3.5 h-3.5" /> Kategorier
+          </button>
+        </div>
+        <span className="text-[0.68rem] text-muted-foreground ml-auto">{activeTasks.length} aktive · {completedTasks.length} færdige</span>
+      </div>
+
+      {activeTasks.length === 0 && (
+        <div className="text-center py-10 rounded-2xl" style={{ background: "hsl(var(--warm-white))", border: "1px solid hsl(var(--stone-light))" }}>
+          <p className="text-2xl mb-2">🌿</p>
+          <p className="text-[0.82rem] text-muted-foreground">Ingen aktive opgaver</p>
+        </div>
+      )}
+
+      {view === "liste" && activeTasks.length > 0 && (
+        <div className="rounded-2xl overflow-hidden" style={{ background: "hsl(var(--warm-white))", border: "1px solid hsl(var(--stone-light))" }}>
+          <div className="divide-y" style={{ borderColor: "hsl(var(--stone-lighter))" }}>
+            {activeTasks.map(task => <TaskRow key={task.id} task={task} />)}
+          </div>
+          {completedTasks.length > 0 && (
+            <div className="divide-y border-t" style={{ borderColor: "hsl(var(--stone-lighter))" }}>
+              <div className="px-4 py-2.5" style={{ background: "hsl(var(--stone-lighter))" }}>
+                <p className="text-[0.62rem] tracking-[0.14em] uppercase text-muted-foreground">Færdige ({completedTasks.length})</p>
+              </div>
+              {completedTasks.map(task => <TaskRow key={task.id} task={task} />)}
+            </div>
+          )}
+        </div>
+      )}
+
+      {view === "kategorier" && activeTasks.length > 0 && (
+        <div className="space-y-2">
+          {Object.entries(grouped).map(([catKey, catTasks]) => {
+            const cat = TASK_CATEGORY_CONFIG[catKey] || TASK_CATEGORY_CONFIG.custom;
+            const done = catTasks.filter(t => t.completed).length;
+            const isOpen = openCat === catKey;
+            return (
+              <div key={catKey} className="rounded-2xl overflow-hidden" style={{ background: "hsl(var(--warm-white))", border: "1px solid hsl(var(--stone-light))" }}>
+                <button
+                  onClick={() => setOpenCat(isOpen ? null : catKey)}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 transition-all active:bg-[hsl(var(--stone-lighter))]"
+                >
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-base flex-shrink-0" style={{ background: cat.bg }}>
+                    {cat.emoji}
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="text-[0.88rem] font-semibold">{cat.label}</p>
+                    <p className="text-[0.65rem] text-muted-foreground">{catTasks.length} opgaver</p>
+                  </div>
+                  {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                </button>
+                {isOpen && (
+                  <div className="divide-y border-t" style={{ borderColor: "hsl(var(--stone-lighter))" }}>
+                    {catTasks.map(task => <TaskRow key={task.id} task={task} />)}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface CustomItem {
   id: string;
@@ -151,6 +290,7 @@ function useChecklist() {
 export default function TjeklistePage() {
   const { profile } = useFamily();
   const { checked, toggle, customItems, addCustom, removeCustom } = useChecklist();
+  const [mainTab, setMainTab] = useState<"opgaver" | "forberedelse">("opgaver");
   const [phase, setPhase] = useState<Phase>("before");
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
   const [addingTo, setAddingTo] = useState<string | null>(null);
@@ -195,6 +335,26 @@ export default function TjeklistePage() {
         <h1 className="text-[1.9rem] font-normal">Tjekliste</h1>
         <p className="label-upper mt-1">FORBERED JER TIL BABYEN</p>
       </div>
+
+      {/* Main tab switcher */}
+      <div className="section-fade-in flex p-1 rounded-xl gap-1" style={{ background: "hsl(var(--stone-lighter))", animationDelay: "20ms" }}>
+        <button
+          onClick={() => setMainTab("opgaver")}
+          className={cn("flex-1 py-2 rounded-lg text-[0.72rem] font-medium transition-all", mainTab === "opgaver" ? "bg-background shadow-sm" : "text-muted-foreground")}
+        >
+          Opgaver
+        </button>
+        <button
+          onClick={() => setMainTab("forberedelse")}
+          className={cn("flex-1 py-2 rounded-lg text-[0.72rem] font-medium transition-all", mainTab === "forberedelse" ? "bg-background shadow-sm" : "text-muted-foreground")}
+        >
+          Forberedelse
+        </button>
+      </div>
+
+      {mainTab === "opgaver" && <TasksSection />}
+
+      {mainTab === "forberedelse" && <>
 
       {/* Phase tabs */}
       <div className="section-fade-in flex gap-0" style={{ animationDelay: "40ms" }}>
@@ -384,6 +544,7 @@ export default function TjeklistePage() {
         })}
       </div>
 
+      </>}
 
     </div>
   );
