@@ -81,10 +81,10 @@ export default function DashboardBaby() {
             </div>
           </div>
         </div>
-        <h1 className="text-[1.9rem] leading-tight">
-          {getGreeting()}, {profile.parentName}
+        <h1 className="font-serif text-[1.9rem] leading-tight" style={{ color: "hsl(var(--bark))" }}>
+          {getGreeting()}, {profile.parentName} <span className="text-[1.4rem]">🌿</span>
         </h1>
-        <p className="text-[0.9rem] text-muted-foreground mt-1">{ageLabel} — I klarer det.</p>
+        <p className="text-[0.82rem] text-muted-foreground mt-1">{ageLabel} — I klarer det.</p>
       </div>
 
       {/* ── Hero card ────────────────────────────────────────────────────── */}
