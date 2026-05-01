@@ -4,20 +4,31 @@ Projektinstruktioner til Claude Code. Denne fil læses automatisk i starten af h
 
 ## Workflow — VIGTIGT
 
-Hver gang vi laver kodeændringer skal disse 3 trin køres FØR Xcode-build:
+Hver gang vi laver kodeændringer køres disse trin i rækkefølge:
 
 ```bash
-npm run build        # byg React-koden → /dist
-npx cap sync ios     # kopiér dist ind i Xcode-projektet
-# Derefter: Xcode → Archive → Upload to App Store Connect
-```
-
-Git commit + push efter hver session:
-```bash
+npm run build                          # byg React-koden → /dist
+npx cap sync ios                       # kopiér dist ind i Xcode-projektet + generer Package.swift
+xcodebuild -project ios/App/App.xcodeproj \
+  -scheme App -configuration Release \
+  -destination generic/platform=iOS \
+  archive -archivePath /tmp/MeloApp.xcarchive   # bekræft lokal build
 git add <ændrede filer>
 git commit -m "beskrivelse"
-git push origin main
+git push origin main                   # trigger Xcode Cloud automatisk
 ```
+
+### Xcode Cloud — VIGTIGT
+- Xcode Cloud kører `ios/App/ci_scripts/ci_post_clone.sh` automatisk ved hvert build
+- Scriptet kører `npm install` + `npx cap sync ios` på Apples servere (node_modules er ikke i git)
+- Builds 26–34 fejlede fordi `.xcodeproj` og `ci_post_clone.sh` manglede — begge er nu i git
+- iOS deployment target: **16.0** (ikke 26.4 — Xcode 26 satte det forkert automatisk)
+
+### Første gang på ny Mac
+```bash
+sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+```
+Skal køres én gang for at `xcodebuild` virker fra terminal.
 
 ## Teknisk stack
 
