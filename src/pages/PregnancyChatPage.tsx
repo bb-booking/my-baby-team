@@ -256,7 +256,7 @@ export default function PregnancyChatPage() {
   const hasConversation = messages.length > 0;
 
   return (
-    <div className="flex flex-col" style={{ height: "calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 64px)" }}>
+    <div className="flex flex-col" style={{ height: "calc(100dvh - 7rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))" }}>
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between px-1 pt-1 pb-3 flex-shrink-0">
