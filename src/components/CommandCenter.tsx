@@ -444,7 +444,7 @@ export function SupportInsight() {
 
   return (
     <div className="rounded-2xl px-4 py-3.5 section-fade-in" style={{
-      background: "hsl(var(--cream))",
+      background: "hsl(var(--warm-white))",
       border: "1px solid hsl(var(--stone-light))",
       animationDelay: "80ms",
     }}>

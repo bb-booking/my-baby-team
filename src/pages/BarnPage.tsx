@@ -737,22 +737,43 @@ function BornBarnPage({ ageWeeks, ageMonths }: { ageWeeks: number; ageMonths: nu
   };
 
   return (
-    <div className="space-y-5">
-      <div className="section-fade-in">
-        <h1 className="text-[1.9rem] font-normal">{childName}</h1>
-        <p className="label-upper mt-1">
-          {ageMonths < 3 ? t("barn.weeksLabel", { weeks: ageWeeks }) : t("barn.monthsLabel", { months: ageMonths })} — {t("barn.developmentLeaps")}
-        </p>
+    <div className="space-y-5 pb-6">
+
+      {/* ── Header ─────────────────────────────────────────────────────── */}
+      <div className="flex items-center justify-between section-fade-in">
+        <div className="w-8" />
+        <div className="text-center">
+          <p className="text-[1rem] font-semibold">{childName}</p>
+          <p className="text-[0.65rem] text-muted-foreground">
+            {ageMonths < 3 ? t("barn.weeksLabel", { weeks: ageWeeks }) : t("barn.monthsLabel", { months: ageMonths })}
+          </p>
+        </div>
+        <Share2 className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
       </div>
 
-      <div className="card-soft section-fade-in flex flex-col items-center text-center gap-3" style={{ animationDelay: "80ms" }}>
-        <div className="w-14 h-14 rounded-full flex items-center justify-center"
-          style={{ background: "linear-gradient(135deg, hsl(var(--clay-light)), hsl(var(--clay)))" }}>
-          <BabyIcon className="w-7 h-7 text-white" />
-        </div>
-        <p className="text-[0.8rem] text-muted-foreground max-w-xs leading-relaxed">{insight.insight}</p>
-        <div className="rounded-xl px-4 py-2.5 w-full" style={{ background: "hsl(var(--sage-light))" }}>
-          <p className="text-[0.82rem]">💡 {insight.tip}</p>
+      {/* ── Hero insight card ───────────────────────────────────────────── */}
+      <div
+        className="rounded-[20px] overflow-hidden section-fade-in"
+        style={{
+          background: "linear-gradient(145deg, hsl(22 35% 32%), hsl(22 30% 22%))",
+          animationDelay: "40ms",
+        }}
+      >
+        <div className="px-5 pt-5 pb-4">
+          <div className="flex items-start justify-between mb-3">
+            <span className="text-[0.68rem] font-semibold px-2.5 py-1 rounded-full text-white"
+              style={{ background: "rgba(255,255,255,0.15)" }}>
+              {ageMonths < 3 ? `${ageWeeks} uger` : `${ageMonths} måneder`}
+            </span>
+            <span className="text-[3rem] leading-none">👶</span>
+          </div>
+          <p className="font-serif text-[1.3rem] font-medium text-white leading-snug mb-2">
+            {insight.insight}
+          </p>
+          <div className="flex items-start gap-2 mt-3 px-3 py-2.5 rounded-xl" style={{ background: "rgba(255,255,255,0.12)" }}>
+            <span className="text-sm flex-shrink-0">💡</span>
+            <p className="text-[0.78rem] text-white/80 leading-relaxed">{insight.tip}</p>
+          </div>
         </div>
       </div>
 
