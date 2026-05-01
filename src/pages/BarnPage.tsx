@@ -460,6 +460,29 @@ function PregnantBarnPage({ week: currentWeek }: { week: number }) {
         </div>
       </div>
 
+      {/* ── Fødselsplan (week 30+) ─────────────────────────────────────── */}
+      {selectedWeek >= 30 && (
+        <Link
+          to="/foedselsplan"
+          className="flex items-center gap-4 rounded-2xl px-5 py-4 section-fade-in transition-all active:scale-[0.98]"
+          style={{
+            background: "hsl(var(--warm-white))",
+            border: "1px solid hsl(var(--stone-light))",
+            animationDelay: "150ms",
+          }}
+        >
+          <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 text-2xl"
+            style={{ background: "hsl(var(--sage-light))" }}>
+            🌿
+          </div>
+          <div className="flex-1">
+            <p className="text-[0.88rem] font-semibold">Vores fødselsplan</p>
+            <p className="text-[0.7rem] text-muted-foreground">Dokumentér jeres ønsker til fødslen</p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
+        </Link>
+      )}
+
       {/* ── Veer-timer (week 36+) ──────────────────────────────────────── */}
       {selectedWeek >= 36 && (
         <Link
