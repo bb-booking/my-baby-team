@@ -1,8 +1,12 @@
 import { useFamily } from "@/context/FamilyContext";
 import DashboardPregnant from "./DashboardPregnant";
+import DashboardPregnantFar from "./DashboardPregnantFar";
 import DashboardBaby from "./DashboardBaby";
 
 export default function Dashboard() {
   const { profile } = useFamily();
-  return profile.phase === "pregnant" ? <DashboardPregnant /> : <DashboardBaby />;
+  if (profile.phase === "pregnant") {
+    return profile.role === "far" ? <DashboardPregnantFar /> : <DashboardPregnant />;
+  }
+  return <DashboardBaby />;
 }
