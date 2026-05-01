@@ -49,6 +49,7 @@ import PregnancyFruitsPage from "@/pages/PregnancyFruitsPage";
 import PregnancyDiaryPage from "@/pages/PregnancyDiaryPage";
 import ContractionTimerPage from "@/pages/ContractionTimerPage";
 import BirthPlanPage from "@/pages/BirthPlanPage";
+import PregnancyCalendarPage from "@/pages/PregnancyCalendarPage";
 import AuthPage from "@/pages/AuthPage";
 import NotFound from "@/pages/NotFound";
 import PrivacyPage from "@/pages/PrivacyPage";
@@ -131,6 +132,7 @@ function AuthenticatedApp() {
             <Route path="/gravid-dagbog" element={<PregnancyDiaryPage />} />
             <Route path="/veer" element={<ContractionTimerPage />} />
             <Route path="/foedselsplan" element={<BirthPlanPage />} />
+            <Route path="/gravid-kalender" element={<PregnancyCalendarPage />} />
           </Route>
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="*" element={<NotFound />} />
