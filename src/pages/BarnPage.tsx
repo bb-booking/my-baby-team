@@ -2,10 +2,10 @@ import { useState, useRef, useEffect } from "react";
 import { useFamily } from "@/context/FamilyContext";
 import { useTranslation } from "react-i18next";
 import { getBabyInsight, developmentalLeaps, getLeapStatus, getActiveLeap, getBabySize } from "@/lib/phaseData";
-import { Baby as BabyIcon, Check, ChevronDown, ChevronUp, Smile, Hand, Moon, Zap, Bookmark, Share2, ChevronRight, Heart, Shield } from "lucide-react";
+import { Baby as BabyIcon, Check, ChevronDown, ChevronUp, Smile, Hand, Moon, Zap, Bookmark, Share2, ChevronRight, Heart, Shield, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import BabyMeasurements from "@/components/BabyMeasurements";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function BarnPage() {
   const { profile, currentWeek, babyAgeWeeks, babyAgeMonths } = useFamily();
@@ -178,10 +178,192 @@ function getTrimesterLabel(week: number): string {
   return "3. trimester (uge 28-42)";
 }
 
+// ── Baby Animation Modal ───────────────────────────────────────────────────────
+function getAnimConfig(week: number) {
+  if (week < 10) return {
+    bg: "linear-gradient(160deg, #0a1a12 0%, #0f2318 100%)",
+    ringColor: "hsl(154 40% 30%)",
+    facts: ["Hjertet begynder at slå", "Alle vitale organer dannes", "Størrelse: en hindbær"],
+    label: "Embryo — uge " + week,
+  };
+  if (week < 14) return {
+    bg: "linear-gradient(160deg, #0d1a1f 0%, #102030 100%)",
+    ringColor: "hsl(200 40% 30%)",
+    facts: ["Fingre og tæer formes", "Hjernen udvikler sig hurtigt", "Baby kan allerede gabe"],
+    label: "Fosterstadiet — uge " + week,
+  };
+  if (week < 20) return {
+    bg: "linear-gradient(160deg, #1a140d 0%, #251c0f 100%)",
+    ringColor: "hsl(30 40% 35%)",
+    facts: ["Babys sanser vågner", "Bevægelser begynder", "Du kan snart mærke dem"],
+    label: "2. trimester — uge " + week,
+  };
+  if (week < 28) return {
+    bg: "linear-gradient(160deg, #0f1a0f 0%, #162416 100%)",
+    ringColor: "hsl(140 35% 28%)",
+    facts: ["Baby hører din stemme", "Øjnene åbner og lukker", "Regelmæssig søvnrytme"],
+    label: "Halvvejs — uge " + week,
+  };
+  if (week < 36) return {
+    bg: "linear-gradient(160deg, #1a0f14 0%, #24101c 100%)",
+    ringColor: "hsl(330 30% 30%)",
+    facts: ["Baby er næsten klar", "Vender sig med hovedet nedad", "Hjernens finale forbindelser skabes"],
+    label: "3. trimester — uge " + week,
+  };
+  return {
+    bg: "linear-gradient(160deg, #0d150d 0%, #131f13 100%)",
+    ringColor: "hsl(120 30% 25%)",
+    facts: ["Fuldt udviklet", "Baby kan komme hvornår som helst", "I er klar — begge to"],
+    label: "Terminen nærmer sig — uge " + week,
+  };
+}
+
+function BabyAnimationModal({ week, size, onClose }: { week: number; size: ReturnType<typeof getBabySize>; onClose: () => void }) {
+  const [factIdx, setFactIdx] = useState(0);
+  const config = getAnimConfig(week);
+
+  useEffect(() => {
+    const id = setInterval(() => setFactIdx(i => (i + 1) % config.facts.length), 2800);
+    return () => clearInterval(id);
+  }, [config.facts.length]);
+
+  // Scale emoji size by week
+  const emojiSize = week < 10 ? "4rem" : week < 20 ? "5.5rem" : week < 28 ? "7rem" : week < 36 ? "8.5rem" : "10rem";
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center"
+      style={{ background: config.bg }}
+      onClick={onClose}
+    >
+      <style>{`
+        @keyframes melo-float {
+          0%, 100% { transform: translateY(0px) rotate(-2deg); }
+          50% { transform: translateY(-18px) rotate(2deg); }
+        }
+        @keyframes melo-ring-pulse {
+          0% { transform: scale(1); opacity: 0.5; }
+          100% { transform: scale(2.2); opacity: 0; }
+        }
+        @keyframes melo-heartbeat {
+          0%, 100% { transform: scale(1); }
+          14% { transform: scale(1.12); }
+          28% { transform: scale(1); }
+          42% { transform: scale(1.06); }
+          56% { transform: scale(1); }
+        }
+        @keyframes melo-fact-in {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+
+      {/* Close */}
+      <button
+        onClick={onClose}
+        className="absolute top-12 right-6 w-9 h-9 rounded-full flex items-center justify-center"
+        style={{ background: "rgba(255,255,255,0.12)" }}
+      >
+        <X className="w-4 h-4 text-white" />
+      </button>
+
+      {/* Label */}
+      <p className="text-[0.7rem] tracking-[0.18em] uppercase font-medium mb-10" style={{ color: "rgba(255,255,255,0.45)" }}>
+        {config.label}
+      </p>
+
+      {/* Rings + baby */}
+      <div className="relative flex items-center justify-center" style={{ width: 240, height: 240 }}>
+        {/* Outer pulse rings */}
+        {[0, 1].map(i => (
+          <div
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              width: 160, height: 160,
+              border: `1.5px solid ${config.ringColor}`,
+              animation: `melo-ring-pulse 2.4s ease-out ${i * 1.2}s infinite`,
+              top: "50%", left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          />
+        ))}
+        {/* Static ring */}
+        <div className="absolute rounded-full" style={{
+          width: 160, height: 160,
+          border: `1px solid ${config.ringColor}`,
+          opacity: 0.25,
+          top: "50%", left: "50%",
+          transform: "translate(-50%, -50%)",
+        }} />
+        {/* Heartbeat circle */}
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: 140, height: 140,
+            background: "rgba(255,255,255,0.04)",
+            animation: "melo-heartbeat 1.5s ease-in-out infinite",
+            top: "50%", left: "50%",
+            transform: "translate(-50%, -50%)",
+          }}
+        />
+        {/* Floating baby emoji */}
+        <div style={{ animation: "melo-float 4s ease-in-out infinite", fontSize: emojiSize, lineHeight: 1 }}>
+          {size.emoji}
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="flex items-center gap-6 mt-10 mb-8">
+        <div className="text-center">
+          <p className="text-[0.6rem] tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.4)" }}>Længde</p>
+          <p className="text-white font-semibold text-[1rem] mt-0.5">ca. {size.lengthCm} cm</p>
+        </div>
+        <div className="w-px h-8" style={{ background: "rgba(255,255,255,0.15)" }} />
+        <div className="text-center">
+          <p className="text-[0.6rem] tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.4)" }}>Vægt</p>
+          <p className="text-white font-semibold text-[1rem] mt-0.5">ca. {size.weightG} g</p>
+        </div>
+        <div className="w-px h-8" style={{ background: "rgba(255,255,255,0.15)" }} />
+        <div className="text-center">
+          <p className="text-[0.6rem] tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.4)" }}>Størrelse</p>
+          <p className="text-white font-semibold text-[1rem] mt-0.5">{size.label}</p>
+        </div>
+      </div>
+
+      {/* Cycling fact */}
+      <div className="px-8 text-center" style={{ minHeight: 48 }}>
+        <p
+          key={factIdx}
+          className="text-white/80 text-[0.9rem] leading-relaxed font-serif"
+          style={{ animation: "melo-fact-in 0.5s ease forwards" }}
+        >
+          {config.facts[factIdx]}
+        </p>
+        <div className="flex justify-center gap-1.5 mt-4">
+          {config.facts.map((_, i) => (
+            <div key={i} className="rounded-full transition-all" style={{
+              width: i === factIdx ? 16 : 5, height: 5,
+              background: i === factIdx ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.25)",
+            }} />
+          ))}
+        </div>
+      </div>
+
+      {/* Tap to close hint */}
+      <p className="absolute bottom-10 text-[0.65rem] tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.25)" }}>
+        Tryk hvor som helst for at lukke
+      </p>
+    </div>
+  );
+}
+
 // ── Pregnant BarnPage ──────────────────────────────────────────────────────────
 function PregnantBarnPage({ week: currentWeek }: { week: number }) {
   const [selectedWeek, setSelectedWeek] = useState(currentWeek);
+  const [showAnimation, setShowAnimation] = useState(false);
   const weekScrollRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
   const { addTask } = useFamily();
 
   const size = getBabySize(selectedWeek);
@@ -216,6 +398,10 @@ function PregnantBarnPage({ week: currentWeek }: { week: number }) {
 
   return (
     <div className="space-y-5 pb-6">
+
+      {showAnimation && (
+        <BabyAnimationModal week={selectedWeek} size={size} onClose={() => setShowAnimation(false)} />
+      )}
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between section-fade-in">
@@ -314,9 +500,11 @@ function PregnantBarnPage({ week: currentWeek }: { week: number }) {
         </div>
         {/* Animation button */}
         <div className="flex justify-end px-4 pb-4 -mt-2">
-          <button className="flex items-center gap-2 px-4 py-2 rounded-full text-[0.72rem] font-medium transition-all active:scale-95"
+          <button
+            onClick={() => setShowAnimation(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-[0.72rem] font-medium transition-all active:scale-95"
             style={{ background: "rgba(255,255,255,0.7)", color: "hsl(var(--moss))" }}>
-            Se 3D-animation
+            Se animation
             <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "hsl(var(--moss))" }}>
               <span className="text-white text-[0.5rem] ml-0.5">▶</span>
             </div>
@@ -328,9 +516,9 @@ function PregnantBarnPage({ week: currentWeek }: { week: number }) {
       <div className="section-fade-in" style={{ animationDelay: "80ms" }}>
         <div className="flex items-center justify-between mb-3">
           <p className="text-[0.9rem] font-semibold">Hvad sker der i denne uge?</p>
-          <button className="flex items-center gap-0.5 text-[0.72rem]" style={{ color: "hsl(var(--moss))" }}>
-            Se mere om udviklingen <ChevronRight className="w-3.5 h-3.5" />
-          </button>
+          <Link to="/graviditet/uge" className="flex items-center gap-0.5 text-[0.72rem]" style={{ color: "hsl(var(--moss))" }}>
+            Se mere <ChevronRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
         <div className="grid grid-cols-4 gap-2">
           {devCards.map((card) => (
@@ -357,9 +545,9 @@ function PregnantBarnPage({ week: currentWeek }: { week: number }) {
       <div className="section-fade-in" style={{ animationDelay: "100ms" }}>
         <div className="flex items-center justify-between mb-3">
           <p className="text-[0.9rem] font-semibold">Din krop i denne fase</p>
-          <button className="flex items-center gap-0.5 text-[0.72rem]" style={{ color: "hsl(var(--moss))" }}>
-            Se mere <ChevronRight className="w-3.5 h-3.5" />
-          </button>
+          <Link to="/chat" className="flex items-center gap-0.5 text-[0.72rem]" style={{ color: "hsl(var(--moss))" }}>
+            Spørg MELO <ChevronRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
         {/* Symptom pills */}
         <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1 -mx-4 px-4">
@@ -397,9 +585,9 @@ function PregnantBarnPage({ week: currentWeek }: { week: number }) {
               </li>
             ))}
           </ul>
-          <button className="text-[0.62rem] flex items-center gap-0.5 mt-1" style={{ color: "hsl(var(--moss))" }}>
-            Læs mere <ChevronRight className="w-2.5 h-2.5" />
-          </button>
+          <Link to="/chat" className="text-[0.62rem] flex items-center gap-0.5 mt-1" style={{ color: "hsl(var(--moss))" }}>
+            Spørg MELO <ChevronRight className="w-2.5 h-2.5" />
+          </Link>
         </div>
 
         {/* Nutrition */}
@@ -416,9 +604,9 @@ function PregnantBarnPage({ week: currentWeek }: { week: number }) {
               </li>
             ))}
           </ul>
-          <button className="text-[0.62rem] flex items-center gap-0.5 mt-1" style={{ color: "hsl(var(--moss))" }}>
+          <Link to="/chat" className="text-[0.62rem] flex items-center gap-0.5 mt-1" style={{ color: "hsl(var(--moss))" }}>
             Se flere kostråd <ChevronRight className="w-2.5 h-2.5" />
-          </button>
+          </Link>
         </div>
 
         {/* Affirmation */}
@@ -428,9 +616,9 @@ function PregnantBarnPage({ week: currentWeek }: { week: number }) {
             <span className="text-sm">🧠</span>
           </div>
           <p className="text-[0.68rem] leading-relaxed" style={{ color: "hsl(var(--moss))" }}>{affirmation}</p>
-          <button className="text-[0.62rem] flex items-center gap-0.5 mt-1" style={{ color: "hsl(var(--moss))" }}>
-            Flere gode råd <ChevronRight className="w-2.5 h-2.5" />
-          </button>
+          <Link to="/gravid-dagbog" className="text-[0.62rem] flex items-center gap-0.5 mt-1" style={{ color: "hsl(var(--moss))" }}>
+            Din dagbog <ChevronRight className="w-2.5 h-2.5" />
+          </Link>
         </div>
       </div>
 
@@ -441,9 +629,9 @@ function PregnantBarnPage({ week: currentWeek }: { week: number }) {
             <p className="text-[0.9rem] font-semibold">Ugens anbefalinger til jer</p>
             <p className="text-[0.65rem] text-muted-foreground">Små skridt, der gør en stor forskel</p>
           </div>
-          <button className="flex items-center gap-0.5 text-[0.72rem]" style={{ color: "hsl(var(--moss))" }}>
+          <Link to="/tjekliste" className="flex items-center gap-0.5 text-[0.72rem]" style={{ color: "hsl(var(--moss))" }}>
             Se alle <ChevronRight className="w-3.5 h-3.5" />
-          </button>
+          </Link>
         </div>
         <div className="flex gap-3 overflow-x-auto scrollbar-none pb-1 -mx-4 px-4 mt-3">
           {recommendations.map(rec => (
