@@ -363,7 +363,30 @@ export default function DashboardPregnant() {
         </div>
       )}
 
-      {/* ── F. Disclaimer ───────────────────────────────────────────────────── */}
+      {/* ── F. Contraction Timer (week 36+) ─────────────────────────────────── */}
+      {currentWeek >= 36 && (
+        <Link
+          to="/veer"
+          className="flex items-center gap-4 rounded-2xl px-5 py-4 section-fade-in transition-all active:scale-[0.98]"
+          style={{
+            background: "linear-gradient(135deg, hsl(var(--clay-light)), hsl(var(--sand-light)))",
+            border: "1px solid hsl(var(--clay) / 0.3)",
+            animationDelay: "180ms",
+          }}
+        >
+          <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 text-2xl"
+            style={{ background: "rgba(255,255,255,0.5)" }}>
+            ⏱️
+          </div>
+          <div className="flex-1">
+            <p className="text-[0.88rem] font-semibold">Veer-timer</p>
+            <p className="text-[0.7rem] text-muted-foreground">Track veer og del live med din partner</p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
+        </Link>
+      )}
+
+      {/* ── G. Disclaimer ───────────────────────────────────────────────────── */}
       <div
         className="rounded-xl px-4 py-3 section-fade-in flex items-start gap-2.5"
         style={{ background: "hsl(var(--stone-lighter))", animationDelay: "200ms" }}
