@@ -1,29 +1,23 @@
 #!/bin/sh
 
-# Xcode Cloud: runs after repo clone, before build
-# Node.js is not pre-installed on Xcode Cloud — install via Homebrew
+# Xcode Cloud post-clone script
+# Web assets (ios/App/App/public/) and Capacitor Swift packages
+# are now committed directly to git, so this script is a safety net only.
 
-set -e
+echo "=== ci_post_clone.sh: checking environment ==="
 
-echo "=== ci_post_clone.sh start ==="
+# Set up Homebrew PATH (Apple Silicon + Intel)
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:$PATH"
+export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_NO_INSTALL_CLEANUP=1
 
-# Install Node.js (Homebrew is available on Xcode Cloud)
-echo "Installing Node.js..."
-brew install node
-
-# Verify
-node --version
-npm --version
-
-# Navigate to repo root (ci_scripts is at ios/App/ci_scripts/)
-cd "$CI_PRIMARY_REPOSITORY_PATH"
-
-# Install Node dependencies
-echo "Running npm install..."
-npm install
-
-# Sync Capacitor iOS (copies web assets + generates Package.swift with correct paths)
-echo "Running cap sync ios..."
-npx cap sync ios
+if command -v node >/dev/null 2>&1; then
+  echo "Node.js found: $(node --version)"
+  cd "$CI_PRIMARY_REPOSITORY_PATH"
+  npm install --prefer-offline || npm install
+  npx cap sync ios || echo "cap sync failed — using committed assets"
+else
+  echo "Node.js not found — using committed web assets and Swift packages"
+fi
 
 echo "=== ci_post_clone.sh done ==="
